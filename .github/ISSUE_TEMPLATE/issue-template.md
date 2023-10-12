@@ -1,9 +1,9 @@
 ---
-name: "[Feature] OOO"
+name: Issue Template
 about: issue template
-title: ''
+title: "[Feature] "
 labels: ''
-assignees: ''
+assignees: lhs8701
 
 ---
 
