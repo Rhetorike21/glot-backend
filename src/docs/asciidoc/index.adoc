@@ -1,0 +1,37 @@
+ifndef::snippets[]
+:snippets: {docdir}
+endif::[]
+
+
+= GLOT API Docs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:doctype: book
+:icons: font
+:source-highlighter: highlight.js
+:operation-curl-request-title: - - - - -
+:operation-httpie-request-title: - - - - -
+
+[.gray]#{last-update-label} in {docdatetime}#
+
+
+//----------------------------------------------//
+
+== 🐰 0. 공통
+
+=== 🔵액세스 토큰 만료 시 행동
+----
+액세스 토큰이 만료된 경우 상태코드 401이 리턴됩니다.
+이 때, Reissue API를 호출하면 새로운 액세스 토큰을 발급받을 수 있습니다.
+만약 리프레시 토큰까지 만료된 경우 다시 로그인해야 합니다.
+----
+
+
+== 🦝 2. 사용자
+
+=== 🟢 사용자 정보 조회
+----
+사용자의 정보를 조회합니다.
+----
+operation::get-user-info[]

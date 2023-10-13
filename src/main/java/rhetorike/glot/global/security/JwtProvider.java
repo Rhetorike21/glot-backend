@@ -38,11 +38,11 @@ public class JwtProvider {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createAccessToken(User user){
+    public String createAccessToken(User user) {
         return generateJwt(user, ACCESS_SEC);
     }
 
-    public String createRefreshToken(User user){
+    public String createRefreshToken(User user) {
         return generateJwt(user, REFRESH_SEC);
     }
 
@@ -69,7 +69,7 @@ public class JwtProvider {
         return claims;
     }
 
-    public Claims parseToClaims(String jwt) throws ExpiredJwtException{
+    public Claims parseToClaims(String jwt) throws ExpiredJwtException {
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(getSigningKey(SECRET_KEY))
