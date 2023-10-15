@@ -12,7 +12,7 @@ import rhetorike.glot.domain._2user.entity.User;
 import java.util.Collections;
 
 
-public class SignUpRequest {
+public class SignUpDto {
 
     @Getter
     @NoArgsConstructor
@@ -30,21 +30,21 @@ public class SignUpRequest {
         protected boolean marketingAgreement;
         protected String code;
 
-        public abstract User toUser();
+        public abstract User toUser(String encodedPassword);
     }
 
     @NoArgsConstructor
     @Getter
-    public static class PersonalDto extends BasicDto {
-        public PersonalDto(String accountId, String password, String name, String phone, String mobile, @Email String email, boolean marketingAgreement, String code) {
+    public static class PersonalRequest extends BasicDto {
+        public PersonalRequest(String accountId, String password, String name, String phone, String mobile, @Email String email, boolean marketingAgreement, String code) {
             super(accountId, password, name, phone, mobile, email, marketingAgreement, code);
         }
 
         @Override
-        public User toUser() {
+        public User toUser(String encodedPassword) {
             return Personal.builder()
                     .username(this.accountId)
-                    .password(this.password)
+                    .password(encodedPassword)
                     .name(this.name)
                     .phone(this.phone)
                     .mobile(this.mobile)
@@ -57,20 +57,20 @@ public class SignUpRequest {
 
     @NoArgsConstructor
     @Getter
-    public static class OrganizationDto extends BasicDto {
+    public static class OrgRequest extends BasicDto {
         private String organizationName;
 
-        public OrganizationDto(String accountId, String password, String name, String phone, String mobile, @Email String email, boolean marketingAgreement, String code, String organizationName) {
+        public OrgRequest(String accountId, String password, String name, String phone, String mobile, @Email String email, boolean marketingAgreement, String code, String organizationName) {
             super(accountId, password, name, phone, mobile, email, marketingAgreement, code);
             this.organizationName = organizationName;
         }
 
         @Override
-        public User toUser() {
+        public User toUser(String encodedPassword) {
             return Organization.builder()
                     .organizationName(this.organizationName)
                     .username(this.accountId)
-                    .password(this.password)
+                    .password(encodedPassword)
                     .name(this.name)
                     .phone(this.phone)
                     .mobile(this.mobile)

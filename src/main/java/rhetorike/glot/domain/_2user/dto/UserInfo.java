@@ -12,14 +12,14 @@ public class UserInfo {
     private final String phone;
     private final String mobile;
     private final String email;
-    private final String id;
+    private final String accountId;
 
     public UserInfo(User user) {
-        this.userType = user.getUsername();
-        this.name = user.getUsername();
-        this.phone = user.getUsername();
-        this.mobile = user.getUsername();
-        this.email = user.getUsername();
-        this.id = user.getUsername();
+        this.userType = user.getType();
+        this.name = user.getName();
+        this.phone = user.getPhone();
+        this.mobile = user.getMobile();
+        this.email = user.getEmail();
+        this.accountId = user.getAccountId();
     }
 }

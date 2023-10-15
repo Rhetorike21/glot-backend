@@ -5,7 +5,7 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import rhetorike.glot.domain._1auth.dto.SignUpRequest;
+import rhetorike.glot.domain._1auth.dto.SignUpDto;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +23,7 @@ public class Organization extends User{
         this.organizationName = organizationName;
     }
 
-    public static Organization from(SignUpRequest.OrganizationDto requestDto) {
+    public static Organization from(SignUpDto.OrgRequest requestDto) {
         return rhetorike.glot.domain._2user.entity.Organization.builder()
                 .organizationName(requestDto.getOrganizationName())
                 .username(requestDto.getAccountId())

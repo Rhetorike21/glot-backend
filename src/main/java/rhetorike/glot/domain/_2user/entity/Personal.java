@@ -4,7 +4,7 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import rhetorike.glot.domain._1auth.dto.SignUpRequest;
+import rhetorike.glot.domain._1auth.dto.SignUpDto;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +19,7 @@ public class Personal extends User {
         super(id, username, password, name, phone, mobile, email, marketingAgreement, roles);
     }
 
-    public static Personal from(SignUpRequest.PersonalDto requestDto) {
+    public static Personal from(SignUpDto.PersonalRequest requestDto) {
         return rhetorike.glot.domain._2user.entity.Personal.builder()
                 .username(requestDto.getAccountId())
                 .password(requestDto.getPassword())

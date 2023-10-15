@@ -60,6 +60,14 @@ operation::cert-sms-code[]
 ----
 operation::cert-sms-verify[]
 
+
+=== 🟢 로그인
+----
+서비스에 로그인합니다.
+----
+operation::auth-login[]
+
+
 == 🦝 2. 사용자
 
 === 🟢 사용자 정보 조회

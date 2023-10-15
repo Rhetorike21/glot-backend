@@ -72,7 +72,7 @@ class UserControllerTest {
                                 field("phone").description("전화 번호"),
                                 field("mobile").description("휴대 전화 번호"),
                                 field("email").description("이메일"),
-                                field("id").description("아이디")
+                                field("accountId").description("아이디")
                         )));
     }
 }

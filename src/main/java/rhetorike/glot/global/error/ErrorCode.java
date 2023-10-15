@@ -18,6 +18,9 @@ public enum ErrorCode {
     MOUNTAIN_NOT_FOUND("0009", "해당 산을 조회할 수 없습니다.", HttpStatus.NOT_FOUND),
     REISSUE_FAILED("0010", "토큰 재발급에 실패했습니다.", HttpStatus.BAD_REQUEST),
     CERTIFICATION_FAILED("0011", "본인인증에 실패했습니다.", HttpStatus.UNAUTHORIZED),
+    LOGIN_FAILED("0012", "로그인에 실패했습니다.", HttpStatus.UNAUTHORIZED),
+
+
     ;
 
     private final String code;

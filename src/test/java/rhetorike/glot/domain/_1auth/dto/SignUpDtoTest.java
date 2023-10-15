@@ -12,7 +12,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class SignUpRequestTest {
+class SignUpDtoTest {
     private Validator validator;
 
     @BeforeEach
@@ -25,8 +25,8 @@ class SignUpRequestTest {
     @CsvSource(value = {"abc1234,0", "ab1,1", "ab11111111111111111111111,1", "abc1234!,1", "Abc1234,1"})
     @DisplayName("아이디 형식에 부합하지 않는 경우 예외가 발생한다.")
     void validateAccountId(String accountId, int expected) {
-        SignUpRequest.PersonalDto requestDto = new SignUpRequest.PersonalDto(accountId, "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com",  true, "1234");
-        Set<ConstraintViolation<SignUpRequest.PersonalDto>> violations = validator.validate(requestDto);
+        SignUpDto.PersonalRequest requestDto = new SignUpDto.PersonalRequest(accountId, "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com",  true, "1234");
+        Set<ConstraintViolation<SignUpDto.PersonalRequest>> violations = validator.validate(requestDto);
         assertThat(violations.size()).isEqualTo(expected);
     }
 
@@ -34,8 +34,8 @@ class SignUpRequestTest {
     @CsvSource(value = {"Abcd1234,0"})
     @DisplayName("비밀번호 형식에 부합하지 않는 경우 예외가 발생한다.")
     void validatePassword(String password, int expected) {
-        SignUpRequest.PersonalDto requestDto = new SignUpRequest.PersonalDto("hello1485", password, "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com",  true, "1234");
-        Set<ConstraintViolation<SignUpRequest.PersonalDto>> violations = validator.validate(requestDto);
+        SignUpDto.PersonalRequest requestDto = new SignUpDto.PersonalRequest("hello1485", password, "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com",  true, "1234");
+        Set<ConstraintViolation<SignUpDto.PersonalRequest>> violations = validator.validate(requestDto);
         assertThat(violations.size()).isEqualTo(expected);
     }
 
@@ -43,8 +43,8 @@ class SignUpRequestTest {
     @CsvSource(value = {"valid@naver.com,0", "aaa,1"})
     @DisplayName("이메일 형식에 부합하지 않는 경우 예외가 발생한다.")
     void validateEmail(String email, int expected) {
-        SignUpRequest.PersonalDto requestDto = new SignUpRequest.PersonalDto("hello1485", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", email,  true, "1234");
-        Set<ConstraintViolation<SignUpRequest.PersonalDto>> violations = validator.validate(requestDto);
+        SignUpDto.PersonalRequest requestDto = new SignUpDto.PersonalRequest("hello1485", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", email,  true, "1234");
+        Set<ConstraintViolation<SignUpDto.PersonalRequest>> violations = validator.validate(requestDto);
         assertThat(violations.size()).isEqualTo(expected);
     }
 }

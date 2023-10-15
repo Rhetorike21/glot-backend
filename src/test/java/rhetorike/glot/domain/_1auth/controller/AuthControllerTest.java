@@ -14,14 +14,18 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import rhetorike.glot.domain._1auth.dto.SignUpRequest;
+import rhetorike.glot.domain._1auth.dto.LoginDto;
+import rhetorike.glot.domain._1auth.dto.SignUpDto;
+import rhetorike.glot.domain._1auth.dto.TokenDto;
 import rhetorike.glot.domain._1auth.service.AuthService;
 import rhetorike.glot.global.security.JwtAuthenticationFilter;
 import rhetorike.glot.global.security.SecurityConfig;
 
 import static hansol.restdocsdsl.docs.RestDocsAdapter.docs;
 import static hansol.restdocsdsl.docs.RestDocsRequest.requestFields;
+import static hansol.restdocsdsl.docs.RestDocsResponse.responseFields;
 import static hansol.restdocsdsl.element.FieldElement.field;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,7 +51,7 @@ class AuthControllerTest {
     @DisplayName("개인 사용자 회원 가입")
     void signUpWithPersonal() throws Exception {
         //given
-        SignUpRequest.PersonalDto requestDto = new SignUpRequest.PersonalDto("testpersonal", "abc1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, "1234");
+        SignUpDto.PersonalRequest requestDto = new SignUpDto.PersonalRequest("testpersonal", "abc1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, "1234");
 
         //when
         ResultActions actions = mockMvc.perform(post(AuthController.SIGN_UP_PERSONAL_URI)
@@ -75,7 +79,7 @@ class AuthControllerTest {
     @DisplayName("기관 사용자 회원 가입")
     void signUpWithOrganization() throws Exception {
         //given
-        SignUpRequest.OrganizationDto requestDto = new SignUpRequest.OrganizationDto("asdf1234", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, "1234", "한국고등학교");
+        SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest("asdf1234", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, "1234", "한국고등학교");
 
         //when
         ResultActions actions = mockMvc.perform(post(AuthController.SIGN_UP_ORGANIZATION_URI)
@@ -98,4 +102,33 @@ class AuthControllerTest {
                                 field("code").description("인증코드")
                         )));
     }
+
+    @Test
+    @WithMockUser
+    @DisplayName("로그인")
+    void login() throws Exception {
+        //given
+        LoginDto requestDto = new LoginDto("abcd1234", "efgh1234");
+        TokenDto.FullResponse responseDto = new TokenDto.FullResponse("access-token", "refresh-token");
+        given(authService.login(requestDto)).willReturn(responseDto);
+
+        //when
+        ResultActions actions = mockMvc.perform(post(AuthController.LOGIN_URI)
+                .with(csrf())
+                .content(objectMapper.writeValueAsString(requestDto))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //then
+        actions.andExpect(status().isOk())
+                .andDo(docs("auth-login",
+                        requestFields(
+                                field("accountId").description("아이디"),
+                                field("password").description("비밀번호")
+                        ),
+                        responseFields(
+                                field("accessToken").description("액세스 토큰"),
+                                field("refreshToken").description("리프레시 토큰")
+                        )));
+    }
+
 }
