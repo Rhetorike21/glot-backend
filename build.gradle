@@ -28,6 +28,22 @@ ext {
 }
 
 dependencies {
+	//xml
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.1'
+
+	//web client
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	//redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	//test lombok
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+	//apache lang
+	implementation 'org.apache.commons:commons-lang3:3.12.0'
+	//쿨에스엠에스
+	implementation 'net.nurigo:sdk:4.2.7'
+	//bean validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	//rest assured
 	testImplementation 'io.rest-assured:rest-assured:5.1.1'
 	//security-test

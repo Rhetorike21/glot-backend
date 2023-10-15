@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 @Entity
 public abstract class User extends BaseTimeEntity implements UserDetails {
 
+    public final static String DEFAULT_ROLE = "ROLE_USER";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
