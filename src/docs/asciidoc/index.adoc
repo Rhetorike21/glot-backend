@@ -74,6 +74,13 @@ operation::auth-login[]
 ----
 operation::auth-logout[]
 
+=== 🟢 회원탈퇴
+----
+서비스에서 회원탈퇴합니다.
+사용한 액세스 토큰과 리프레시 토큰이 만료됩니다.
+----
+operation::auth-withdraw[]
+
 === 🟢 액세스 토큰 재발급
 ----
 액세스 토큰을 재발급합니다.

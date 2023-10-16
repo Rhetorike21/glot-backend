@@ -26,6 +26,7 @@ public class AuthController {
     public final static String SIGN_UP_ORGANIZATION_URI = "/api/auth/sign-up/org";
     public final static String LOGIN_URI = "/api/auth/login";
     public final static String LOGOUT_URI = "/api/auth/logout";
+    public final static String WITHDRAW_URI = "/api/auth/withdraw";
     public final static String REISSUE_URI = "/api/auth/reissue";
     private final AuthService authService;
     private final ReissueService reissueService;
@@ -55,6 +56,13 @@ public class AuthController {
     @PostMapping(LOGOUT_URI)
     public ResponseEntity<Void> logout(@RequestHeader(Header.AUTH) String accessToken, @RequestHeader(Header.REFRESH) String refreshToken) {
         authService.logout(accessToken, refreshToken);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @PostMapping(WITHDRAW_URI)
+    public ResponseEntity<Void> withdraw(@RequestHeader(Header.AUTH) String accessToken, @RequestHeader(Header.REFRESH) String refreshToken) {
+        authService.withdraw(accessToken, refreshToken);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

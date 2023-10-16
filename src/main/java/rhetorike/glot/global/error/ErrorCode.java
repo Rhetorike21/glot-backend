@@ -19,7 +19,8 @@ public enum ErrorCode {
     REISSUE_FAILED("0010", "토큰 재발급에 실패했습니다.", HttpStatus.BAD_REQUEST),
     CERTIFICATION_FAILED("0011", "본인인증에 실패했습니다.", HttpStatus.UNAUTHORIZED),
     LOGIN_FAILED("0012", "로그인에 실패했습니다.", HttpStatus.UNAUTHORIZED),
-    JWT_BLOCKED("0013", "사용이 중지된 토큰입니다.", HttpStatus.BAD_REQUEST);
+    JWT_BLOCKED("0013", "사용이 중지된 토큰입니다.", HttpStatus.BAD_REQUEST),
+    USER_EXIST("0014", "이미 해당 회원이 존재합니다.", HttpStatus.BAD_REQUEST);
 
     private final String code;
     private final String message;
