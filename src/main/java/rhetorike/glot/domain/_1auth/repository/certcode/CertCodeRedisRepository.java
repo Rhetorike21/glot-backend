@@ -1,10 +1,9 @@
-package rhetorike.glot.domain._1auth.repository;
+package rhetorike.glot.domain._1auth.repository.certcode;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import rhetorike.glot.domain._1auth.entity.CertCode;
 

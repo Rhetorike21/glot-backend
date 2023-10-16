@@ -10,10 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import rhetorike.glot.global.error.ErrorCode;
-import rhetorike.glot.global.error.exception.AccessTokenExpiredException;
-import rhetorike.glot.global.error.exception.GlotException;
-import rhetorike.glot.global.error.exception.JwtWrongFormatException;
-import rhetorike.glot.global.error.exception.UserNotFoundException;
+import rhetorike.glot.global.error.exception.*;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,16 +23,13 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
-        } catch (ExpiredJwtException | JwtWrongFormatException | UserNotFoundException e) {
-            if (e instanceof ExpiredJwtException){
-                setErrorResponse(response, new AccessTokenExpiredException());
-            }
+        } catch (JwtBlockedException | JwtExpiredException | JwtWrongFormatException | UserNotFoundException e) {
             setErrorResponse(response, e);
         }
     }
 
-    public void setErrorResponse(HttpServletResponse response, Throwable e) throws IOException {
-        ErrorCode errorCode = ((GlotException) e).getErrorCode();
+    public void setErrorResponse(HttpServletResponse response, GlotException e) throws IOException {
+        ErrorCode errorCode = e.getErrorCode();
         setResponseBody(response, errorCode);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(errorCode.getHttpStatus().value());

@@ -1,4 +1,4 @@
-package rhetorike.glot.domain._1auth.repository;
+package rhetorike.glot.domain._1auth.repository.certcode;
 
 import org.springframework.stereotype.Repository;
 import rhetorike.glot.domain._1auth.entity.CertCode;

@@ -10,12 +10,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import rhetorike.glot.domain._1auth.dto.LoginDto;
 import rhetorike.glot.domain._1auth.dto.SignUpDto;
 import rhetorike.glot.domain._1auth.entity.CertCode;
-import rhetorike.glot.domain._1auth.repository.CertCodeRepository;
+import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
 import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.global.error.exception.LoginFailedException;
-import rhetorike.glot.global.security.JwtProvider;
 import rhetorike.glot.setup.ServiceTest;
 
 import java.util.Optional;
@@ -36,8 +35,6 @@ class AuthServiceTest {
     CertCodeRepository certCodeRepository;
     @Mock
     PasswordEncoder passwordEncoder;
-    @Mock
-    JwtProvider jwtProvider;
 
     @Test
     @DisplayName("개인 사용자로 서비스에 회원가입한다.")
@@ -82,8 +79,6 @@ class AuthServiceTest {
         LoginDto requestDto = new LoginDto(id, password);
         given(userRepository.findByAccountId(id)).willReturn(Optional.of(user));
         given(passwordEncoder.matches(password, encodedPassword)).willReturn(true);
-        given(jwtProvider.createAccessToken(user)).willReturn("access-token");
-        given(jwtProvider.createRefreshToken(user)).willReturn("refresh-token");
 
         //when
         authService.login(requestDto);
@@ -91,8 +86,6 @@ class AuthServiceTest {
         //then
         verify(userRepository).findByAccountId(id);
         verify(passwordEncoder).matches(password, encodedPassword);
-        verify(jwtProvider).createAccessToken(user);
-        verify(jwtProvider).createRefreshToken(user);
     }
 
     @Test

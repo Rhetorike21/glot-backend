@@ -13,15 +13,13 @@ public enum ErrorCode {
     CONNECTION_FAILED("0004", "외부 API 통신 중에 오류가 발생헀습니다. ", HttpStatus.BAD_REQUEST),
     RESOURCE_NOT_FOUND("0005", "해당 리소스를 찾을 수 없습니다. ", HttpStatus.NOT_FOUND),
     WRONG_FORMAT_JWT("0006", "지원하지 않는 토큰 형식입니다.", HttpStatus.BAD_REQUEST),
-    ACCESS_TOKEN_EXPIRED("0007", "만료된 액세스 토큰입니다.", HttpStatus.UNAUTHORIZED),
-    REFRESH_TOKEN_EXPIRED("0008", "만료된 리프레시 토큰입니다.", HttpStatus.UNAUTHORIZED),
+    JWT_EXPIRED("0007", "만료된 토큰입니다.", HttpStatus.UNAUTHORIZED),
+    REFRESH_TOKEN_EXPIRED("0008", "만료된 리프레시 토큰입니다. 다시 로그인해주세요", HttpStatus.UNAUTHORIZED),
     MOUNTAIN_NOT_FOUND("0009", "해당 산을 조회할 수 없습니다.", HttpStatus.NOT_FOUND),
     REISSUE_FAILED("0010", "토큰 재발급에 실패했습니다.", HttpStatus.BAD_REQUEST),
     CERTIFICATION_FAILED("0011", "본인인증에 실패했습니다.", HttpStatus.UNAUTHORIZED),
     LOGIN_FAILED("0012", "로그인에 실패했습니다.", HttpStatus.UNAUTHORIZED),
-
-
-    ;
+    JWT_BLOCKED("0013", "사용이 중지된 토큰입니다.", HttpStatus.BAD_REQUEST);
 
     private final String code;
     private final String message;

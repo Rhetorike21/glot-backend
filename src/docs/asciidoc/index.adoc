@@ -68,6 +68,13 @@ operation::cert-sms-verify[]
 operation::auth-login[]
 
 
+=== 🟢 액세스 토큰 재발급
+----
+액세스 토큰을 재발급합니다.
+에러 코드 "0008" 반환 시, 다시 로그인해야 합니다.
+----
+operation::auth-reissue[]
+
 == 🦝 2. 사용자
 
 === 🟢 사용자 정보 조회

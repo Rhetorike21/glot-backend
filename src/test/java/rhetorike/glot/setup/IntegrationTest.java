@@ -16,6 +16,8 @@ import org.springframework.test.context.TestExecutionListeners;
 import rhetorike.glot.domain._1auth.controller.AuthController;
 import rhetorike.glot.domain._1auth.dto.LoginDto;
 import rhetorike.glot.domain._1auth.dto.TokenDto;
+import rhetorike.glot.global.security.jwt.AccessToken;
+import rhetorike.glot.global.security.jwt.RefreshToken;
 
 import static org.mockito.BDDMockito.given;
 
@@ -45,6 +47,9 @@ public class IntegrationTest {
                 .extract();
 
         JsonPath jsonPath = response.jsonPath();
-        return new TokenDto.FullResponse(jsonPath.getString("accessToken"), jsonPath.getString("refreshToken"));
+        AccessToken accessToken = AccessToken.from(jsonPath.getString("accessToken"));
+        RefreshToken refreshToken = RefreshToken.from(jsonPath.getString("refreshToken"));
+        return new TokenDto.FullResponse(accessToken, refreshToken);
     }
+
 }

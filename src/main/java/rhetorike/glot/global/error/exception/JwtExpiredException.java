@@ -3,12 +3,12 @@ package rhetorike.glot.global.error.exception;
 
 import rhetorike.glot.global.error.ErrorCode;
 
-public class AccessTokenExpiredException extends GlotException {
+public class JwtExpiredException extends GlotException {
     private final ErrorCode errorCode;
 
-    public AccessTokenExpiredException() {
+    public JwtExpiredException() {
         super();
-        this.errorCode = ErrorCode.ACCESS_TOKEN_EXPIRED;
+        this.errorCode = ErrorCode.JWT_EXPIRED;
     }
 
     @Override

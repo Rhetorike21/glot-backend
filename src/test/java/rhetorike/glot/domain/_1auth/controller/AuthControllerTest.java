@@ -18,13 +18,19 @@ import rhetorike.glot.domain._1auth.dto.LoginDto;
 import rhetorike.glot.domain._1auth.dto.SignUpDto;
 import rhetorike.glot.domain._1auth.dto.TokenDto;
 import rhetorike.glot.domain._1auth.service.AuthService;
+import rhetorike.glot.domain._1auth.service.ReissueService;
+import rhetorike.glot.global.constant.Header;
 import rhetorike.glot.global.security.JwtAuthenticationFilter;
 import rhetorike.glot.global.security.SecurityConfig;
+import rhetorike.glot.global.security.jwt.AccessToken;
+import rhetorike.glot.global.security.jwt.RefreshToken;
 
 import static hansol.restdocsdsl.docs.RestDocsAdapter.docs;
+import static hansol.restdocsdsl.docs.RestDocsHeader.requestHeaders;
 import static hansol.restdocsdsl.docs.RestDocsRequest.requestFields;
 import static hansol.restdocsdsl.docs.RestDocsResponse.responseFields;
 import static hansol.restdocsdsl.element.FieldElement.field;
+import static hansol.restdocsdsl.element.HeaderElement.header;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -44,6 +50,8 @@ class AuthControllerTest {
 
     @MockBean
     AuthService authService;
+    @MockBean
+    ReissueService reissueService;
 
 
     @Test
@@ -109,7 +117,7 @@ class AuthControllerTest {
     void login() throws Exception {
         //given
         LoginDto requestDto = new LoginDto("abcd1234", "efgh1234");
-        TokenDto.FullResponse responseDto = new TokenDto.FullResponse("access-token", "refresh-token");
+        TokenDto.FullResponse responseDto = new TokenDto.FullResponse(AccessToken.from("access-token"), RefreshToken.from("refresh-token"));
         given(authService.login(requestDto)).willReturn(responseDto);
 
         //when
@@ -128,6 +136,33 @@ class AuthControllerTest {
                         responseFields(
                                 field("accessToken").description("액세스 토큰"),
                                 field("refreshToken").description("리프레시 토큰")
+                        )));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("토큰 재발급")
+    void reissue() throws Exception {
+        //given
+        String accessToken = "old-access-token";
+        String refreshToken = "refresh-token";
+        given(reissueService.reissue(accessToken, refreshToken)).willReturn(new TokenDto.AccessResponse(AccessToken.from("new-access-token")));
+
+        //when
+        ResultActions actions = mockMvc.perform(post(AuthController.REISSUE_URI)
+                .with(csrf())
+                .header(Header.AUTH, accessToken)
+                .header(Header.REFRESH, refreshToken));
+
+        //then
+        actions.andExpect(status().isOk())
+                .andDo(docs("auth-reissue",
+                        requestHeaders(
+                                header(Header.AUTH).description("만료된 액세스 토큰"),
+                                header(Header.REFRESH).description("리프레시 토큰")
+                        ),
+                        responseFields(
+                                field("accessToken").description("갱신된 액세스 토큰")
                         )));
     }
 

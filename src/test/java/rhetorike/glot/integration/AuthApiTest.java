@@ -18,9 +18,9 @@ import org.springframework.http.MediaType;
 import rhetorike.glot.domain._1auth.controller.AuthController;
 import rhetorike.glot.domain._1auth.dto.LoginDto;
 import rhetorike.glot.domain._1auth.dto.SignUpDto;
-import rhetorike.glot.domain._1auth.dto.TokenDto;
 import rhetorike.glot.domain._1auth.entity.CertCode;
-import rhetorike.glot.domain._1auth.repository.CertCodeRepository;
+import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
+import rhetorike.glot.global.constant.Header;
 import rhetorike.glot.setup.IntegrationTest;
 
 import java.util.Optional;
@@ -97,6 +97,29 @@ public class AuthApiTest extends IntegrationTest {
                 () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
                 () -> assertThat(jsonPath.getString("accessToken")).isNotEmpty(),
                 () -> assertThat(jsonPath.getString("refreshToken")).isNotEmpty()
+        );
+    }
+
+    @Test
+    @DisplayName("액세스 토큰 재발급")
+    void reissue() {
+        //given
+        String accessToken = getToken().getAccessToken();
+        String refreshToken = getToken().getRefreshToken();
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header(Header.AUTH, accessToken)
+                .header(Header.REFRESH, refreshToken)
+                .when().post(AuthController.REISSUE_URI)
+                .then().log().all()
+                .extract();
+
+        //then
+        JsonPath jsonPath = response.jsonPath();
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
+                () -> assertThat(jsonPath.getString("accessToken")).isNotEmpty()
         );
     }
 }

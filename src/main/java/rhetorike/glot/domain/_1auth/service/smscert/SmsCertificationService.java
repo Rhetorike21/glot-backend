@@ -3,7 +3,7 @@ package rhetorike.glot.domain._1auth.service.smscert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import rhetorike.glot.domain._1auth.entity.CertCode;
-import rhetorike.glot.domain._1auth.repository.CertCodeRepository;
+import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
 import rhetorike.glot.domain._1auth.service.smscert.smssender.SmsSender;
 import rhetorike.glot.global.util.RandomTextGenerator;
 

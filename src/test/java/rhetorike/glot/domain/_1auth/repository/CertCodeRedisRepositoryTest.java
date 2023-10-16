@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Repository;
 import org.springframework.test.context.ActiveProfiles;
 import rhetorike.glot.domain._1auth.entity.CertCode;
+import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRedisRepository;
 import rhetorike.glot.global.config.redis.RedisConfig;
 
 import java.util.Optional;

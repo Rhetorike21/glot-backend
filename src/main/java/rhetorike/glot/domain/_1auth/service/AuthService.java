@@ -8,13 +8,14 @@ import rhetorike.glot.domain._1auth.dto.LoginDto;
 import rhetorike.glot.domain._1auth.dto.SignUpDto;
 import rhetorike.glot.domain._1auth.dto.TokenDto;
 import rhetorike.glot.domain._1auth.entity.CertCode;
-import rhetorike.glot.domain._1auth.repository.CertCodeRepository;
+import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.global.error.exception.CertificationFailedException;
 import rhetorike.glot.global.error.exception.LoginFailedException;
 import rhetorike.glot.global.error.exception.UserNotFoundException;
-import rhetorike.glot.global.security.JwtProvider;
+import rhetorike.glot.global.security.jwt.AccessToken;
+import rhetorike.glot.global.security.jwt.RefreshToken;
 
 import java.util.Optional;
 
@@ -25,7 +26,6 @@ public class AuthService {
     private final UserRepository userRepository;
     private final CertCodeRepository certCodeRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtProvider jwtProvider;
 
     /**
      * 서비스에 회원가입합니다.
@@ -55,10 +55,12 @@ public class AuthService {
     public TokenDto.FullResponse login(LoginDto requestDto) {
         User user = userRepository.findByAccountId(requestDto.getAccountId()).orElseThrow(UserNotFoundException::new);
         if (passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-            String accessToken = jwtProvider.createAccessToken(user);
-            String refreshToken = jwtProvider.createRefreshToken(user);
+            AccessToken accessToken = AccessToken.generatedFrom(user);
+            RefreshToken refreshToken = RefreshToken.generatedFrom(user);
             return new TokenDto.FullResponse(accessToken, refreshToken);
         }
         throw new LoginFailedException();
     }
+
+
 }

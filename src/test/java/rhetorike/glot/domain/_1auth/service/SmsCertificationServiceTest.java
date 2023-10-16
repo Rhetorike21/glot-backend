@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rhetorike.glot.domain._1auth.entity.CertCode;
-import rhetorike.glot.domain._1auth.repository.CertCodeRepository;
+import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
 import rhetorike.glot.domain._1auth.service.smscert.SmsCertificationService;
 import rhetorike.glot.domain._1auth.service.smscert.smssender.SmsSender;
 import rhetorike.glot.global.util.RandomTextGenerator;
