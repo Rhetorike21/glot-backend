@@ -16,6 +16,8 @@ import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.global.error.exception.LoginFailedException;
+import rhetorike.glot.global.security.jwt.AccessToken;
+import rhetorike.glot.global.security.jwt.RefreshToken;
 import rhetorike.glot.setup.ServiceTest;
 
 import java.util.Optional;
@@ -118,11 +120,26 @@ class AuthServiceTest {
     @DisplayName("서비스에서 로그아웃한다.")
     void logout() {
         //given
-        String accessToken = "access-token";
-        String refreshToken = "refresh-token";
+        User user = Personal.builder().id(1L).build();
+        String accessToken = AccessToken.generatedFrom(user).getContent();
+        String refreshToken = RefreshToken.generatedFrom(user).getContent();
 
         //when
         authService.logout(accessToken, refreshToken);
+
+        //then
+    }
+
+    @Test
+    @DisplayName("서비스에서 회원탈퇴한다.")
+    void withdraw() {
+        //given
+        User user = Personal.builder().id(1L).build();
+        String accessToken = AccessToken.generatedFrom(user).getContent();
+        String refreshToken = RefreshToken.generatedFrom(user).getContent();
+
+        //when
+        authService.withdraw(accessToken, refreshToken);
 
         //then
     }

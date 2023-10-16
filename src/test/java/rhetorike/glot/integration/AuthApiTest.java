@@ -21,6 +21,8 @@ import rhetorike.glot.domain._1auth.dto.SignUpDto;
 import rhetorike.glot.domain._1auth.entity.CertCode;
 import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
 import rhetorike.glot.global.constant.Header;
+import rhetorike.glot.global.security.jwt.AccessToken;
+import rhetorike.glot.global.security.jwt.RefreshToken;
 import rhetorike.glot.setup.IntegrationTest;
 
 import java.util.Optional;
@@ -37,7 +39,7 @@ public class AuthApiTest extends IntegrationTest {
         //given
         String pinNumbers = "1234";
         given(certCodeRepository.findByPinNumbers(pinNumbers)).willReturn(Optional.of(new CertCode(pinNumbers, true)));
-        SignUpDto.PersonalRequest requestDto = new SignUpDto.PersonalRequest("testpersonal", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, pinNumbers);
+        SignUpDto.PersonalRequest requestDto = new SignUpDto.PersonalRequest("test1234", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, pinNumbers);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -120,6 +122,46 @@ public class AuthApiTest extends IntegrationTest {
                 () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value())
         );
     }
+
+    @Test
+    @DisplayName("회원탈퇴")
+    void withdraw() {
+        //given
+        String accountId = "withdrawaltest1";
+        String password = "abcd1234";
+        String pinNumbers = "1234";
+        given(certCodeRepository.findByPinNumbers(pinNumbers)).willReturn(Optional.of(new CertCode(pinNumbers, true)));
+        SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest("withdrawaltest1", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, pinNumbers, "한국고등학교");
+        RestAssured.given().log().all()
+                .body(requestDto)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post(AuthController.SIGN_UP_ORGANIZATION_URI)
+                .then().log().all()
+                .extract();
+
+        JsonPath jsonPath = RestAssured.given().log().all()
+                .body(new LoginDto(accountId, password))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post(AuthController.LOGIN_URI)
+                .then().log().all()
+                .extract().jsonPath();
+        String accessToken = jsonPath.getString("accessToken");
+        String refreshToken = jsonPath.getString("refreshToken");
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header(Header.AUTH, accessToken)
+                .header(Header.REFRESH, refreshToken)
+                .when().post(AuthController.WITHDRAW_URI)
+                .then().log().all()
+                .extract();
+
+        //then
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value())
+        );
+    }
+
 
     @Test
     @DisplayName("액세스 토큰 재발급")

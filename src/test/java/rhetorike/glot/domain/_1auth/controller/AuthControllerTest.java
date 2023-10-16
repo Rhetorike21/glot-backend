@@ -19,6 +19,8 @@ import rhetorike.glot.domain._1auth.dto.SignUpDto;
 import rhetorike.glot.domain._1auth.dto.TokenDto;
 import rhetorike.glot.domain._1auth.service.AuthService;
 import rhetorike.glot.domain._1auth.service.ReissueService;
+import rhetorike.glot.domain._2user.entity.Personal;
+import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.global.constant.Header;
 import rhetorike.glot.global.security.JwtAuthenticationFilter;
 import rhetorike.glot.global.security.SecurityConfig;
@@ -156,6 +158,30 @@ class AuthControllerTest {
         //then
         actions.andExpect(status().isNoContent())
                 .andDo(docs("auth-logout",
+                        requestHeaders(
+                                header(Header.AUTH).description("액세스 토큰"),
+                                header(Header.REFRESH).description("리프레시 토큰")
+                        )));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원탈퇴")
+    void withdraw() throws Exception {
+        //given
+        User user = Personal.builder().id(1L).build();
+        String accessToken = AccessToken.generatedFrom(user).getContent();
+        String refreshToken = RefreshToken.generatedFrom(user).getContent();
+
+        //when
+        ResultActions actions = mockMvc.perform(post(AuthController.WITHDRAW_URI)
+                .with(csrf())
+                .header(Header.AUTH, accessToken)
+                .header(Header.REFRESH, refreshToken));
+
+        //then
+        actions.andExpect(status().isNoContent())
+                .andDo(docs("auth-withdraw",
                         requestHeaders(
                                 header(Header.AUTH).description("액세스 토큰"),
                                 header(Header.REFRESH).description("리프레시 토큰")
