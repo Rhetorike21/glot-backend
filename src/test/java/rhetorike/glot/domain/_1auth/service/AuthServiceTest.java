@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import rhetorike.glot.domain._1auth.dto.LoginDto;
 import rhetorike.glot.domain._1auth.dto.SignUpDto;
@@ -16,6 +17,7 @@ import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.global.error.exception.LoginFailedException;
+import rhetorike.glot.global.error.exception.UserExistException;
 import rhetorike.glot.global.security.jwt.AccessToken;
 import rhetorike.glot.global.security.jwt.RefreshToken;
 import rhetorike.glot.setup.ServiceTest;
@@ -45,29 +47,59 @@ class AuthServiceTest {
     @DisplayName("개인 사용자로 서비스에 회원가입한다.")
     void signUpWithPersonal() {
         //given
+        String accountId = "testpersonal";
         String rawPassword = "abc1234";
         String encodedPassword = "(encoded)abc1234";
-        SignUpDto.PersonalRequest requestDto = new SignUpDto.PersonalRequest("testpersonal", rawPassword, "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, "1234");
+        SignUpDto.PersonalRequest requestDto = new SignUpDto.PersonalRequest(accountId, rawPassword, "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, "1234");
         given(certCodeRepository.findByPinNumbers("1234")).willReturn(Optional.of(new CertCode("1234", true)));
         given(passwordEncoder.encode(rawPassword)).willReturn(encodedPassword);
+        given(userRepository.findByAccountId(accountId)).willReturn(Optional.empty());
 
         //when
         authService.signUp(requestDto);
 
         //then
+        verify(certCodeRepository).findByPinNumbers("1234");
+        verify(passwordEncoder).encode(rawPassword);
+        verify(userRepository).findByAccountId(accountId);
     }
 
     @Test
     @DisplayName("기관 사용자로 서비스에 회원가입한다.")
     void signUpWithOrganization() {
         //given
+        String accountId = "testorganization";
+        String rawPassword = "abc1234";
+        String encodedPassword = "(encoded)abc1234";
         given(certCodeRepository.findByPinNumbers("1234")).willReturn(Optional.of(new CertCode("1234", true)));
-        SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest("asdf1234", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, "1234", "한국고등학교");
+        SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest(accountId, rawPassword, "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, "1234", "한국고등학교");
+        given(certCodeRepository.findByPinNumbers("1234")).willReturn(Optional.of(new CertCode("1234", true)));
+        given(passwordEncoder.encode(rawPassword)).willReturn(encodedPassword);
+        given(userRepository.findByAccountId(accountId)).willReturn(Optional.empty());
 
         //when
         authService.signUp(requestDto);
 
         //then
+        verify(certCodeRepository).findByPinNumbers("1234");
+        verify(passwordEncoder).encode(rawPassword);
+        verify(userRepository).findByAccountId(accountId);
+    }
+
+    @Test
+    @DisplayName("회원가입 시, 아이디가 중복인 경우 예외가 발생한다.")
+    void signUpFailed() {
+        //given
+        String accountId = "testorganization";
+        String rawPassword = "abc1234";
+        SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest(accountId, rawPassword, "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, "1234", "한국고등학교");
+        given(userRepository.findByAccountId(accountId)).willReturn(Optional.of(Personal.builder().build()));
+
+        //when
+
+        //then
+        Assertions.assertThatThrownBy(() -> authService.signUp(requestDto))
+                .isInstanceOf(UserExistException.class);
     }
 
     @Test
