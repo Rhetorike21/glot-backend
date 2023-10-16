@@ -1,6 +1,7 @@
 package rhetorike.glot.domain._2user.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,8 +21,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Entity
 public abstract class User extends BaseTimeEntity implements UserDetails {
-
-    public final static String DEFAULT_ROLE = "ROLE_USER";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,7 +62,6 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
             this.roles.addAll(roles);
         }
     }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

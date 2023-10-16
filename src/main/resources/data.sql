@@ -8,7 +8,8 @@ values (1, 'personal', 'test01personal', '테스트용 개인 사용자', 'test@
         true, '2023-10-13 09:00:00', '2023-10-13 09:00:00');
 
 insert into user_roles (user_id, roles)
-values (1, 'USER');
+values (1, 'ROLE_USER'),
+       (2, 'ROLE_USER');
 
 insert into personal (id)
 values (1);

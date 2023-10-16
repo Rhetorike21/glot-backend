@@ -25,6 +25,7 @@ public class AuthController {
     public final static String SIGN_UP_PERSONAL_URI = "/api/auth/sign-up/personal";
     public final static String SIGN_UP_ORGANIZATION_URI = "/api/auth/sign-up/org";
     public final static String LOGIN_URI = "/api/auth/login";
+    public final static String LOGOUT_URI = "/api/auth/logout";
     public final static String REISSUE_URI = "/api/auth/reissue";
     private final AuthService authService;
     private final ReissueService reissueService;
@@ -48,6 +49,13 @@ public class AuthController {
     public ResponseEntity<TokenDto.FullResponse> login(@RequestBody LoginDto requestDto) {
         TokenDto.FullResponse responseBody = authService.login(requestDto);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @PostMapping(LOGOUT_URI)
+    public ResponseEntity<Void> logout(@RequestHeader(Header.AUTH) String accessToken, @RequestHeader(Header.REFRESH) String refreshToken) {
+        authService.logout(accessToken, refreshToken);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PermitAll

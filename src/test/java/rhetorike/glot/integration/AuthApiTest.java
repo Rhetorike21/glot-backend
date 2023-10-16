@@ -101,6 +101,27 @@ public class AuthApiTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("로그아웃")
+    void logout() {
+        //given
+        String accessToken = getToken().getAccessToken();
+        String refreshToken = getToken().getRefreshToken();
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header(Header.AUTH, accessToken)
+                .header(Header.REFRESH, refreshToken)
+                .when().post(AuthController.LOGOUT_URI)
+                .then().log().all()
+                .extract();
+
+        //then
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value())
+        );
+    }
+
+    @Test
     @DisplayName("액세스 토큰 재발급")
     void reissue() {
         //given

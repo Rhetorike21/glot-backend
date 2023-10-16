@@ -141,6 +141,29 @@ class AuthControllerTest {
 
     @Test
     @WithMockUser
+    @DisplayName("로그아웃")
+    void logout() throws Exception {
+        //given
+        String accessToken = "access-token";
+        String refreshToken = "refresh-token";
+
+        //when
+        ResultActions actions = mockMvc.perform(post(AuthController.LOGOUT_URI)
+                .with(csrf())
+                .header(Header.AUTH, accessToken)
+                .header(Header.REFRESH, refreshToken));
+
+        //then
+        actions.andExpect(status().isNoContent())
+                .andDo(docs("auth-logout",
+                        requestHeaders(
+                                header(Header.AUTH).description("액세스 토큰"),
+                                header(Header.REFRESH).description("리프레시 토큰")
+                        )));
+    }
+
+    @Test
+    @WithMockUser
     @DisplayName("토큰 재발급")
     void reissue() throws Exception {
         //given

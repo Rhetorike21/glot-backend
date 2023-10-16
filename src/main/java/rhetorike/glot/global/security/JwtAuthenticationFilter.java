@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private Claims getClaims(String jwt) {
-        if (blockedTokenRepository.findByContent(jwt).isPresent()) {
+        if (blockedTokenRepository.doesExist(jwt)) {
             throw new JwtBlockedException();
         }
         return AccessToken.from(jwt).extractClaims();

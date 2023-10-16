@@ -22,18 +22,4 @@ public class Organization extends User{
         super(id, username, password, name, phone, mobile, email, marketingAgreement, roles);
         this.organizationName = organizationName;
     }
-
-    public static Organization from(SignUpDto.OrgRequest requestDto) {
-        return rhetorike.glot.domain._2user.entity.Organization.builder()
-                .organizationName(requestDto.getOrganizationName())
-                .username(requestDto.getAccountId())
-                .password(requestDto.getPassword())
-                .name(requestDto.getName())
-                .phone(requestDto.getPhone())
-                .mobile(requestDto.getMobile())
-                .email(requestDto.getEmail())
-                .marketingAgreement(requestDto.isMarketingAgreement())
-                .roles(Collections.singletonList(DEFAULT_ROLE))
-                .build();
-    }
 }

@@ -6,12 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import rhetorike.glot.domain._2user.entity.User;
-import rhetorike.glot.global.error.exception.JwtExpiredException;
 import rhetorike.glot.global.error.exception.JwtWrongFormatException;
 import rhetorike.glot.global.error.exception.RefreshTokenExpiredException;
 
 import java.util.Date;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 

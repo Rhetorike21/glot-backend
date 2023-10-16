@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import rhetorike.glot.domain._1auth.dto.LoginDto;
 import rhetorike.glot.domain._1auth.dto.SignUpDto;
 import rhetorike.glot.domain._1auth.entity.CertCode;
+import rhetorike.glot.domain._1auth.repository.blockedtoken.BlockedTokenRepository;
 import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
 import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
@@ -35,6 +36,8 @@ class AuthServiceTest {
     CertCodeRepository certCodeRepository;
     @Mock
     PasswordEncoder passwordEncoder;
+    @Mock
+    BlockedTokenRepository blockedTokenRepository;
 
     @Test
     @DisplayName("개인 사용자로 서비스에 회원가입한다.")
@@ -109,5 +112,18 @@ class AuthServiceTest {
         //then
         verify(userRepository).findByAccountId(id);
         verify(passwordEncoder).matches(password, encodedPassword);
+    }
+
+    @Test
+    @DisplayName("서비스에서 로그아웃한다.")
+    void logout() {
+        //given
+        String accessToken = "access-token";
+        String refreshToken = "refresh-token";
+
+        //when
+        authService.logout(accessToken, refreshToken);
+
+        //then
     }
 }

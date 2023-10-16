@@ -1,14 +1,15 @@
 package rhetorike.glot.domain._1auth.repository.blockedtoken;
 
 import rhetorike.glot.domain._1auth.entity.BlockedToken;
+import rhetorike.glot.global.security.jwt.ServiceToken;
 
 import java.util.Optional;
 
 public interface BlockedTokenRepository {
-    BlockedToken save(BlockedToken blockedToken);
+    void save(ServiceToken serviceToken);
 
-    Optional<BlockedToken> findByContent(String content);
+    boolean doesExist(String jwt);
 
-    void delete(BlockedToken blockedToken);
+    void delete(ServiceToken blockedToken);
 
 }

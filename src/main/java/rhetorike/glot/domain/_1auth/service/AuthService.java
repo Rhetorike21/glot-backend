@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import rhetorike.glot.domain._1auth.dto.LoginDto;
 import rhetorike.glot.domain._1auth.dto.SignUpDto;
 import rhetorike.glot.domain._1auth.dto.TokenDto;
+import rhetorike.glot.domain._1auth.entity.BlockedToken;
 import rhetorike.glot.domain._1auth.entity.CertCode;
+import rhetorike.glot.domain._1auth.repository.blockedtoken.BlockedTokenRepository;
 import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
@@ -26,6 +28,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final CertCodeRepository certCodeRepository;
     private final PasswordEncoder passwordEncoder;
+    private final BlockedTokenRepository blockedTokenRepository;
 
     /**
      * 서비스에 회원가입합니다.
@@ -63,4 +66,14 @@ public class AuthService {
     }
 
 
+    /**
+     * 서비스에서 로그아웃합니다.
+     *
+     * @param accessToken  액세스 토큰
+     * @param refreshToken 리프레시 토큰
+     */
+    public void logout(String accessToken, String refreshToken) {
+        blockedTokenRepository.save(AccessToken.from(accessToken));
+        blockedTokenRepository.save(RefreshToken.from(refreshToken));
+    }
 }

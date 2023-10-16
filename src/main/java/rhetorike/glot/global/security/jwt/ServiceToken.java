@@ -25,4 +25,11 @@ public abstract class ServiceToken {
     public int hashCode() {
         return Objects.hash(content);
     }
+
+    public long getExpiration(){
+        if (this instanceof AccessToken){
+            return AccessToken.EXPIRATION_MILLI;
+        }
+        return RefreshToken.EXPIRATION_MILLI;
+    }
 }
