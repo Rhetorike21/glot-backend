@@ -2,9 +2,10 @@ package rhetorike.glot.domain._1auth.service.orgnamesearch;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import rhetorike.glot.domain._1auth.service.orgnamesearch.academy.AcademySearcher;
+import rhetorike.glot.domain._1auth.service.orgnamesearch.school.SchoolSearcher;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -24,16 +25,15 @@ public class OrgNameService {
         ArrayList<String> searchResult = new ArrayList<>();
         searchResult.addAll(schoolSearcher.getSchoolNames(keyword));
         searchResult.addAll(academySearcher.getAcademyNames(keyword));
-        searchResult.sort(getKeywordComparator(keyword));
+        searchResult.sort((orgName1, orgName2) -> compareOrgName(orgName1, orgName2, keyword));
         return searchResult;
     }
-    private Comparator<String> getKeywordComparator(String keyword) {
-        return (o1, o2) -> {
-            int num = Integer.compare(o1.indexOf(keyword), o2.indexOf(keyword));
-            if (num == 0) {
-                return o1.compareTo(o2);
-            }
-            return num;
-        };
+
+    private int compareOrgName(String orgName1, String orgName2, String keyword){
+        int num = Integer.compare(orgName1.indexOf(keyword), orgName2.indexOf(keyword));
+        if (num == 0) {
+            return orgName1.compareTo(orgName2);
+        }
+        return num;
     }
 }

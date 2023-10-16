@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import rhetorike.glot.domain._1auth.service.orgnamesearch.academy.AcademySearcher;
+import rhetorike.glot.domain._1auth.service.orgnamesearch.school.SchoolSearcher;
 import rhetorike.glot.setup.ServiceTest;
 
 import java.util.List;
@@ -40,6 +42,4 @@ class OrgNameServiceTest {
         Mockito.verify(academySearcher).getAcademyNames(keyword);
         Assertions.assertThat(result).containsExactly("한국고등학교","한국교습소","한국영어","한국중학교","한국초등학교","한국피아노");
     }
-
-
 }

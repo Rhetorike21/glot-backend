@@ -1,4 +1,4 @@
-package rhetorike.glot.domain._1auth.service.orgnamesearch;
+package rhetorike.glot.domain._1auth.service.orgnamesearch.academy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 

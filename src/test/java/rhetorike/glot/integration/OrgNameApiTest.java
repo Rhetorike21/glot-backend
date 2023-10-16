@@ -6,7 +6,6 @@ import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-import rhetorike.glot.domain._1auth.controller.CertificationController;
 import rhetorike.glot.domain._1auth.controller.OrgNameController;
 import rhetorike.glot.setup.IntegrationTest;
 
@@ -18,7 +17,7 @@ public class OrgNameApiTest extends IntegrationTest {
     @DisplayName("기관을 검색한다.")
     void searchOrgName(){
         //given
-        String keyword = "영어";
+        String keyword = "한국";
 
         //when
         ExtractableResponse<Response> response = RestAssured

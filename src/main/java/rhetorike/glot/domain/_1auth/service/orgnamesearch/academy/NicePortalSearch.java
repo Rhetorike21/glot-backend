@@ -1,4 +1,4 @@
-package rhetorike.glot.domain._1auth.service.orgnamesearch;
+package rhetorike.glot.domain._1auth.service.orgnamesearch.academy;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,15 +7,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
+import rhetorike.glot.domain._1auth.service.orgnamesearch.academy.AcademySearchStrategy;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -34,9 +33,9 @@ public class NicePortalSearch implements AcademySearchStrategy {
         for (String code : REGION_CODES) {
             result.addAll(getResult(wc, keyword, code));
         }
-        log.info("{}", result);
         return result;
     }
+
     private WebClient createWebClient() {
         DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory("localhost:8080");
         factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.URI_COMPONENT);
@@ -45,6 +44,7 @@ public class NicePortalSearch implements AcademySearchStrategy {
                 .baseUrl("localhost:8080")
                 .build();
     }
+
     private List<String> getResult(WebClient wc, String keyword, String code) {
         String str = wc.method(HttpMethod.GET)
                 .uri(uriBuilder -> uriBuilder
@@ -63,14 +63,14 @@ public class NicePortalSearch implements AcademySearchStrategy {
                 .block();
         try {
             YourDataClass searchResult = new ObjectMapper().readValue(str, YourDataClass.class);
-            if (searchResult.getAcaInsTiInfo() != null) {
-                return searchResult.getAcaInsTiInfo().stream()
-                        .filter(c -> c.getRow() != null)
-                        .flatMap(c -> c.getRow().stream())
-                        .map(Row::getAcaNm)
-                        .toList();
+            if (searchResult.getAcaInsTiInfo() == null) {
+                return Collections.emptyList();
             }
-            return Collections.emptyList();
+            return searchResult.getAcaInsTiInfo().stream()
+                    .filter(c -> c.getRow() != null)
+                    .flatMap(c -> c.getRow().stream())
+                    .map(Row::getAcaNm)
+                    .toList();
         } catch (JsonProcessingException e) {
             return Collections.emptyList();
         }

@@ -1,4 +1,4 @@
-package rhetorike.glot.domain._1auth.service.orgnamesearch;
+package rhetorike.glot.domain._1auth.service.orgnamesearch.school;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,6 +10,6 @@ import java.util.List;
 public class SchoolSearcher{
     private final SchoolSearchStrategy schoolSearchStrategy;
     public List<String> getSchoolNames(String keyword) {
-        return schoolSearchStrategy.search();
+        return schoolSearchStrategy.search(keyword);
     }
 }
