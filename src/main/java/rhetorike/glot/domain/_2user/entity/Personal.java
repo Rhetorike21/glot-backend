@@ -15,7 +15,7 @@ import java.util.List;
 public class Personal extends User {
 
     @Builder
-    public Personal(Long id, String username, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles) {
-        super(id, username, password, name, phone, mobile, email, marketingAgreement, roles);
+    public Personal(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles) {
+        super(id, accountId, password, name, phone, mobile, email, marketingAgreement, roles);
     }
 }

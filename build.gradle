@@ -28,6 +28,9 @@ ext {
 }
 
 dependencies {
+	//email
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 	//xml
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.1'
 

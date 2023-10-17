@@ -44,7 +44,7 @@ public class SignUpDto {
         @Override
         public User toUser(String encodedPassword) {
             return Personal.builder()
-                    .username(this.accountId)
+                    .accountId(this.accountId)
                     .password(encodedPassword)
                     .name(this.name)
                     .phone(this.phone)
@@ -70,7 +70,7 @@ public class SignUpDto {
         public User toUser(String encodedPassword) {
             return Organization.builder()
                     .organizationName(this.organizationName)
-                    .username(this.accountId)
+                    .accountId(this.accountId)
                     .password(encodedPassword)
                     .name(this.name)
                     .phone(this.phone)
