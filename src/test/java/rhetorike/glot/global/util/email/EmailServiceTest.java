@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import rhetorike.glot.domain._1auth.entity.ResetCode;
 
 import java.util.List;
 
@@ -15,9 +16,9 @@ class EmailServiceTest {
     EmailService emailService;
 
     @Test
-    @Disabled
-    @DisplayName("메일을 전송한다.(확인완료)")
-    void sendMail() {
+//    @Disabled
+    @DisplayName("아이디 찾기 메일을 전송한다.(확인완료)")
+    void sendAccountIdEmail() {
         //given
         String email = "hansol8701@naver.com";
         String accountId = "abc1234";
@@ -27,6 +28,21 @@ class EmailServiceTest {
 
         //then
 
+
+    }
+
+    @Test
+//    @Disabled
+    @DisplayName("비밀번호 재설정 메일을 전송한다.(확인완료)")
+    void sendPasswordResetMail() {
+        //given
+        String email = "hansol8701@naver.com";
+        String accountId = "abc1234";
+
+        //when
+        emailService.sendMail(Email.newPasswordResetEmail(email, ResetCode.randomResetCode(accountId)));
+
+        //then
 
     }
 

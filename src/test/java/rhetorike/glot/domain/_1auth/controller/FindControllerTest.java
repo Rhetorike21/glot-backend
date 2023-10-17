@@ -14,7 +14,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import rhetorike.glot.domain._1auth.dto.AccountIdFindDto;
+import rhetorike.glot.domain._1auth.dto.PasswordResetDto;
 import rhetorike.glot.domain._1auth.service.AccountIdFindService;
+import rhetorike.glot.domain._1auth.service.PasswordResetService;
 import rhetorike.glot.global.security.JwtAuthenticationFilter;
 import rhetorike.glot.global.security.SecurityConfig;
 
@@ -40,6 +42,8 @@ class FindControllerTest {
 
     @MockBean
     AccountIdFindService accountIdFindService;
+    @MockBean
+    PasswordResetService passwordResetService;
 
 
     @Test
@@ -61,6 +65,52 @@ class FindControllerTest {
                         requestFields(
                                 field("name").description("이름"),
                                 field("email").description("이메일")
+                        )));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("비밀번호 재설정 링크가 담긴 메일을 발송한다.")
+    void sendResetLink() throws Exception {
+        //given
+        PasswordResetDto.EmailRequest requestDto = new PasswordResetDto.EmailRequest("abcd1234", "홍길동", "hong@naver.com");
+
+        //when
+        ResultActions actions = mockMvc.perform(post(FindController.FIND_PASSWORD_BY_EMAIL)
+                .with(csrf())
+                .content(objectMapper.writeValueAsString(requestDto))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //then
+        actions.andExpect(status().isNoContent())
+                .andDo(docs("find-password-email",
+                        requestFields(
+                                field("accountId").description("아이디"),
+                                field("name").description("이름"),
+                                field("email").description("이메일")
+                        )));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("비밀번호를 재설정한다.")
+    void resetPassword() throws Exception {
+        //given
+        PasswordResetDto.ResetRequest requestDto = new PasswordResetDto.ResetRequest("abcd1234", "code", "new-password");
+
+        //when
+        ResultActions actions = mockMvc.perform(post(FindController.RESET_PASSWORD)
+                .with(csrf())
+                .content(objectMapper.writeValueAsString(requestDto))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //then
+        actions.andExpect(status().isNoContent())
+                .andDo(docs("reset-password",
+                        requestFields(
+                                field("accountId").description("아이디 (재설정 링크의 \"id\" 파라미터 값)"),
+                                field("code").description("인증 코드 (재설정 링크의 \"code\" 파라미터 값)"),
+                                field("password").description("새 비밀번호")
                         )));
     }
 }

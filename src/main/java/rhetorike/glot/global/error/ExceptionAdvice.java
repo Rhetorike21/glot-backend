@@ -54,6 +54,13 @@ public class ExceptionAdvice {
         return new ResponseEntity<>(new ErrorResponseDto(errorCode), errorCode.getHttpStatus());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    protected ResponseEntity<ErrorResponseDto> handle(IllegalArgumentException e) {
+        ErrorCode errorCode = ErrorCode.ILLEGAL_ARGUMENT;
+        e.printStackTrace();
+        return new ResponseEntity<>(new ErrorResponseDto(errorCode), errorCode.getHttpStatus());
+    }
+
     @ExceptionHandler(InternalServerException.class)
     protected ResponseEntity<ErrorResponseDto> handle(InternalServerException e) {
         ErrorCode errorCode = e.getErrorCode();

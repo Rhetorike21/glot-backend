@@ -13,6 +13,7 @@ import rhetorike.glot.setup.ServiceTest;
 import java.util.List;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ServiceTest
 class AccountIdFindServiceTest {
@@ -32,11 +33,12 @@ class AccountIdFindServiceTest {
         String email = "hong@naver.com";
         String accountId = "hong1234";
         AccountIdFindDto.EmailRequest requestDto = new AccountIdFindDto.EmailRequest(name, email);
-        given(userRepository.findByEmail(email)).willReturn(List.of(Personal.builder().accountId(accountId).build()));
+        given(userRepository.findByEmailAndName(email, name)).willReturn(List.of(Personal.builder().accountId(accountId).build()));
 
         //when
-        accountIdFindService.findByEmail(requestDto);
+        accountIdFindService.sendAccountId(requestDto);
 
         //then
+        verify(userRepository).findByEmailAndName(email, name);
     }
 }

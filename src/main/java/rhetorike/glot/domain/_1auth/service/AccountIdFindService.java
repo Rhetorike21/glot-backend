@@ -22,8 +22,8 @@ public class AccountIdFindService {
      *
      * @param requestDto 이름, 이메일
      */
-    public void findByEmail(AccountIdFindDto.EmailRequest requestDto) {
-        List<User> users = userRepository.findByEmail(requestDto.getEmail());
+    public void sendAccountId(AccountIdFindDto.EmailRequest requestDto) {
+        List<User> users = userRepository.findByEmailAndName(requestDto.getEmail(), requestDto.getName());
         if (users.isEmpty()) {
             throw new UserNotFoundException();
         }

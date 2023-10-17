@@ -20,7 +20,7 @@ class UserRepositoryTest {
 
     @Test
     @DisplayName("개인 사용자를 저장하고 조회한다.")
-    void saveAndFindPersonal(){
+    void saveAndFindPersonal() {
         //given
         User user = new Personal();
         User saved = userRepository.save(user);
@@ -35,7 +35,7 @@ class UserRepositoryTest {
 
     @Test
     @DisplayName("기관 사용자를 저장하고 조회한다.")
-    void saveAndFindOrganization(){
+    void saveAndFindOrganization() {
         //given
         User user = new Organization();
         User saved = userRepository.save(user);
@@ -46,5 +46,21 @@ class UserRepositoryTest {
         //then
         assertThat(found).isNotEmpty();
         assertThat(found.get()).isEqualTo(saved);
+    }
+
+    @Test
+    @DisplayName("비밀번호를 변경한다.")
+    void changePassword() {
+        //given
+        User user = Personal.builder().password("old").build();
+        User saved = userRepository.save(user);
+        saved.changePassword("new");
+
+        //when
+        Optional<User> found = userRepository.findById(saved.getId());
+
+        //then
+        assertThat(found).isNotEmpty();
+        assertThat(found.get().getPassword()).isEqualTo("new");
     }
 }

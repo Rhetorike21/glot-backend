@@ -123,4 +123,8 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
         }
         return "없음";
     }
+
+    public void changePassword(String password) {
+        this.password = password;
+    }
 }
