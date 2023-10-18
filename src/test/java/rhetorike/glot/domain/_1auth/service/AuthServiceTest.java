@@ -6,7 +6,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import rhetorike.glot.domain._1auth.dto.LoginDto;
 import rhetorike.glot.domain._1auth.dto.SignUpDto;
@@ -51,7 +50,7 @@ class AuthServiceTest {
         String rawPassword = "abc1234";
         String encodedPassword = "(encoded)abc1234";
         SignUpDto.PersonalRequest requestDto = new SignUpDto.PersonalRequest(accountId, rawPassword, "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, "1234");
-        given(certCodeRepository.findByPinNumbers("1234")).willReturn(Optional.of(new CertCode("1234", true)));
+        given(certCodeRepository.doesExists("1234")).willReturn(true);
         given(passwordEncoder.encode(rawPassword)).willReturn(encodedPassword);
         given(userRepository.findByAccountId(accountId)).willReturn(Optional.empty());
 
@@ -59,7 +58,7 @@ class AuthServiceTest {
         authService.signUp(requestDto);
 
         //then
-        verify(certCodeRepository).findByPinNumbers("1234");
+        verify(certCodeRepository).doesExists("1234");
         verify(passwordEncoder).encode(rawPassword);
         verify(userRepository).findByAccountId(accountId);
     }
@@ -71,9 +70,8 @@ class AuthServiceTest {
         String accountId = "testorganization";
         String rawPassword = "abc1234";
         String encodedPassword = "(encoded)abc1234";
-        given(certCodeRepository.findByPinNumbers("1234")).willReturn(Optional.of(new CertCode("1234", true)));
         SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest(accountId, rawPassword, "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, "1234", "한국고등학교");
-        given(certCodeRepository.findByPinNumbers("1234")).willReturn(Optional.of(new CertCode("1234", true)));
+        given(certCodeRepository.doesExists("1234")).willReturn(true);
         given(passwordEncoder.encode(rawPassword)).willReturn(encodedPassword);
         given(userRepository.findByAccountId(accountId)).willReturn(Optional.empty());
 
@@ -81,7 +79,7 @@ class AuthServiceTest {
         authService.signUp(requestDto);
 
         //then
-        verify(certCodeRepository).findByPinNumbers("1234");
+        verify(certCodeRepository).doesExists("1234");
         verify(passwordEncoder).encode(rawPassword);
         verify(userRepository).findByAccountId(accountId);
     }

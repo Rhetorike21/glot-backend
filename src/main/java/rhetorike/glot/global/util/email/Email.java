@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import rhetorike.glot.domain._1auth.entity.EmailCertCode;
 import rhetorike.glot.domain._1auth.entity.ResetCode;
 
 import java.util.List;
@@ -25,13 +26,12 @@ public class Email {
         String content = getAccountIdEmailContent(accountIdRegion);
         return new Email(destination, subject, content);
     }
-
-    public static Email newPasswordResetEmail(String destination, ResetCode resetCode) {
+    public static Email newPasswordResetEmail(EmailCertCode emailCertCode) {
         String subject = "GLOT 비밀번호 변경 안내";
         String domainUrl = "https://www.naver.com";
-        String resetLink = domainUrl + "?id=" + resetCode.getAccountId() + "&code=" + resetCode.getCode();
+        String resetLink = domainUrl + "?code=" + emailCertCode.getNumber();
         String content = getPasswordResetEmailContent(resetLink);
-        return new Email(destination, subject, content);
+        return new Email(emailCertCode.getEmail(), subject, content);
     }
 
     @NotNull

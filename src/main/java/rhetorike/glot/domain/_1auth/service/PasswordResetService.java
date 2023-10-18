@@ -5,32 +5,29 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import rhetorike.glot.domain._1auth.dto.PasswordResetDto;
-import rhetorike.glot.domain._1auth.entity.ResetCode;
-import rhetorike.glot.domain._1auth.repository.resetcode.ResetCodeRepository;
+import rhetorike.glot.domain._1auth.entity.EmailCertCode;
+import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
+import rhetorike.glot.domain._1auth.service.codesender.emailsender.EmailCodeSender;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.global.error.exception.UserNotFoundException;
-import rhetorike.glot.global.util.email.Email;
-import rhetorike.glot.global.util.email.EmailService;
+import rhetorike.glot.global.util.RandomTextGenerator;
 
 @Service
 @RequiredArgsConstructor
 public class PasswordResetService {
     private final UserRepository userRepository;
-    private final EmailService emailService;
-    private final ResetCodeRepository resetCodeRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CertificationService certificationService;
 
     /**
-     * 이메일로 비밀번호 재설정 링크를 전송합니다.
+     * 이메일로 비밀번호 재설정을 위한 인증코드를 전송합니다.
      *
      * @param requestDto 아이디, 이메일, 이름
      */
-    public void sendResetLink(PasswordResetDto.EmailRequest requestDto) {
+    public void sendResetLinkByEmail(PasswordResetDto.LinkRequest requestDto) {
         User user = userRepository.findByAccountIdAndEmailAndName(requestDto.getAccountId(), requestDto.getEmail(), requestDto.getName()).orElseThrow(UserNotFoundException::new);
-        ResetCode resetCode = ResetCode.randomResetCode(user.getAccountId());
-        resetCodeRepository.save(resetCode);
-        emailService.sendMail(Email.newPasswordResetEmail(user.getEmail(), resetCode));
+        certificationService.sendEmailCode(user.getEmail());
     }
 
     /**
@@ -39,12 +36,9 @@ public class PasswordResetService {
      * @param requestDto 아이디, 인증코드, 새 비밀번호
      */
     @Transactional
-    public void resetPassword(PasswordResetDto.ResetRequest requestDto) {
+    public void resetPassword(PasswordResetDto.Request requestDto) {
         User user = userRepository.findByAccountId(requestDto.getAccountId()).orElseThrow(UserNotFoundException::new);
-        ResetCode saved = resetCodeRepository.findByAccountId(requestDto.getAccountId()).orElseThrow(IllegalArgumentException::new);
-        ResetCode given = ResetCode.from(requestDto.getAccountId(), requestDto.getCode());
-        if (saved.equals(given)) {
-            resetCodeRepository.deleteByAccountId(requestDto.getAccountId());
+        if (certificationService.isValidNumber(requestDto.getCode())){
             user.changePassword(passwordEncoder.encode(requestDto.getPassword()));
             return;
         }

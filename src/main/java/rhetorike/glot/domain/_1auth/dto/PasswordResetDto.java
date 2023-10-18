@@ -9,7 +9,7 @@ public class PasswordResetDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class EmailRequest{
+    public static class LinkRequest {
         private String accountId;
         private String name;
         private String email;
@@ -18,7 +18,7 @@ public class PasswordResetDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ResetRequest {
+    public static class Request {
         private String accountId;
         private String code;
         private String password;

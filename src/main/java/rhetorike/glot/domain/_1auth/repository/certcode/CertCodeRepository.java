@@ -1,13 +1,37 @@
 package rhetorike.glot.domain._1auth.repository.certcode;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Repository;
 import rhetorike.glot.domain._1auth.entity.CertCode;
 
-import java.util.Optional;
+import java.time.Duration;
 
-public interface CertCodeRepository {
-    Optional<CertCode> findByPinNumbers(String pinNumbers);
-    CertCode save(CertCode certCode);
-    void update(CertCode certCode);
-    void delete(CertCode certCode);
+@Primary
+@Repository
+@RequiredArgsConstructor
+public class CertCodeRepository {
+    private final static String BLANK = "";
+    private final static String PREFIX = "CERT_CODE:";
+    private final RedisTemplate<String, Object> redisTemplate;
+
+
+    public void save(CertCode certCode) {
+        ValueOperations<String, Object> operations = redisTemplate.opsForValue();
+        String key = PREFIX + certCode.getNumber();
+        operations.set(key, BLANK);
+        redisTemplate.expire(key, Duration.ofMinutes(10));
+    }
+
+    public boolean doesExists(String number) {
+        String key = PREFIX + number;
+        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+    }
+
+    public void delete(String number) {
+        String key = PREFIX + number;
+        redisTemplate.delete(key);
+    }
 }

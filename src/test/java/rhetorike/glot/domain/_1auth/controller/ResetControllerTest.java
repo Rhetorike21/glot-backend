@@ -13,9 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import rhetorike.glot.domain._1auth.dto.AccountIdFindDto;
 import rhetorike.glot.domain._1auth.dto.PasswordResetDto;
-import rhetorike.glot.domain._1auth.service.AccountIdFindService;
 import rhetorike.glot.domain._1auth.service.PasswordResetService;
 import rhetorike.glot.global.security.JwtAuthenticationFilter;
 import rhetorike.glot.global.security.SecurityConfig;
@@ -27,13 +25,13 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @AutoConfigureRestDocs
-@WebMvcTest(value = FindController.class, excludeFilters = {
+@WebMvcTest(value = ResetController.class, excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class),
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthenticationFilter.class)
 })
-class FindControllerTest {
+class ResetControllerTest {
+
     @Autowired
     MockMvc mockMvc;
 
@@ -41,25 +39,26 @@ class FindControllerTest {
     ObjectMapper objectMapper;
 
     @MockBean
-    AccountIdFindService accountIdFindService;
+    PasswordResetService passwordResetService;
 
     @Test
     @WithMockUser
-    @DisplayName("메일로 아이디 찾기")
-    void findAccountIdByEmail() throws Exception {
+    @DisplayName("[이메일로 재설정 링크 전송]")
+    void sendResetLinkByEmail() throws Exception {
         //given
-        AccountIdFindDto.EmailRequest requestDto = new AccountIdFindDto.EmailRequest("홍길동", "hong@naver.com");
+        PasswordResetDto.LinkRequest requestDto = new PasswordResetDto.LinkRequest("abcd1234", "홍길동", "hong@naver.com");
 
         //when
-        ResultActions actions = mockMvc.perform(post(FindController.FIND_ACCOUNT_ID_BY_EMAIL)
+        ResultActions actions = mockMvc.perform(post(ResetController.SEND_RESET_LINK_URI)
                 .with(csrf())
                 .content(objectMapper.writeValueAsString(requestDto))
                 .contentType(MediaType.APPLICATION_JSON));
 
         //then
         actions.andExpect(status().isNoContent())
-                .andDo(docs("find-accountId-email",
+                .andDo(docs("find-password-email",
                         requestFields(
+                                field("accountId").description("아이디"),
                                 field("name").description("이름"),
                                 field("email").description("이메일")
                         )));
@@ -67,24 +66,24 @@ class FindControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("휴대폰으로 아이디 찾기")
-    void findAccountIdByMobile() throws Exception {
+    @DisplayName("[이메일/전화번호로 비밀번호 재설정]")
+    void resetPassword() throws Exception {
         //given
-        AccountIdFindDto.MobileRequest requestDto = new AccountIdFindDto.MobileRequest("홍길동", "01012345678", "123456");
+        PasswordResetDto.Request requestDto = new PasswordResetDto.Request("abcd1234", "code", "new-password");
 
         //when
-        ResultActions actions = mockMvc.perform(post(FindController.FIND_ACCOUNT_ID_BY_MOBILE)
+        ResultActions actions = mockMvc.perform(post(ResetController.SEND_RESET_LINK_URI)
                 .with(csrf())
                 .content(objectMapper.writeValueAsString(requestDto))
                 .contentType(MediaType.APPLICATION_JSON));
 
         //then
-        actions.andExpect(status().isOk())
-                .andDo(docs("find-accountId-mobile",
+        actions.andExpect(status().isNoContent())
+                .andDo(docs("reset-password",
                         requestFields(
-                                field("name").description("이름"),
-                                field("mobile").description("전화번호"),
-                                field("code").description("인증코드")
+                                field("accountId").description("아이디 (재설정 링크의 \"id\" 파라미터 값)"),
+                                field("code").description("인증 코드 (재설정 링크의 \"code\" 파라미터 값)"),
+                                field("password").description("새 비밀번호")
                         )));
     }
 }

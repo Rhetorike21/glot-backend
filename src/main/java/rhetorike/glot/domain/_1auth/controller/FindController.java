@@ -17,11 +17,8 @@ public class FindController {
 
     public static final String FIND_ACCOUNT_ID_BY_EMAIL = "/api/find/account-id/email";
     public static final String FIND_ACCOUNT_ID_BY_MOBILE = "/api/find/account-id/mobile";
-    public static final String FIND_PASSWORD_BY_EMAIL = "/api/find/password/email";
-    public static final String RESET_PASSWORD = "/api/reset/password";
 
     private final AccountIdFindService accountIdFindService;
-    private final PasswordResetService passwordResetService;
 
     @PostMapping(FIND_ACCOUNT_ID_BY_EMAIL)
     public ResponseEntity<Void> findAccountIdByEmail(@RequestBody AccountIdFindDto.EmailRequest requestDto) {
@@ -33,17 +30,5 @@ public class FindController {
     public ResponseEntity<AccountIdFindDto.MobileResponse> findAccountIdByMobile(@RequestBody AccountIdFindDto.MobileRequest requestDto) {
         AccountIdFindDto.MobileResponse responseBody = accountIdFindService.findAccountIdByMobile(requestDto);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
-    }
-
-    @PostMapping(FIND_PASSWORD_BY_EMAIL)
-    public ResponseEntity<Void> findPasswordByEmail(@RequestBody PasswordResetDto.EmailRequest requestDto) {
-        passwordResetService.sendResetLink(requestDto);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @PostMapping(RESET_PASSWORD)
-    public ResponseEntity<Void> resetPassword(@RequestBody PasswordResetDto.ResetRequest requestDto) {
-        passwordResetService.resetPassword(requestDto);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

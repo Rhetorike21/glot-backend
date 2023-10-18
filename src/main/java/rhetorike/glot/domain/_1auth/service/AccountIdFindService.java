@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import rhetorike.glot.domain._1auth.dto.AccountIdFindDto;
-import rhetorike.glot.domain._1auth.service.smscert.SmsCertificationService;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.global.error.exception.CertificationFailedException;
@@ -21,7 +20,7 @@ import java.util.List;
 public class AccountIdFindService {
     private final EmailService emailService;
     private final UserRepository userRepository;
-    private final SmsCertificationService smsCertificationService;
+    private final CertificationService certificationService;
 
     /**
      * 메일로 사용자의 아이디를 전송합니다.
@@ -47,7 +46,7 @@ public class AccountIdFindService {
      */
     public AccountIdFindDto.MobileResponse findAccountIdByMobile(AccountIdFindDto.MobileRequest requestDto) {
         List<User> users = findUserByMobileAndName(requestDto);
-        if (smsCertificationService.doesValidPinNumbers(requestDto.getCode())) {
+        if (certificationService.isValidNumber(requestDto.getCode())) {
             List<String> accountIds = getAllAccountId(users);
             return new AccountIdFindDto.MobileResponse(accountIds);
         }

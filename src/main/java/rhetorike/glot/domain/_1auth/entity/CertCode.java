@@ -7,11 +7,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 @EqualsAndHashCode
-public class CertCode {
-    private final String pinNumbers;
-    private boolean checked;
-
-    public void setChecked() {
-        this.checked = true;
-    }
+public abstract class CertCode {
+    private final String number;
 }

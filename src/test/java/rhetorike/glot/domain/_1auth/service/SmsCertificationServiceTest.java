@@ -5,14 +5,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import rhetorike.glot.domain._1auth.entity.CertCode;
 import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
-import rhetorike.glot.domain._1auth.service.smscert.SmsCertificationService;
-import rhetorike.glot.domain._1auth.service.smscert.smssender.SmsSender;
+import rhetorike.glot.domain._1auth.service.codesender.smssender.MobileCodeSender;
 import rhetorike.glot.global.util.RandomTextGenerator;
 import rhetorike.glot.setup.ServiceTest;
-
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -23,9 +19,9 @@ import static org.mockito.Mockito.verify;
 class SmsCertificationServiceTest {
 
     @InjectMocks
-    SmsCertificationService smsCertificationService;
+    CertificationService certificationService;
     @Mock
-    SmsSender smsSender;
+    MobileCodeSender mobileCodeSender;
     @Mock
     CertCodeRepository certCodeRepository;
     @Mock
@@ -37,14 +33,14 @@ class SmsCertificationServiceTest {
         //given
         String pinNumbers = "123456";
         given(randomTextGenerator.generateSixNumbers()).willReturn(pinNumbers);
-        given(certCodeRepository.findByPinNumbers(pinNumbers)).willReturn(Optional.empty());
+        given(certCodeRepository.doesExists(pinNumbers)).willReturn(false);
 
         //when
-        smsCertificationService.sendCertCode("01012345678");
+        certificationService.sendMobileCode("01012345678");
 
         //then
         verify(randomTextGenerator).generateSixNumbers();
-        verify(certCodeRepository).findByPinNumbers(pinNumbers);
+        verify(certCodeRepository).doesExists(pinNumbers);
     }
 
 
@@ -53,16 +49,16 @@ class SmsCertificationServiceTest {
     void sendUniquePin(){
         //given
         given(randomTextGenerator.generateSixNumbers()).willReturn("123456").willReturn("567890").willReturn("345678");
-        given(certCodeRepository.findByPinNumbers("123456")).willReturn(Optional.of(new CertCode("123456", false)));
-        given(certCodeRepository.findByPinNumbers("567890")).willReturn(Optional.of(new CertCode("567890", false)));
-        given(certCodeRepository.findByPinNumbers("345678")).willReturn(Optional.empty());
+        given(certCodeRepository.doesExists("123456")).willReturn(true);
+        given(certCodeRepository.doesExists("567890")).willReturn(true);
+        given(certCodeRepository.doesExists("345678")).willReturn(false);
 
         //when
-        smsCertificationService.sendCertCode("01012345678");
+        certificationService.sendMobileCode("01012345678");
 
         //then
         verify(randomTextGenerator, times(3)).generateSixNumbers();
-        verify(certCodeRepository, times(3)).findByPinNumbers(any());
+        verify(certCodeRepository, times(3)).doesExists(any());
     }
 
 
@@ -71,13 +67,13 @@ class SmsCertificationServiceTest {
     void verifyCode(){
         //given
         String pinNumbers = "123456";
-        given(certCodeRepository.findByPinNumbers(pinNumbers)).willReturn(Optional.of(new CertCode("1234", false)));
+        given(certCodeRepository.doesExists(pinNumbers)).willReturn(true);
 
         //when
-        boolean result = smsCertificationService.verifyCode(pinNumbers);
+        boolean result = certificationService.isValidNumber(pinNumbers);
 
         //then
-        verify(certCodeRepository).findByPinNumbers(pinNumbers);
+        verify(certCodeRepository).doesExists(pinNumbers);
         Assertions.assertThat(result).isTrue();
     }
 
@@ -86,13 +82,13 @@ class SmsCertificationServiceTest {
     void verifyCodeFailed(){
         //given
         String pinNumbers = "123456";
-        given(certCodeRepository.findByPinNumbers(pinNumbers)).willReturn(Optional.empty());
+        given(certCodeRepository.doesExists(pinNumbers)).willReturn(false);
 
         //when
-        boolean result = smsCertificationService.verifyCode(pinNumbers);
+        boolean result = certificationService.isValidNumber(pinNumbers);
 
         //then
-        verify(certCodeRepository).findByPinNumbers(pinNumbers);
+        verify(certCodeRepository).doesExists(pinNumbers);
         Assertions.assertThat(result).isFalse();
     }
 
@@ -101,13 +97,13 @@ class SmsCertificationServiceTest {
     void doesValidPinNumbers(){
         //given
         String pinNumbers = "123456";
-        given(certCodeRepository.findByPinNumbers(pinNumbers)).willReturn(Optional.of(new CertCode(pinNumbers, true)));
+        given(certCodeRepository.doesExists(pinNumbers)).willReturn(true);
 
         //when
-        boolean result = smsCertificationService.doesValidPinNumbers(pinNumbers);
+        boolean result = certificationService.isValidNumber(pinNumbers);
 
         //then
-        verify(certCodeRepository).findByPinNumbers(pinNumbers);
+        verify(certCodeRepository).doesExists(pinNumbers);
         Assertions.assertThat(result).isTrue();
     }
 }

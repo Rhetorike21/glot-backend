@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rhetorike.glot.domain._1auth.dto.AccountIdFindDto;
-import rhetorike.glot.domain._1auth.service.smscert.SmsCertificationService;
 import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.global.error.exception.CertificationFailedException;
@@ -28,7 +27,7 @@ class AccountIdFindServiceTest {
     @Mock
     UserRepository userRepository;
     @Mock
-    SmsCertificationService smsCertificationService;
+    CertificationService certificationService;
 
     @Test
     @DisplayName("이메일로 아이디를 찾는다.")
@@ -56,14 +55,14 @@ class AccountIdFindServiceTest {
         String code = "123456";
         AccountIdFindDto.MobileRequest requestDto = new AccountIdFindDto.MobileRequest(name, mobile, code);
         given(userRepository.findByMobileAndName(mobile, name)).willReturn(List.of(Personal.builder().accountId("hong1234").build()));
-        given(smsCertificationService.doesValidPinNumbers(code)).willReturn(true);
+        given(certificationService.isValidNumber(code)).willReturn(true);
 
         //when
         accountIdFindService.findAccountIdByMobile(requestDto);
 
         //then
         verify(userRepository).findByMobileAndName(mobile, name);
-        verify(smsCertificationService).doesValidPinNumbers(code);
+        verify(certificationService).isValidNumber(code);
     }
 
     @Test
@@ -75,7 +74,7 @@ class AccountIdFindServiceTest {
         String code = "123456";
         AccountIdFindDto.MobileRequest requestDto = new AccountIdFindDto.MobileRequest(name, mobile, code);
         given(userRepository.findByMobileAndName(mobile, name)).willReturn(List.of(Personal.builder().accountId("hong1234").build()));
-        given(smsCertificationService.doesValidPinNumbers(code)).willReturn(false);
+        given(certificationService.isValidNumber(code)).willReturn(false);
 
         //when
 

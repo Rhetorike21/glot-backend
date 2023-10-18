@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import rhetorike.glot.domain._1auth.dto.LoginDto;
 import rhetorike.glot.domain._1auth.dto.SignUpDto;
 import rhetorike.glot.domain._1auth.dto.TokenDto;
-import rhetorike.glot.domain._1auth.entity.BlockedToken;
 import rhetorike.glot.domain._1auth.entity.CertCode;
 import rhetorike.glot.domain._1auth.repository.blockedtoken.BlockedTokenRepository;
 import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
@@ -47,10 +46,9 @@ public class AuthService {
         User user = requestDto.toUser(encodedPassword);
         userRepository.save(user);
     }
-    private void validateCode(String code) {
-        Optional<CertCode> certCodeOptional = certCodeRepository.findByPinNumbers(code);
-        if (certCodeOptional.isPresent() && certCodeOptional.get().isChecked()) {
-            certCodeRepository.delete(certCodeOptional.get());
+    private void validateCode(String codeNumber) {
+        if (certCodeRepository.doesExists(codeNumber)) {
+            certCodeRepository.delete(codeNumber);
             return;
         }
         throw new CertificationFailedException();

@@ -37,7 +37,7 @@ public class AuthApiTest extends IntegrationTest {
     void signUpWithPersonal() {
         //given
         final String CODE = "1234";
-        given(certCodeRepository.findByPinNumbers(CODE)).willReturn(Optional.of(new CertCode(CODE, true)));
+        given(certCodeRepository.doesExists(CODE)).willReturn(true);
         SignUpDto.PersonalRequest requestDto = new SignUpDto.PersonalRequest("test1234", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, CODE);
 
         //when
@@ -59,7 +59,7 @@ public class AuthApiTest extends IntegrationTest {
     void signUpWithOrganization() {
         //given
         final String CODE = "123564";
-        given(certCodeRepository.findByPinNumbers(CODE)).willReturn(Optional.of(new CertCode(CODE, true)));
+        given(certCodeRepository.doesExists(CODE)).willReturn(true);
         SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest("asdf1234", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, CODE, "한국고등학교");
 
         //when
@@ -128,7 +128,7 @@ public class AuthApiTest extends IntegrationTest {
         final String TEMP_USER_ACCOUNT_ID = "withdrawaltest1";
         final String TEMP_USER_PASSWORD = "abcd1234";
         final String CODE = "123456";
-        given(certCodeRepository.findByPinNumbers(CODE)).willReturn(Optional.of(new CertCode(CODE, true)));
+        given(certCodeRepository.doesExists(CODE)).willReturn(true);
         SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest(TEMP_USER_ACCOUNT_ID, TEMP_USER_PASSWORD, "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, CODE, "한국고등학교");
         RestAssured.given().log().all()
                 .body(requestDto)

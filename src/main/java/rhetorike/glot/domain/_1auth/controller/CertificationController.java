@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rhetorike.glot.domain._1auth.dto.CertificationDto;
-import rhetorike.glot.domain._1auth.service.smscert.SmsCertificationService;
+import rhetorike.glot.domain._1auth.service.CertificationService;
 
 @Slf4j
 @RestController
@@ -14,17 +14,17 @@ import rhetorike.glot.domain._1auth.service.smscert.SmsCertificationService;
 public class CertificationController {
     public static final String SEND_CODE_URI = "/api/cert/sms/code";
     public static final String VERIFY_CODE_URI = "/api/cert/sms/verify";
-    private final SmsCertificationService smsCertificationService;
+    private final CertificationService certificationService;
 
     @PostMapping(SEND_CODE_URI)
     public ResponseEntity<Void> sendCodeBySms(@RequestBody CertificationDto.CodeRequest requestDto){
-        smsCertificationService.sendCertCode(requestDto.getMobile());
+        certificationService.sendMobileCode(requestDto.getMobile());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping(VERIFY_CODE_URI)
     public ResponseEntity<CertificationDto.VerifyResponse> verifyCodeBySms(@RequestParam String code){
-        boolean success = smsCertificationService.verifyCode(code);
+        boolean success = certificationService.isValidNumber(code);
         return new ResponseEntity<>(new CertificationDto.VerifyResponse(success), HttpStatus.OK);
     }
 }

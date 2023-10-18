@@ -42,4 +42,6 @@ class ResetCodeRedisTemplateTest {
         //then
         assertThat(result).isEqualTo("newValue");
     }
+
+
 }

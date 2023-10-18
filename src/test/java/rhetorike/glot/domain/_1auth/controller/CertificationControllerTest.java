@@ -15,7 +15,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import rhetorike.glot.domain._1auth.dto.CertificationDto;
-import rhetorike.glot.domain._1auth.service.smscert.SmsCertificationService;
+import rhetorike.glot.domain._1auth.service.CertificationService;
 import rhetorike.glot.global.security.JwtAuthenticationFilter;
 import rhetorike.glot.global.security.SecurityConfig;
 
@@ -43,7 +43,7 @@ class CertificationControllerTest {
     ObjectMapper objectMapper;
 
     @MockBean
-    SmsCertificationService smsCertificationService;
+    CertificationService certificationService;
 
     @Test
     @WithMockUser
@@ -72,7 +72,7 @@ class CertificationControllerTest {
     void verifyCodeBySms() throws Exception {
         //given
         String code = "1234";
-        given(smsCertificationService.verifyCode(code)).willReturn(true);
+        given(certificationService.isValidNumber(code)).willReturn(true);
 
         //when
         ResultActions actions = mockMvc.perform(post(CertificationController.VERIFY_CODE_URI)
