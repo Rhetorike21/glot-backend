@@ -16,10 +16,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CertificationApiTest extends IntegrationTest {
 
     @Test
-    @DisplayName("주어진 전화번호로 인증번호를 전송한다.")
+    @DisplayName("[인증번호 전송]")
     void sendCodeBySms(){
         //given
-        CertificationDto.CodeRequest requestBody = new CertificationDto.CodeRequest("01023456789");
+        CertificationDto.CodeRequest requestBody = new CertificationDto.CodeRequest(USER_1_MOBILE);
 
         //when
         ExtractableResponse<Response> response = RestAssured
@@ -35,14 +35,15 @@ public class CertificationApiTest extends IntegrationTest {
     }
 
     @Test
-    @DisplayName("인증번호를 확인한다.")
+    @DisplayName("[인증번호 확인]")
     void verifyCode(){
         //given
+        final String CODE = "123456";
 
         //when
         ExtractableResponse<Response> response = RestAssured
                 .given().log().all()
-                .queryParam("code","1234")
+                .queryParam("code",CODE)
                 .when().post(CertificationController.VERIFY_CODE_URI)
                 .then().log().all()
                 .extract();

@@ -18,11 +18,10 @@ import org.springframework.http.MediaType;
 import rhetorike.glot.domain._1auth.controller.AuthController;
 import rhetorike.glot.domain._1auth.dto.LoginDto;
 import rhetorike.glot.domain._1auth.dto.SignUpDto;
+import rhetorike.glot.domain._1auth.dto.TokenDto;
 import rhetorike.glot.domain._1auth.entity.CertCode;
 import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
 import rhetorike.glot.global.constant.Header;
-import rhetorike.glot.global.security.jwt.AccessToken;
-import rhetorike.glot.global.security.jwt.RefreshToken;
 import rhetorike.glot.setup.IntegrationTest;
 
 import java.util.Optional;
@@ -34,12 +33,12 @@ public class AuthApiTest extends IntegrationTest {
     CertCodeRepository certCodeRepository;
 
     @Test
-    @DisplayName("개인 사용자로 회원가입한다.")
+    @DisplayName("[개인 사용자 회원가입]")
     void signUpWithPersonal() {
         //given
-        String pinNumbers = "1234";
-        given(certCodeRepository.findByPinNumbers(pinNumbers)).willReturn(Optional.of(new CertCode(pinNumbers, true)));
-        SignUpDto.PersonalRequest requestDto = new SignUpDto.PersonalRequest("test1234", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, pinNumbers);
+        final String CODE = "1234";
+        given(certCodeRepository.findByPinNumbers(CODE)).willReturn(Optional.of(new CertCode(CODE, true)));
+        SignUpDto.PersonalRequest requestDto = new SignUpDto.PersonalRequest("test1234", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, CODE);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -56,12 +55,12 @@ public class AuthApiTest extends IntegrationTest {
     }
 
     @Test
-    @DisplayName("기관 사용자로 회원가입한다.")
+    @DisplayName("[기관 사용자 회원가입]")
     void signUpWithOrganization() {
         //given
-        String pinNumbers = "1234";
-        given(certCodeRepository.findByPinNumbers(pinNumbers)).willReturn(Optional.of(new CertCode(pinNumbers, true)));
-        SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest("asdf1234", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, pinNumbers, "한국고등학교");
+        final String CODE = "123564";
+        given(certCodeRepository.findByPinNumbers(CODE)).willReturn(Optional.of(new CertCode(CODE, true)));
+        SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest("asdf1234", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, CODE, "한국고등학교");
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -78,12 +77,10 @@ public class AuthApiTest extends IntegrationTest {
     }
 
     @Test
-    @DisplayName("테스트 사용자로 로그인한다.")
+    @DisplayName("[로그인]")
     void login() {
         //given
-        String id = "test01personal";
-        String password = "abcd1234";
-        LoginDto requestDto = new LoginDto(id, password);
+        LoginDto requestDto = new LoginDto(USER_1_ACCOUNT_ID, USER_1_PASSWORD_RAW);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -103,16 +100,17 @@ public class AuthApiTest extends IntegrationTest {
     }
 
     @Test
-    @DisplayName("로그아웃")
+    @DisplayName("[로그아웃]")
     void logout() {
         //given
-        String accessToken = getToken().getAccessToken();
-        String refreshToken = getToken().getRefreshToken();
+        TokenDto.FullResponse tokenResponse = getTokenFromUser1();
+        final String ACCESS_TOKEN = tokenResponse.getAccessToken();
+        final String REFRESH_TOKEN = tokenResponse.getRefreshToken();
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header(Header.AUTH, accessToken)
-                .header(Header.REFRESH, refreshToken)
+                .header(Header.AUTH, ACCESS_TOKEN)
+                .header(Header.REFRESH, REFRESH_TOKEN)
                 .when().post(AuthController.LOGOUT_URI)
                 .then().log().all()
                 .extract();
@@ -124,14 +122,14 @@ public class AuthApiTest extends IntegrationTest {
     }
 
     @Test
-    @DisplayName("회원탈퇴")
+    @DisplayName("[회원탈퇴]")
     void withdraw() {
         //given
-        String accountId = "withdrawaltest1";
-        String password = "abcd1234";
-        String pinNumbers = "1234";
-        given(certCodeRepository.findByPinNumbers(pinNumbers)).willReturn(Optional.of(new CertCode(pinNumbers, true)));
-        SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest("withdrawaltest1", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, pinNumbers, "한국고등학교");
+        final String TEMP_USER_ACCOUNT_ID = "withdrawaltest1";
+        final String TEMP_USER_PASSWORD = "abcd1234";
+        final String CODE = "123456";
+        given(certCodeRepository.findByPinNumbers(CODE)).willReturn(Optional.of(new CertCode(CODE, true)));
+        SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest(TEMP_USER_ACCOUNT_ID, TEMP_USER_PASSWORD, "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, CODE, "한국고등학교");
         RestAssured.given().log().all()
                 .body(requestDto)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -140,7 +138,7 @@ public class AuthApiTest extends IntegrationTest {
                 .extract();
 
         JsonPath jsonPath = RestAssured.given().log().all()
-                .body(new LoginDto(accountId, password))
+                .body(new LoginDto(TEMP_USER_ACCOUNT_ID, TEMP_USER_PASSWORD))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when().post(AuthController.LOGIN_URI)
                 .then().log().all()
@@ -164,16 +162,17 @@ public class AuthApiTest extends IntegrationTest {
 
 
     @Test
-    @DisplayName("액세스 토큰 재발급")
+    @DisplayName("[액세스 토큰 재발급]")
     void reissue() {
         //given
-        String accessToken = getToken().getAccessToken();
-        String refreshToken = getToken().getRefreshToken();
+        TokenDto.FullResponse tokenResponse = getTokenFromUser1();
+        final String ACCESS_TOKEN = tokenResponse.getAccessToken();
+        final String REFRESH_TOKEN = tokenResponse.getRefreshToken();
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header(Header.AUTH, accessToken)
-                .header(Header.REFRESH, refreshToken)
+                .header(Header.AUTH, ACCESS_TOKEN)
+                .header(Header.REFRESH, REFRESH_TOKEN)
                 .when().post(AuthController.REISSUE_URI)
                 .then().log().all()
                 .extract();

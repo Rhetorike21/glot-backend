@@ -6,6 +6,7 @@ import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException;
 import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.jetbrains.annotations.NotNull;
+import rhetorike.glot.domain._1auth.entity.CertCode;
 import rhetorike.glot.global.error.exception.ConnectionFailedException;
 
 @Slf4j
@@ -15,9 +16,9 @@ public class CoolSmsSender implements SmsSender{
     private static final String SECRET_KEY = "secret-key";
     private static final String DOMAIN_URL = "https://api.coolsms.co.kr";
     @Override
-    public void sendPinNumbers(String mobile, String pinNumbers) {
+    public void sendCertCode(String mobile, CertCode certCode) {
         DefaultMessageService messageService = NurigoApp.INSTANCE.initialize(API_KEY, SECRET_KEY, DOMAIN_URL);
-        Message message = createMessage(mobile, pinNumbers);
+        Message message = createMessage(mobile, certCode.getPinNumbers());
         try {
             messageService.send(message);
         } catch (NurigoMessageNotReceivedException exception) {

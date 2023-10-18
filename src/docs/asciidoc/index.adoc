@@ -95,6 +95,14 @@ operation::auth-reissue[]
 ----
 operation::find-accountId-email[]
 
+=== 🟢 전화번호로 아이디 찾기
+----
+전화번호로 아이디를 찾습니다.
+해당 API를 호출하기 전, SMS 인증 과정이 선행되어야 합니다.
+----
+operation::find-accountId-mobile[]
+
+
 === 🟢 이메일로 비밀번호 찾기(메일 전송)
 ----
 입력한 메일 주소로 비밀번호 재설정 링크가 포함된 이메일을 전송합니다.

@@ -14,15 +14,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OrgNameApiTest extends IntegrationTest {
 
     @Test
-    @DisplayName("기관을 검색한다.")
-    void searchOrgName(){
+    @DisplayName("[기관명 검색]")
+    void searchOrgName() {
         //given
-        String keyword = "한국";
+        String KEYWORD = "한국";
 
         //when
         ExtractableResponse<Response> response = RestAssured
                 .given().log().all()
-                .queryParam("keyword",keyword)
+                .queryParam("keyword", KEYWORD)
                 .when().get(OrgNameController.SEARCH_URI)
                 .then().log().all()
                 .extract();

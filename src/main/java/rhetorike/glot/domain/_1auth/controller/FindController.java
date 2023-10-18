@@ -16,6 +16,7 @@ import rhetorike.glot.domain._1auth.service.PasswordResetService;
 public class FindController {
 
     public static final String FIND_ACCOUNT_ID_BY_EMAIL = "/api/find/account-id/email";
+    public static final String FIND_ACCOUNT_ID_BY_MOBILE = "/api/find/account-id/mobile";
     public static final String FIND_PASSWORD_BY_EMAIL = "/api/find/password/email";
     public static final String RESET_PASSWORD = "/api/reset/password";
 
@@ -24,8 +25,14 @@ public class FindController {
 
     @PostMapping(FIND_ACCOUNT_ID_BY_EMAIL)
     public ResponseEntity<Void> findAccountIdByEmail(@RequestBody AccountIdFindDto.EmailRequest requestDto) {
-        accountIdFindService.sendAccountId(requestDto);
+        accountIdFindService.findAccountIdByEmail(requestDto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping(FIND_ACCOUNT_ID_BY_MOBILE)
+    public ResponseEntity<AccountIdFindDto.MobileResponse> findAccountIdByMobile(@RequestBody AccountIdFindDto.MobileRequest requestDto) {
+        AccountIdFindDto.MobileResponse responseBody = accountIdFindService.findAccountIdByMobile(requestDto);
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
     @PostMapping(FIND_PASSWORD_BY_EMAIL)

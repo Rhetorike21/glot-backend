@@ -11,4 +11,8 @@ public class RandomTextGenerator {
     public String generateFourNumbers(){
         return RandomStringUtils.randomNumeric(4);
     }
+
+    public String generateSixNumbers(){
+        return RandomStringUtils.randomNumeric(6);
+    }
 }

@@ -39,7 +39,7 @@ public class AuthService {
      */
     @Transactional
     public void signUp(SignUpDto.BasicDto requestDto) {
-        if (userRepository.findByAccountId(requestDto.getAccountId()).isPresent()){
+        if (userRepository.findByAccountId(requestDto.getAccountId()).isPresent()) {
             throw new UserExistException();
         }
         validateCode(requestDto.getCode());
@@ -47,12 +47,13 @@ public class AuthService {
         User user = requestDto.toUser(encodedPassword);
         userRepository.save(user);
     }
-
     private void validateCode(String code) {
         Optional<CertCode> certCodeOptional = certCodeRepository.findByPinNumbers(code);
-        if (certCodeOptional.isEmpty() || !certCodeOptional.get().isChecked()) {
-            throw new CertificationFailedException();
+        if (certCodeOptional.isPresent() && certCodeOptional.get().isChecked()) {
+            certCodeRepository.delete(certCodeOptional.get());
+            return;
         }
+        throw new CertificationFailedException();
     }
 
     /**

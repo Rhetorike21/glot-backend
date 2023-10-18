@@ -16,12 +16,11 @@ class EmailServiceTest {
     EmailService emailService;
 
     @Test
-//    @Disabled
+    @Disabled
     @DisplayName("아이디 찾기 메일을 전송한다.(확인완료)")
     void sendAccountIdEmail() {
         //given
         String email = "hansol8701@naver.com";
-        String accountId = "abc1234";
 
         //when
         emailService.sendMail(Email.newAccountIdEmail(email, List.of("abc1234", "def5678", "ghi9012")));
@@ -32,7 +31,7 @@ class EmailServiceTest {
     }
 
     @Test
-//    @Disabled
+    @Disabled
     @DisplayName("비밀번호 재설정 메일을 전송한다.(확인완료)")
     void sendPasswordResetMail() {
         //given

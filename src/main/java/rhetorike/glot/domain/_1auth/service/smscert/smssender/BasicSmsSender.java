@@ -1,8 +1,11 @@
 package rhetorike.glot.domain._1auth.service.smscert.smssender;
 
 
+import rhetorike.glot.domain._1auth.entity.CertCode;
+
 public class BasicSmsSender implements SmsSender{
     @Override
-    public void sendPinNumbers(String mobile, String pinNumbers) {
+    public void sendCertCode(String mobile, CertCode certCode) {
+
     }
 }

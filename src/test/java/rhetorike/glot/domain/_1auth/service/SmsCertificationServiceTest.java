@@ -35,15 +35,15 @@ class SmsCertificationServiceTest {
     @DisplayName("사용자의 전화번호로 인증코드를 전송한다.")
     void sendCode(){
         //given
-        String pinNumbers = "1234";
-        given(randomTextGenerator.generateFourNumbers()).willReturn(pinNumbers);
+        String pinNumbers = "123456";
+        given(randomTextGenerator.generateSixNumbers()).willReturn(pinNumbers);
         given(certCodeRepository.findByPinNumbers(pinNumbers)).willReturn(Optional.empty());
 
         //when
         smsCertificationService.sendCertCode("01012345678");
 
         //then
-        verify(randomTextGenerator).generateFourNumbers();
+        verify(randomTextGenerator).generateSixNumbers();
         verify(certCodeRepository).findByPinNumbers(pinNumbers);
     }
 
@@ -52,16 +52,16 @@ class SmsCertificationServiceTest {
     @DisplayName("현재까지 발급되지 않은 인증코드를 전송한다.")
     void sendUniquePin(){
         //given
-        given(randomTextGenerator.generateFourNumbers()).willReturn("1234").willReturn("5678").willReturn("9012");
-        given(certCodeRepository.findByPinNumbers("1234")).willReturn(Optional.of(new CertCode("1234", false)));
-        given(certCodeRepository.findByPinNumbers("5678")).willReturn(Optional.of(new CertCode("5678", false)));
-        given(certCodeRepository.findByPinNumbers("9012")).willReturn(Optional.empty());
+        given(randomTextGenerator.generateSixNumbers()).willReturn("123456").willReturn("567890").willReturn("345678");
+        given(certCodeRepository.findByPinNumbers("123456")).willReturn(Optional.of(new CertCode("123456", false)));
+        given(certCodeRepository.findByPinNumbers("567890")).willReturn(Optional.of(new CertCode("567890", false)));
+        given(certCodeRepository.findByPinNumbers("345678")).willReturn(Optional.empty());
 
         //when
         smsCertificationService.sendCertCode("01012345678");
 
         //then
-        verify(randomTextGenerator, times(3)).generateFourNumbers();
+        verify(randomTextGenerator, times(3)).generateSixNumbers();
         verify(certCodeRepository, times(3)).findByPinNumbers(any());
     }
 
@@ -70,7 +70,7 @@ class SmsCertificationServiceTest {
     @DisplayName("인증 번호를 확인한다.")
     void verifyCode(){
         //given
-        String pinNumbers = "1234";
+        String pinNumbers = "123456";
         given(certCodeRepository.findByPinNumbers(pinNumbers)).willReturn(Optional.of(new CertCode("1234", false)));
 
         //when
@@ -85,7 +85,7 @@ class SmsCertificationServiceTest {
     @DisplayName("전송된 인증번호가 없는 경우 false를 리턴한다.")
     void verifyCodeFailed(){
         //given
-        String pinNumbers = "1234";
+        String pinNumbers = "123456";
         given(certCodeRepository.findByPinNumbers(pinNumbers)).willReturn(Optional.empty());
 
         //when
@@ -96,5 +96,18 @@ class SmsCertificationServiceTest {
         Assertions.assertThat(result).isFalse();
     }
 
+    @Test
+    @DisplayName("올바른 핀번호인지 검증한다.")
+    void doesValidPinNumbers(){
+        //given
+        String pinNumbers = "123456";
+        given(certCodeRepository.findByPinNumbers(pinNumbers)).willReturn(Optional.of(new CertCode(pinNumbers, true)));
 
+        //when
+        boolean result = smsCertificationService.doesValidPinNumbers(pinNumbers);
+
+        //then
+        verify(certCodeRepository).findByPinNumbers(pinNumbers);
+        Assertions.assertThat(result).isTrue();
+    }
 }

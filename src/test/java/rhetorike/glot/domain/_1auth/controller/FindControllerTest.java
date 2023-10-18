@@ -48,8 +48,8 @@ class FindControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("아이디 정보가 담긴 메일을 발송한다.")
-    void sendMail() throws Exception {
+    @DisplayName("메일로 아이디 찾기")
+    void findAccountIdByEmail() throws Exception {
         //given
         AccountIdFindDto.EmailRequest requestDto = new AccountIdFindDto.EmailRequest("홍길동", "hong@naver.com");
 
@@ -70,8 +70,31 @@ class FindControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("비밀번호 재설정 링크가 담긴 메일을 발송한다.")
-    void sendResetLink() throws Exception {
+    @DisplayName("휴대폰으로 아이디 찾기")
+    void findAccountIdByMobile() throws Exception {
+        //given
+        AccountIdFindDto.MobileRequest requestDto = new AccountIdFindDto.MobileRequest("홍길동", "01012345678", "123456");
+
+        //when
+        ResultActions actions = mockMvc.perform(post(FindController.FIND_ACCOUNT_ID_BY_MOBILE)
+                .with(csrf())
+                .content(objectMapper.writeValueAsString(requestDto))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //then
+        actions.andExpect(status().isOk())
+                .andDo(docs("find-accountId-mobile",
+                        requestFields(
+                                field("name").description("이름"),
+                                field("mobile").description("전화번호"),
+                                field("code").description("인증코드")
+                        )));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("메일로 비밀번호 찾기")
+    void findPasswordByEmail() throws Exception {
         //given
         PasswordResetDto.EmailRequest requestDto = new PasswordResetDto.EmailRequest("abcd1234", "홍길동", "hong@naver.com");
 
@@ -93,7 +116,7 @@ class FindControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("비밀번호를 재설정한다.")
+    @DisplayName("비밀번호 재설정")
     void resetPassword() throws Exception {
         //given
         PasswordResetDto.ResetRequest requestDto = new PasswordResetDto.ResetRequest("abcd1234", "code", "new-password");
