@@ -7,11 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import rhetorike.glot.domain._1auth.service.orgnamesearch.academy.NicePortalSearch;
+import rhetorike.glot.setup.IntegrationTest;
 
 import java.util.List;
 
-@SpringBootTest
-class NicePortalSearchTest {
+class NicePortalSearchTest extends IntegrationTest {
     @Autowired
     NicePortalSearch nicePortalSearch;
 

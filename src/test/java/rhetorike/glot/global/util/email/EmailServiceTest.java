@@ -7,11 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import rhetorike.glot.domain._1auth.entity.EmailCertCode;
 import rhetorike.glot.domain._1auth.entity.ResetCode;
+import rhetorike.glot.setup.IntegrationTest;
 
 import java.util.List;
 
-@SpringBootTest
-class EmailServiceTest {
+class EmailServiceTest extends IntegrationTest {
 
     @Autowired
     EmailService emailService;
