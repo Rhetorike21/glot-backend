@@ -9,16 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
-import rhetorike.glot.domain._1auth.controller.FindController;
 import rhetorike.glot.domain._1auth.controller.ResetController;
 import rhetorike.glot.domain._1auth.dto.PasswordResetDto;
-import rhetorike.glot.domain._1auth.entity.ResetCode;
 import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.setup.IntegrationTest;
-
-import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;

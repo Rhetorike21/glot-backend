@@ -17,13 +17,13 @@ public class CertificationController {
     private final CertificationService certificationService;
 
     @PostMapping(SEND_CODE_URI)
-    public ResponseEntity<Void> sendCodeBySms(@RequestBody CertificationDto.CodeRequest requestDto){
+    public ResponseEntity<Void> sendMobileCode(@RequestBody CertificationDto.CodeRequest requestDto){
         certificationService.sendMobileCode(requestDto.getMobile());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping(VERIFY_CODE_URI)
-    public ResponseEntity<CertificationDto.VerifyResponse> verifyCodeBySms(@RequestParam String code){
+    public ResponseEntity<CertificationDto.VerifyResponse> verifyMobileCode(@RequestParam String code){
         boolean success = certificationService.isValidNumber(code);
         return new ResponseEntity<>(new CertificationDto.VerifyResponse(success), HttpStatus.OK);
     }

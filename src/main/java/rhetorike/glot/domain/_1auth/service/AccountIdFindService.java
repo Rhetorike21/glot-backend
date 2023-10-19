@@ -55,8 +55,6 @@ public class AccountIdFindService {
 
     @NotNull
     private List<User> findUserByMobileAndName(AccountIdFindDto.MobileRequest requestDto) {
-        log.info(requestDto.getMobile());
-        log.info(requestDto.getName());
         List<User> users = userRepository.findByMobileAndName(requestDto.getMobile(), requestDto.getName());
         if (users.isEmpty()) {
             throw new UserNotFoundException();

@@ -12,13 +12,13 @@ import rhetorike.glot.domain._1auth.service.codesender.smssender.MobileCodeSende
 public class MobileCodeSenderConfig {
 
     @Bean
-    @Profile({"local", "test", "inttest"})
+    @Profile({"local", "test", "inttest", "dev"})
     MobileCodeSender basicSmsSender() {
         return new BasicSmsCodeSender();
     }
 
     @Bean
-    @Profile({"dev"})
+    @Profile({"prod"})
     MobileCodeSender coolSmsSender(){
         return new CoolMobileCodeSender();
     }
