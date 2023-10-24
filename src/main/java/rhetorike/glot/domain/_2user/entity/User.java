@@ -1,13 +1,11 @@
 package rhetorike.glot.domain._2user.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.global.config.jpa.BaseTimeEntity;
 
 import java.util.ArrayList;
@@ -49,7 +47,10 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
     @ElementCollection(fetch = FetchType.LAZY)
     protected List<String> roles;
 
-    public User(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles) {
+    @OneToMany
+    protected List<WritingBoard> writingBoards;
+
+    public User(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles, List<WritingBoard> writingBoards) {
         this.id = id;
         this.accountId = accountId;
         this.password = password;
@@ -59,6 +60,10 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
         this.email = email;
         this.marketingAgreement = marketingAgreement;
         this.roles = new ArrayList<>();
+        this.writingBoards = new ArrayList<>();
+        if (writingBoards != null){
+            this.writingBoards.addAll(writingBoards);
+        }
         if (roles != null){
             this.roles.addAll(roles);
         }
@@ -129,4 +134,7 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
         this.password = password;
     }
 
+    public int countBoard() {
+        return writingBoards.size();
+    }
 }

@@ -118,7 +118,6 @@ operation::find-password-email[]
 operation::reset-password[]
 
 
-
 == 🦝 2. 사용자
 
 === 🟢 사용자 정보 조회
@@ -126,3 +125,12 @@ operation::reset-password[]
 사용자의 정보를 조회합니다.
 ----
 operation::get-user-info[]
+
+
+== 🐣 3. 작문
+
+=== 🟢 작문 보드 생성
+----
+새로운 작문 보드를 생성합니다.
+----
+operation::board-create[]

@@ -1,0 +1,110 @@
+package rhetorike.glot.domain._3writing.repository;
+
+import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.support.PersistableIsNewStrategy;
+import rhetorike.glot.domain._2user.entity.Personal;
+import rhetorike.glot.domain._2user.entity.User;
+import rhetorike.glot.domain._2user.reposiotry.UserRepository;
+import rhetorike.glot.domain._3writing.entity.WritingBoard;
+import rhetorike.glot.setup.RepositoryTest;
+
+import java.util.List;
+import java.util.Optional;
+
+import static java.lang.Thread.sleep;
+import static org.assertj.core.api.Assertions.assertThat;
+
+@Slf4j
+@RepositoryTest
+class WritingBoardRepositoryTest {
+
+    @Autowired
+    WritingBoardRepository writingBoardRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Test
+    @DisplayName("WritingBoard를 저장하고, 조회한다.")
+    void saveAndFind() {
+        //given
+        WritingBoard saved = writingBoardRepository.save(WritingBoard.builder().build());
+
+        //when
+        Optional<WritingBoard> found = writingBoardRepository.findById(saved.getId());
+
+        //then
+        assertThat(found).isPresent();
+        assertThat(found.get()).isEqualTo(saved);
+    }
+
+    @Test
+    @DisplayName("User를 지정하여 저장한다.")
+    void saveUser() {
+        //given
+        User user = userRepository.save(Personal.builder().build());
+        WritingBoard saved = writingBoardRepository.save(WritingBoard.builder().user(user).build());
+
+        //when
+        Optional<WritingBoard> found = writingBoardRepository.findById(saved.getId());
+        //then
+        assertThat(found).isPresent();
+        assertThat(found.get().getUser()).isEqualTo(user);
+    }
+
+
+    @Test
+    @DisplayName("WritingBoard를 삭제한다.")
+    void delete() {
+        //given
+        WritingBoard saved = writingBoardRepository.save(WritingBoard.builder().build());
+
+        //when
+        writingBoardRepository.delete(saved);
+        Optional<WritingBoard> found = writingBoardRepository.findById(saved.getId());
+
+        //then
+        assertThat(found).isEmpty();
+    }
+
+    @Test
+    @DisplayName("가장 오래된 WritingBoard를 삭제한다.")
+    void deleteLastModified() throws InterruptedException {
+        //given
+        WritingBoard writingBoard1 = writingBoardRepository.save(WritingBoard.builder().build());
+        sleep(1L);
+        WritingBoard writingBoard2 = writingBoardRepository.save(WritingBoard.builder().build());
+        sleep(1L);
+        WritingBoard writingBoard3 = writingBoardRepository.save(WritingBoard.builder().build());
+        sleep(1L);
+        WritingBoard writingBoard4 = writingBoardRepository.save(WritingBoard.builder().build());
+        sleep(1L);
+
+        //when
+        writingBoardRepository.deleteLastModified();
+        List<WritingBoard> writingBoards = writingBoardRepository.findAll();
+
+        //then
+        assertThat(writingBoards).hasSize(3);
+        assertThat(writingBoards).containsExactlyInAnyOrder(writingBoard2, writingBoard3, writingBoard4);
+    }
+
+
+    @Test
+    @DisplayName("WritingBoard와 User를 함께 저장한다.")
+    void saveWritingBoardAndUser(){
+        //given
+        User user = userRepository.save(Personal.builder().build());
+        writingBoardRepository.save(WritingBoard.builder().user(user).build());
+
+        //when
+        List<WritingBoard> writingBoards = user.getWritingBoards();
+
+        //then
+        assertThat(writingBoards).hasSize(1);
+    }
+}
