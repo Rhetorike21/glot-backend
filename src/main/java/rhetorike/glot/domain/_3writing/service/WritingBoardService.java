@@ -8,7 +8,10 @@ import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._3writing.dto.WritingDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
+import rhetorike.glot.global.error.exception.AccessDeniedException;
+import rhetorike.glot.global.error.exception.ResourceNotFoundException;
 import rhetorike.glot.global.error.exception.UserNotFoundException;
+import rhetorike.glot.global.util.dto.SingleResponseDto;
 
 import java.util.List;
 
@@ -24,7 +27,7 @@ public class WritingBoardService {
      *
      * @param requestDto 제목
      */
-    public void createBoard(WritingDto.CreationRequest requestDto, Long userId) {
+    public SingleResponseDto<Long> createBoard(WritingDto.CreationRequest requestDto, Long userId) {
         if (userId == null) {
             throw new UserNotFoundException();
         }
@@ -34,7 +37,7 @@ public class WritingBoardService {
             writingBoardRepository.deleteLastModified();
         }
         WritingBoard writingBoard = WritingBoard.from(requestDto, user);
-        writingBoardRepository.save(writingBoard);
+        return new SingleResponseDto<>(writingBoardRepository.save(writingBoard).getId());
     }
 
     /**
@@ -49,5 +52,22 @@ public class WritingBoardService {
         return writingBoards.stream()
                 .map(WritingDto.Response::new)
                 .toList();
+    }
+
+    /**
+     * 작문 보드 하나를 조회합니다.
+     * 보드의 생성자가 아닌 경우, 예외가 발생합니다.
+     *
+     * @param userId         사용자 아이디넘버
+     * @param writingBoardId 작문 보드 아이디넘버
+     * @return 보드 정보
+     */
+    public WritingDto.DetailResponse getBoard(Long userId, Long writingBoardId) {
+        User found = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        WritingBoard writingBoard = writingBoardRepository.findById(writingBoardId).orElseThrow(ResourceNotFoundException::new);
+        if (writingBoard.getUser().equals(found)) {
+            return new WritingDto.DetailResponse(writingBoard);
+        }
+        throw new AccessDeniedException();
     }
 }

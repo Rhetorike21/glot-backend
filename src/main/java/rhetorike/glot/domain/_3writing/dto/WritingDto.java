@@ -30,12 +30,30 @@ public class WritingDto {
     @Getter
     @AllArgsConstructor
     public static class Response {
-        String title;
-        YearMonth yearMonth;
+        private long id;
+        private String title;
+        private YearMonth yearMonth;
 
         public Response(WritingBoard writingBoard) {
+            this.id = writingBoard.getId();
             this.title = writingBoard.getTitle();
             this.yearMonth = YearMonth.from(writingBoard.getModifiedTime());
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class DetailResponse {
+        private String title;
+        private String content;
+        private LocalDateTime createdTime;
+        private LocalDateTime modifiedTime;
+
+        public DetailResponse(WritingBoard writingBoard) {
+            this.title = writingBoard.getTitle();
+            this.content = writingBoard.getContent();
+            this.createdTime = writingBoard.getCreatedTime();
+            this.modifiedTime = writingBoard.getModifiedTime();
         }
     }
 }

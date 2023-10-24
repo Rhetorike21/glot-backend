@@ -140,3 +140,10 @@ operation::board-create[]
 사용자가 생성한 전체 작문 보드를 조회합니다.
 ----
 operation::board-get-all[]
+
+=== 🟢 작문 보드 단건 조회
+----
+작문 보드 하나를 조회합니다.
+본인의 보드가 아닌 경우, 예외가 발생합니다.
+----
+operation::board-get[]

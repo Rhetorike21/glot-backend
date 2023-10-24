@@ -10,6 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -18,16 +19,20 @@ import rhetorike.glot.domain._3writing.service.WritingBoardService;
 import rhetorike.glot.global.constant.Header;
 import rhetorike.glot.global.security.JwtAuthenticationFilter;
 import rhetorike.glot.global.security.SecurityConfig;
+import rhetorike.glot.global.util.dto.SingleResponseDto;
 
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 
 import static hansol.restdocsdsl.docs.RestDocsAdapter.docs;
 import static hansol.restdocsdsl.docs.RestDocsHeader.requestHeaders;
+import static hansol.restdocsdsl.docs.RestDocsPathParam.pathParams;
 import static hansol.restdocsdsl.docs.RestDocsRequest.requestFields;
 import static hansol.restdocsdsl.docs.RestDocsResponse.responseFields;
 import static hansol.restdocsdsl.element.FieldElement.field;
 import static hansol.restdocsdsl.element.HeaderElement.header;
+import static hansol.restdocsdsl.element.ParamElement.param;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
@@ -58,6 +63,7 @@ class WritingBoardControllerTest {
         //given
         final String ACCESS_TOKEN = "access-token";
         WritingDto.CreationRequest requestDto = new WritingDto.CreationRequest("부자 되는 법");
+        given(writingBoardService.createBoard(any(), any())).willReturn(new SingleResponseDto<>(1L));
 
         //when
         ResultActions actions = mockMvc.perform(post(WritingBoardController.CREATE_WRITING_BOARD_URI)
@@ -67,14 +73,17 @@ class WritingBoardControllerTest {
                 .contentType(MediaType.APPLICATION_JSON));
 
         //then
-        actions.andExpect(status().isNoContent())
+        actions.andExpect(status().isOk())
                 .andDo(docs("board-create",
                         requestHeaders(
                                 header(Header.AUTH).description("액세스 토큰").optional()
                         ),
                         requestFields(
-                                field("title").description("제목")))
-                );
+                                field("title").description("제목")
+                        ),
+                        responseFields(
+                                field("data").type(JsonFieldType.NUMBER).description("생성된 보드의 아이디넘버")
+                        )));
     }
 
     @Test
@@ -83,10 +92,10 @@ class WritingBoardControllerTest {
     void getAllBoards() throws Exception {
         //given
         final String ACCESS_TOKEN = "access-token";
-        given(writingBoardService.getAllBoards(any())).willReturn(List.of(new WritingDto.Response("제목", YearMonth.of(2023, 10))));
+        given(writingBoardService.getAllBoards(any())).willReturn(List.of(new WritingDto.Response(1L, "제목", YearMonth.of(2023, 10))));
 
         //when
-        ResultActions actions = mockMvc.perform(get(WritingBoardController.GET_WRITING_BOARD_URI)
+        ResultActions actions = mockMvc.perform(get(WritingBoardController.GET_ALL_WRITING_BOARD_URI)
                 .with(csrf())
                 .header(Header.AUTH, ACCESS_TOKEN));
 
@@ -97,8 +106,39 @@ class WritingBoardControllerTest {
                                 header(Header.AUTH).description("액세스 토큰").optional()
                         ),
                         responseFields(
+                                field("[].id").type(JsonFieldType.NUMBER).description("작문 보드 아이디넘버"),
                                 field("[].title").description("제목"),
                                 field("[].yearMonth").description("연월(yyyy-MM)")
+                        )));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("[작문 보드 단건 조회]")
+    void getBoard() throws Exception {
+        //given
+        final String ACCESS_TOKEN = "access-token";
+        given(writingBoardService.getBoard(any(), any())).willReturn(new WritingDto.DetailResponse("제목", "내용", LocalDateTime.now(), LocalDateTime.now()));
+
+        //when
+        ResultActions actions = mockMvc.perform(get(WritingBoardController.GET_WRITING_BOARD_URI, 1L)
+                .with(csrf())
+                .header(Header.AUTH, ACCESS_TOKEN));
+
+        //then
+        actions.andExpect(status().isOk())
+                .andDo(docs("board-get",
+                        requestHeaders(
+                                header(Header.AUTH).description("액세스 토큰").optional()
+                        ),
+                        pathParams(
+                                param("writingId").description("작문 보드 아이디넘버")
+                        ),
+                        responseFields(
+                                field("title").description("제목"),
+                                field("content").description("내용"),
+                                field("createdTime").description("생성시간"),
+                                field("modifiedTime").description("수정시간")
                         )));
     }
 

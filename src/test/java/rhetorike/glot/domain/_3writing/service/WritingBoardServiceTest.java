@@ -13,6 +13,7 @@ import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._3writing.dto.WritingDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
+import rhetorike.glot.global.error.exception.AccessDeniedException;
 import rhetorike.glot.global.error.exception.UserNotFoundException;
 import rhetorike.glot.setup.ServiceTest;
 
@@ -47,6 +48,8 @@ class WritingBoardServiceTest {
         User user = Personal.builder().id(USER_ID).writingBoards(List.of()).build();
         WritingDto.CreationRequest requestDto = new WritingDto.CreationRequest("제목");
         given(userRepository.findById(USER_ID)).willReturn(Optional.of(user));
+        given(writingBoardRepository.save(any())).willReturn(WritingBoard.builder().id(1L).build());
+
 
         //when
         writingBoardService.createBoard(requestDto, USER_ID);
@@ -54,6 +57,7 @@ class WritingBoardServiceTest {
         //then
         verify(userRepository).findById(USER_ID);
         verify(writingBoardRepository).save(any(WritingBoard.class));
+        verify(writingBoardRepository).save(any());
     }
 
     @Test
@@ -92,6 +96,7 @@ class WritingBoardServiceTest {
         User user = Personal.builder().id(USER_ID).writingBoards(writingBoards).build();
         WritingDto.CreationRequest requestDto = new WritingDto.CreationRequest("제목");
         given(userRepository.findById(USER_ID)).willReturn(Optional.of(user));
+        given(writingBoardRepository.save(any())).willReturn(WritingBoard.builder().id(1L).build());
 
         //when
         writingBoardService.createBoard(requestDto, USER_ID);
@@ -104,12 +109,12 @@ class WritingBoardServiceTest {
 
 
     @Test
-    @DisplayName("전체 작문 보드 조회")
+    @DisplayName("[전체 작문 보드 조회]")
     void getAllBoards(){
         //given
         final long userId = 1L;
         User user = Personal.builder().build();
-        WritingBoard writingBoard = WritingBoard.builder().title("제목").modifiedTime(LocalDateTime.now()).build();
+        WritingBoard writingBoard = WritingBoard.builder().id(1L).title("제목").modifiedTime(LocalDateTime.now()).build();
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(writingBoardRepository.findByUserOrderBySequenceDesc(user)).willReturn(List.of(writingBoard));
 
@@ -119,5 +124,42 @@ class WritingBoardServiceTest {
         //then
         verify(userRepository).findById(userId);
         verify(writingBoardRepository).findByUserOrderBySequenceDesc(user);
+    }
+
+    @Test
+    @DisplayName("[작문 보드 조회] ")
+    void getBoard(){
+        //given
+        final long userId = 1L;
+        final long writingBoardId = 1L;
+        User user = Personal.builder().id(userId).build();
+        WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
+
+        //when
+        writingBoardService.getBoard(userId, writingBoardId);
+
+        //then
+        verify(userRepository).findById(userId);
+        verify(writingBoardRepository).findById(writingBoardId);
+    }
+
+    @Test
+    @DisplayName("[작문 보드 조회] - 다른 사람의 보드를 조회하려 하는 경우 예외 발생")
+    void getBoardThrowAccessDeniedException(){
+        //given
+        final long userId = 1L;
+        final long writingBoardId = 1L;
+        User user = Personal.builder().id(userId).build();
+        User other = Personal.builder().id(2L).build();
+        WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(other).build();
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
+
+        //when
+
+        //then
+        Assertions.assertThatThrownBy(() -> writingBoardService.getBoard(userId, writingBoardId)).isInstanceOf(AccessDeniedException.class);
     }
 }

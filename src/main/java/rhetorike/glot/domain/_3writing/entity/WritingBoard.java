@@ -1,7 +1,6 @@
 package rhetorike.glot.domain._3writing.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,9 +9,7 @@ import rhetorike.glot.domain._3writing.dto.WritingDto;
 import rhetorike.glot.global.config.jpa.BaseTimeEntity;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -25,6 +22,9 @@ public class WritingBoard extends BaseTimeEntity {
 
     @Column(length = 40)
     private String title;
+
+    @Column(length = 10000)
+    private String content;
 
     private long sequence;
 
