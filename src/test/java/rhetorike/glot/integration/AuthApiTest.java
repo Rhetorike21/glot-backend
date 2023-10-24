@@ -12,25 +12,17 @@ import static org.mockito.BDDMockito.given;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import rhetorike.glot.domain._1auth.controller.AuthController;
 import rhetorike.glot.domain._1auth.dto.LoginDto;
 import rhetorike.glot.domain._1auth.dto.SignUpDto;
 import rhetorike.glot.domain._1auth.dto.TokenDto;
-import rhetorike.glot.domain._1auth.entity.CertCode;
-import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
 import rhetorike.glot.global.constant.Header;
 import rhetorike.glot.setup.IntegrationTest;
 
-import java.util.Optional;
-
 @Slf4j
 public class AuthApiTest extends IntegrationTest {
-
-    @MockBean
-    CertCodeRepository certCodeRepository;
 
     @Test
     @DisplayName("[개인 사용자 회원가입]")
@@ -103,7 +95,7 @@ public class AuthApiTest extends IntegrationTest {
     @DisplayName("[로그아웃]")
     void logout() {
         //given
-        TokenDto.FullResponse tokenResponse = getTokenFromUser1();
+        TokenDto.FullResponse tokenResponse = getTokenFromNewUser();
         final String ACCESS_TOKEN = tokenResponse.getAccessToken();
         final String REFRESH_TOKEN = tokenResponse.getRefreshToken();
 
@@ -165,7 +157,7 @@ public class AuthApiTest extends IntegrationTest {
     @DisplayName("[액세스 토큰 재발급]")
     void reissue() {
         //given
-        TokenDto.FullResponse tokenResponse = getTokenFromUser1();
+        TokenDto.FullResponse tokenResponse = getTokenFromNewUser();
         final String ACCESS_TOKEN = tokenResponse.getAccessToken();
         final String REFRESH_TOKEN = tokenResponse.getRefreshToken();
 

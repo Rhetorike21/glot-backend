@@ -19,7 +19,7 @@ public class UserApiTest extends IntegrationTest {
     @DisplayName("[사용자 정보 조회]")
     void getUserInfo() {
         //given
-        final String ACCESS_TOKEN = getTokenFromUser1().getAccessToken();
+        String ACCESS_TOKEN = getTokenFromNewUser().getAccessToken();
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()

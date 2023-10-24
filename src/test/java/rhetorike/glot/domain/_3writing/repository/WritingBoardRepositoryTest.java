@@ -9,6 +9,7 @@ import org.springframework.data.support.PersistableIsNewStrategy;
 import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
+import rhetorike.glot.domain._3writing.dto.WritingDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.setup.RepositoryTest;
 
@@ -106,5 +107,41 @@ class WritingBoardRepositoryTest {
 
         //then
         assertThat(writingBoards).hasSize(1);
+    }
+
+
+    @Test
+    @DisplayName("사용자가 보유한 모든 WritingBoard를 sequence 기준으로 내림차순 정렬한다.")
+    void findByUserOrderBySequenceDesc(){
+        //given
+        User user = userRepository.save(Personal.builder().build());
+        WritingBoard writingBoard1 = writingBoardRepository.save(WritingBoard.builder().user(user).sequence(2).build());
+        WritingBoard writingBoard2 = writingBoardRepository.save(WritingBoard.builder().user(user).sequence(4).build());
+        WritingBoard writingBoard3 = writingBoardRepository.save(WritingBoard.builder().user(user).sequence(3).build());
+        WritingBoard writingBoard4 = writingBoardRepository.save(WritingBoard.builder().user(user).sequence(1).build());
+
+        //when
+        List<WritingBoard> result = writingBoardRepository.findByUserOrderBySequenceDesc(user);
+
+        //then
+        assertThat(result).containsExactly(writingBoard2, writingBoard3, writingBoard1, writingBoard4);
+    }
+
+    @Test
+    @DisplayName("나중에 생성된 보드가 sequence가 높도록 설정된다.")
+    void setSequence(){
+        //given
+        User user = userRepository.save(Personal.builder().build());
+        WritingBoard writingBoard1 = writingBoardRepository.save(WritingBoard.from(new WritingDto.CreationRequest("1"), user));
+        WritingBoard writingBoard2 = writingBoardRepository.save(WritingBoard.from(new WritingDto.CreationRequest("2"), user));
+        WritingBoard writingBoard3 = writingBoardRepository.save(WritingBoard.from(new WritingDto.CreationRequest("3"), user));
+        WritingBoard writingBoard4 = writingBoardRepository.save(WritingBoard.from(new WritingDto.CreationRequest("4"), user));
+
+        //when
+        List<WritingBoard> result = writingBoardRepository.findByUserOrderBySequenceDesc(user);
+
+        //then
+        assertThat(result).containsExactly(writingBoard4, writingBoard3, writingBoard2, writingBoard1);
+        assertThat(result.stream().mapToLong(WritingBoard::getSequence).toArray()).containsExactly(4L, 3L, 2L, 1L);
     }
 }

@@ -19,11 +19,18 @@ import rhetorike.glot.global.constant.Header;
 import rhetorike.glot.global.security.JwtAuthenticationFilter;
 import rhetorike.glot.global.security.SecurityConfig;
 
+import java.time.YearMonth;
+import java.util.List;
+
 import static hansol.restdocsdsl.docs.RestDocsAdapter.docs;
 import static hansol.restdocsdsl.docs.RestDocsHeader.requestHeaders;
 import static hansol.restdocsdsl.docs.RestDocsRequest.requestFields;
+import static hansol.restdocsdsl.docs.RestDocsResponse.responseFields;
 import static hansol.restdocsdsl.element.FieldElement.field;
 import static hansol.restdocsdsl.element.HeaderElement.header;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -68,6 +75,31 @@ class WritingBoardControllerTest {
                         requestFields(
                                 field("title").description("제목")))
                 );
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("[작문 보드 전체 조회]")
+    void getAllBoards() throws Exception {
+        //given
+        final String ACCESS_TOKEN = "access-token";
+        given(writingBoardService.getAllBoards(any())).willReturn(List.of(new WritingDto.Response("제목", YearMonth.of(2023, 10))));
+
+        //when
+        ResultActions actions = mockMvc.perform(get(WritingBoardController.GET_WRITING_BOARD_URI)
+                .with(csrf())
+                .header(Header.AUTH, ACCESS_TOKEN));
+
+        //then
+        actions.andExpect(status().isOk())
+                .andDo(docs("board-get-all",
+                        requestHeaders(
+                                header(Header.AUTH).description("액세스 토큰").optional()
+                        ),
+                        responseFields(
+                                field("[].title").description("제목"),
+                                field("[].yearMonth").description("연월(yyyy-MM)")
+                        )));
     }
 
 

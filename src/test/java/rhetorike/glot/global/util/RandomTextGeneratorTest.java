@@ -1,6 +1,7 @@
 package rhetorike.glot.global.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -23,4 +24,24 @@ class RandomTextGeneratorTest {
         assertThat(numbers.length()).isEqualTo(4);
         assertThat(numbers.chars().allMatch(Character::isDigit)).isTrue();
     }
+
+
+    @Test
+    @DisplayName("RandomStringUtil을 이용해 4자리 알파벳을 생성한다.")
+    void generateFourAlphabetic(){
+        //given
+        String str = RandomStringUtils.randomAlphabetic(4);
+        log.info(str);
+
+        String num = RandomStringUtils.randomNumeric(4);
+        log.info(num);
+
+        //when
+
+
+        //then
+
+    }
+
+
 }

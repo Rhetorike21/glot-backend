@@ -21,9 +21,6 @@ import static org.mockito.BDDMockito.given;
 
 public class ResetApiTest extends IntegrationTest {
 
-    @MockBean
-    CertCodeRepository certCodeRepository;
-
     @Autowired
     UserRepository userRepository;
 

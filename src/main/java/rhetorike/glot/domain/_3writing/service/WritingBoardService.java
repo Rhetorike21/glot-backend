@@ -10,6 +10,8 @@ import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
 import rhetorike.glot.global.error.exception.UserNotFoundException;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,5 +35,19 @@ public class WritingBoardService {
         }
         WritingBoard writingBoard = WritingBoard.from(requestDto, user);
         writingBoardRepository.save(writingBoard);
+    }
+
+    /**
+     * 전체 작문 보드를 조회합니다.
+     *
+     * @param userId 회원 아이디넘버
+     * @return 전체 작문 보드 목록
+     */
+    public List<WritingDto.Response> getAllBoards(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        List<WritingBoard> writingBoards = writingBoardRepository.findByUserOrderBySequenceDesc(user);
+        return writingBoards.stream()
+                .map(WritingDto.Response::new)
+                .toList();
     }
 }

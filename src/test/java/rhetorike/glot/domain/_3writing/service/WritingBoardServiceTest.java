@@ -101,4 +101,23 @@ class WritingBoardServiceTest {
         verify(writingBoardRepository).deleteLastModified();
         verify(writingBoardRepository).save(any(WritingBoard.class));
     }
+
+
+    @Test
+    @DisplayName("전체 작문 보드 조회")
+    void getAllBoards(){
+        //given
+        final long userId = 1L;
+        User user = Personal.builder().build();
+        WritingBoard writingBoard = WritingBoard.builder().title("제목").modifiedTime(LocalDateTime.now()).build();
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(writingBoardRepository.findByUserOrderBySequenceDesc(user)).willReturn(List.of(writingBoard));
+
+        //when
+        writingBoardService.getAllBoards(userId);
+
+        //then
+        verify(userRepository).findById(userId);
+        verify(writingBoardRepository).findByUserOrderBySequenceDesc(user);
+    }
 }
