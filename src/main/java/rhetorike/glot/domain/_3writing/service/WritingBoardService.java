@@ -70,4 +70,21 @@ public class WritingBoardService {
         }
         throw new AccessDeniedException();
     }
+
+    /**
+     * 작문 보드를 삭제합니다.
+     *
+     * @param userId         사용자 아이디넘버
+     * @param writingBoardId 작문 보드 아이디넘버
+     */
+    public void deleteBoard(Long userId, Long writingBoardId) {
+        User found = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        WritingBoard writingBoard = writingBoardRepository.findById(writingBoardId).orElseThrow(ResourceNotFoundException::new);
+        if (writingBoard.getUser().equals(found)) {
+            writingBoard.deleteUser();
+            writingBoardRepository.delete(writingBoard);
+            return;
+        }
+        throw new AccessDeniedException();
+    }
 }

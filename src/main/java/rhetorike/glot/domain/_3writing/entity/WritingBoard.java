@@ -1,6 +1,7 @@
 package rhetorike.glot.domain._3writing.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import rhetorike.glot.domain._3writing.dto.WritingDto;
 import rhetorike.glot.global.config.jpa.BaseTimeEntity;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Objects;
 
 @Getter
@@ -43,9 +45,6 @@ public class WritingBoard extends BaseTimeEntity {
     }
 
     public void changeUser(User user) {
-        if (user == null) {
-            return;
-        }
         if (this.user != null) {
             user.getWritingBoards().remove(this);
         }
@@ -53,14 +52,20 @@ public class WritingBoard extends BaseTimeEntity {
         user.getWritingBoards().add(this);
     }
 
+    public void deleteUser(){
+        if (this.user != null){
+            this.user.getWritingBoards().remove(this);
+        }
+        this.user = null;
+    }
+
     public static WritingBoard from(WritingDto.CreationRequest dto, User user) {
         long lastSequence = getLastSequence(user);
-        WritingBoard writingBoard = WritingBoard.builder()
+        return WritingBoard.builder()
                 .title(dto.getTitle())
                 .sequence(lastSequence + 1)
+                .user(user)
                 .build();
-        writingBoard.changeUser(user);
-        return writingBoard;
     }
 
     private static long getLastSequence(User user) {

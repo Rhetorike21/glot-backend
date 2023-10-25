@@ -33,7 +33,7 @@ class WritingBoardRepositoryTest {
     @DisplayName("WritingBoard를 저장하고, 조회한다.")
     void saveAndFind() {
         //given
-        WritingBoard saved = writingBoardRepository.save(WritingBoard.builder().build());
+        WritingBoard saved = writingBoardRepository.save(WritingBoard.builder().user(Personal.builder().build()).build());
 
         //when
         Optional<WritingBoard> found = writingBoardRepository.findById(saved.getId());
@@ -62,7 +62,7 @@ class WritingBoardRepositoryTest {
     @DisplayName("WritingBoard를 삭제한다.")
     void delete() {
         //given
-        WritingBoard saved = writingBoardRepository.save(WritingBoard.builder().build());
+        WritingBoard saved = writingBoardRepository.save(WritingBoard.builder().user(Personal.builder().build()).build());
 
         //when
         writingBoardRepository.delete(saved);
@@ -76,13 +76,14 @@ class WritingBoardRepositoryTest {
     @DisplayName("가장 오래된 WritingBoard를 삭제한다.")
     void deleteLastModified() throws InterruptedException {
         //given
-        WritingBoard writingBoard1 = writingBoardRepository.save(WritingBoard.builder().build());
+        User user = userRepository.save(Personal.builder().build());
+        WritingBoard writingBoard1 = writingBoardRepository.save(WritingBoard.builder().user(user).build());
         sleep(1L);
-        WritingBoard writingBoard2 = writingBoardRepository.save(WritingBoard.builder().build());
+        WritingBoard writingBoard2 = writingBoardRepository.save(WritingBoard.builder().user(user).build());
         sleep(1L);
-        WritingBoard writingBoard3 = writingBoardRepository.save(WritingBoard.builder().build());
+        WritingBoard writingBoard3 = writingBoardRepository.save(WritingBoard.builder().user(user).build());
         sleep(1L);
-        WritingBoard writingBoard4 = writingBoardRepository.save(WritingBoard.builder().build());
+        WritingBoard writingBoard4 = writingBoardRepository.save(WritingBoard.builder().user(user).build());
         sleep(1L);
 
         //when

@@ -117,7 +117,7 @@ public class WritingBoardApiTest extends IntegrationTest {
         final String title = "부자되는 법";
         WritingDto.CreationRequest requestDto = new WritingDto.CreationRequest(title);
         long writingId = create(accessToken, title);
- 
+
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
                 .header(Header.AUTH, accessToken)
@@ -133,6 +133,30 @@ public class WritingBoardApiTest extends IntegrationTest {
         assertAll(
                 () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
                 () -> assertThat(responseTitle).isEqualTo(title)
+        );
+    }
+
+    @Test
+    @DisplayName("[작문 보드 삭제]")
+    void deleteBoard() {
+        //given
+        final String accessToken = getTokenFromNewUser().getAccessToken();
+        final String title = "부자되는 법";
+        WritingDto.CreationRequest requestDto = new WritingDto.CreationRequest(title);
+        long writingId = create(accessToken, title);
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header(Header.AUTH, accessToken)
+                .body(requestDto)
+                .contentType(ContentType.JSON)
+                .when().delete(WritingBoardController.DELETE_WRITING_BOARD_URI, writingId)
+                .then().log().all()
+                .extract();
+
+        //then
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value())
         );
     }
 

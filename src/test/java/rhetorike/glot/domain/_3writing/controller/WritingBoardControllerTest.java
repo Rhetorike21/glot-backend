@@ -35,8 +35,7 @@ import static hansol.restdocsdsl.element.HeaderElement.header;
 import static hansol.restdocsdsl.element.ParamElement.param;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -141,6 +140,30 @@ class WritingBoardControllerTest {
                                 field("modifiedTime").description("수정시간")
                         )));
     }
+
+    @Test
+    @WithMockUser
+    @DisplayName("[작문 보드 삭제]")
+    void deleteBoard() throws Exception {
+        //given
+        final String ACCESS_TOKEN = "access-token";
+
+        //when
+        ResultActions actions = mockMvc.perform(delete(WritingBoardController.DELETE_WRITING_BOARD_URI, 1L)
+                .with(csrf())
+                .header(Header.AUTH, ACCESS_TOKEN));
+
+        //then
+        actions.andExpect(status().isNoContent())
+                .andDo(docs("board-delete",
+                        requestHeaders(
+                                header(Header.AUTH).description("액세스 토큰").optional()
+                        ),
+                        pathParams(
+                                param("writingId").description("작문 보드 아이디넘버")
+                        )));
+    }
+
 
 
 }

@@ -147,3 +147,10 @@ operation::board-get-all[]
 본인의 보드가 아닌 경우, 예외가 발생합니다.
 ----
 operation::board-get[]
+
+=== 🟢 작문 보드 삭제
+----
+작문 보드를 삭제합니다.
+본인의 보드가 아닌 경우, 예외가 발생합니다.
+----
+operation::board-delete[]
