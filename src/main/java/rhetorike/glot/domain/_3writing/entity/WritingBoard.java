@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._3writing.dto.WritingDto;
+import rhetorike.glot.domain._3writing.service.Movable;
 import rhetorike.glot.global.config.jpa.BaseTimeEntity;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ import java.util.Objects;
 @Getter
 @NoArgsConstructor
 @Entity
-public class WritingBoard extends BaseTimeEntity {
+public class WritingBoard extends BaseTimeEntity implements Movable {
     public final static int MAX_BOARD_LIMIT = 100;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,14 +29,14 @@ public class WritingBoard extends BaseTimeEntity {
     @Column(length = 10000)
     private String content;
 
-    private long sequence;
+    private int sequence;
 
     @ManyToOne
     @JoinColumn
     private User user;
 
     @Builder
-    public WritingBoard(Long id, String title, User user, long sequence, LocalDateTime createdTime, LocalDateTime modifiedTime) {
+    public WritingBoard(Long id, String title, User user, int sequence, LocalDateTime createdTime, LocalDateTime modifiedTime) {
         this.id = id;
         this.title = title;
         this.sequence = sequence;
@@ -59,8 +60,28 @@ public class WritingBoard extends BaseTimeEntity {
         this.user = null;
     }
 
+    @Override
+    public void increaseSequence(){
+        this.sequence++;
+    }
+
+    @Override
+    public void decreaseSequence(){
+        this.sequence--;
+    }
+
+    @Override
+    public void setSequence(int sequence){
+        this.sequence = sequence;
+    }
+
+    @Override
+    public int getSequence(){
+        return this.sequence;
+    }
+
     public static WritingBoard from(WritingDto.CreationRequest dto, User user) {
-        long lastSequence = getLastSequence(user);
+        int lastSequence = getLastSequence(user);
         return WritingBoard.builder()
                 .title(dto.getTitle())
                 .sequence(lastSequence + 1)
@@ -68,10 +89,10 @@ public class WritingBoard extends BaseTimeEntity {
                 .build();
     }
 
-    private static long getLastSequence(User user) {
+    private static int getLastSequence(User user) {
         return user.getWritingBoards().stream()
-                .mapToLong(WritingBoard::getSequence)
-                .max().orElse(0L);
+                .mapToInt(WritingBoard::getSequence)
+                .max().orElse(0);
     }
 
     @Override
@@ -87,5 +108,12 @@ public class WritingBoard extends BaseTimeEntity {
         return Objects.hash(id);
     }
 
-
+    @Override
+    public String toString() {
+        return "WritingBoard{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", sequence=" + sequence +
+                '}';
+    }
 }

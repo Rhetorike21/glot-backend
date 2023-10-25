@@ -164,6 +164,33 @@ class WritingBoardControllerTest {
                         )));
     }
 
+    @Test
+    @WithMockUser
+    @DisplayName("[작문 보드 이동]")
+    void moveBoard() throws Exception {
+        //given
+        final String ACCESS_TOKEN = "access-token";
+        WritingDto.MoveRequest requestDto = new WritingDto.MoveRequest(1, 2);
+
+        //when
+        ResultActions actions = mockMvc.perform(post(WritingBoardController.MOVE_BOARD_URI)
+                .with(csrf())
+                .content(objectMapper.writeValueAsString(requestDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(Header.AUTH, ACCESS_TOKEN));
+
+        //then
+        actions.andExpect(status().isNoContent())
+                .andDo(docs("board-move",
+                        requestHeaders(
+                                header(Header.AUTH).description("액세스 토큰").optional()
+                        ),
+                        requestFields(
+                                field("targetId").type(JsonFieldType.NUMBER).description("이동할 보드의 아이디넘버"),
+                                field("destinationId").type(JsonFieldType.NUMBER).description("이동할 위치에 있는 보드의 아이디넘버")
+                        )));
+    }
+
 
 
 }

@@ -19,6 +19,7 @@ public class WritingBoardController {
     public final static String GET_ALL_WRITING_BOARD_URI = "/api/writing";
     public final static String GET_WRITING_BOARD_URI = "/api/writing/{writingId}";
     public final static String DELETE_WRITING_BOARD_URI = "/api/writing/{writingId}";
+    public final static String MOVE_BOARD_URI = "/api/writing/move";
 
     private final WritingBoardService writingBoardService;
 
@@ -47,6 +48,13 @@ public class WritingBoardController {
     @DeleteMapping(DELETE_WRITING_BOARD_URI)
     public ResponseEntity<Void> deleteBoard(@PathVariable Long writingId, @AuthenticationPrincipal Long userId) {
         writingBoardService.deleteBoard(userId, writingId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PermitAll
+    @PostMapping(MOVE_BOARD_URI)
+    public ResponseEntity<Void> moveBoard(@RequestBody WritingDto.MoveRequest requestDto, @AuthenticationPrincipal Long userId) {
+        writingBoardService.moveBoard(requestDto, userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

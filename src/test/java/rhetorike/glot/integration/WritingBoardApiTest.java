@@ -6,20 +6,30 @@ import io.restassured.mapper.ObjectMapper;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import rhetorike.glot.domain._3writing.controller.WritingBoardController;
 import rhetorike.glot.domain._3writing.dto.WritingDto;
+import rhetorike.glot.domain._3writing.entity.WritingBoard;
+import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
 import rhetorike.glot.global.constant.Header;
 import rhetorike.glot.setup.IntegrationTest;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+@Slf4j
 public class WritingBoardApiTest extends IntegrationTest {
+
+    @Autowired
+    WritingBoardRepository writingBoardRepository;
 
     @Test
     @DisplayName("[작문 보드 생성] - 비회원")
@@ -157,6 +167,40 @@ public class WritingBoardApiTest extends IntegrationTest {
         //then
         assertAll(
                 () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value())
+        );
+    }
+
+    @Test
+    @DisplayName("[작문 보드 이동]")
+    void moveBoard() {
+        //given
+        final String accessToken = getTokenFromNewUser().getAccessToken();
+        final String title = "작문 보드 이동 테스트";
+        List<Long> idList = new ArrayList<>();
+        for (int i = 1; i <= 5; i++) {
+            idList.add(create(accessToken, title + i));
+        }
+        WritingDto.MoveRequest requestDto = new WritingDto.MoveRequest(idList.get(0), idList.get(3));
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header(Header.AUTH, accessToken)
+                .body(requestDto)
+                .contentType(ContentType.JSON)
+                .when().post(WritingBoardController.MOVE_BOARD_URI)
+                .then().log().all()
+                .extract();
+
+        Optional<WritingBoard> result1 = writingBoardRepository.findById(idList.get(0));
+        Optional<WritingBoard> result2 = writingBoardRepository.findById(idList.get(3));
+
+        //then
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value()),
+                () -> assertThat(result1).isPresent(),
+                () -> assertThat(result1.get().getSequence()).isEqualTo(4),
+                () -> assertThat(result2).isPresent(),
+                () -> assertThat(result2.get().getSequence()).isEqualTo(3)
         );
     }
 

@@ -1,5 +1,6 @@
 package rhetorike.glot.domain._3writing.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.List;
 public class WritingBoardService {
     private final WritingBoardRepository writingBoardRepository;
     private final UserRepository userRepository;
+    private final WriteBoardMover writeBoardMover;
 
     /**
      * 작문 보드를 생성합니다.
@@ -86,5 +88,22 @@ public class WritingBoardService {
             return;
         }
         throw new AccessDeniedException();
+    }
+
+    @Transactional
+    public void moveBoard(WritingDto.MoveRequest requestDto, Long userId) {
+        WritingBoard targetBoard = writingBoardRepository.findById(requestDto.getTargetId()).orElseThrow(ResourceNotFoundException::new);
+        WritingBoard destinationBoard = writingBoardRepository.findById(requestDto.getDestinationId()).orElseThrow(ResourceNotFoundException::new);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        if (validate(targetBoard, destinationBoard, user)) {
+            List<WritingBoard> writingBoards = writingBoardRepository.findByUserOrderBySequenceDesc(user);
+            writeBoardMover.move(targetBoard, destinationBoard, writingBoards);
+            return;
+        }
+        throw new AccessDeniedException();
+    }
+
+    private boolean validate(WritingBoard targetBoard, WritingBoard destinationBoard, User user){
+        return user.equals(targetBoard.getUser()) && user.equals(destinationBoard.getUser());
     }
 }

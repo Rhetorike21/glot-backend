@@ -6,7 +6,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
@@ -23,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -39,6 +37,10 @@ class WritingBoardServiceTest {
 
     @Mock
     UserRepository userRepository;
+
+    @Mock
+    WriteBoardMover writeBoardMover;
+
 
     @Test
     @DisplayName("[작문 보드 생성] - 회원")
@@ -184,20 +186,26 @@ class WritingBoardServiceTest {
     }
 
     @Test
-    @DisplayName("[작문 보드 삭제]")
-    void deleteThrowAccessDeniedException(){
+    @DisplayName("[작문 보드 이동]")
+    void moveBoard(){
         //given
         final long userId = 1L;
-        final long writingBoardId = 1L;
+        final long targetId = 1L;
+        final long destinationId = 2L;
         User user = Personal.builder().id(userId).build();
-        User other = Personal.builder().id(2L).build();
-        WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(other).build();
+        WritingBoard targetBoard = WritingBoard.builder().id(targetId).user(user).build();
+        WritingBoard destinationBoard = WritingBoard.builder().id(destinationId).user(user).build();
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
+        given(writingBoardRepository.findById(targetId)).willReturn(Optional.of(targetBoard));
+        given(writingBoardRepository.findById(destinationId)).willReturn(Optional.of(destinationBoard));
+        WritingDto.MoveRequest moveRequest = new WritingDto.MoveRequest(1L, 2L);
 
         //when
+        writingBoardService.moveBoard(moveRequest, userId);
 
         //then
-        Assertions.assertThatThrownBy(() -> writingBoardService.deleteBoard(userId, writingBoardId)).isInstanceOf(AccessDeniedException.class);
+        verify(userRepository).findById(userId);
+        verify(writingBoardRepository).findById(targetId);
+        verify(writingBoardRepository).findById(destinationId);
     }
 }

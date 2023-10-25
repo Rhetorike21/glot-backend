@@ -56,4 +56,12 @@ public class WritingDto {
             this.modifiedTime = writingBoard.getModifiedTime();
         }
     }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MoveRequest {
+        private long targetId;
+        private long destinationId;
+    }
 }
