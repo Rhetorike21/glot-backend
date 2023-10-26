@@ -1,11 +1,9 @@
 package rhetorike.glot.domain._3writing.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 
 import java.time.LocalDateTime;
@@ -63,5 +61,13 @@ public class WritingDto {
     public static class MoveRequest {
         private long targetId;
         private long destinationId;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateRequest {
+        private String title;
+        private String content;
     }
 }

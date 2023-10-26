@@ -103,7 +103,34 @@ public class WritingBoardService {
         throw new AccessDeniedException();
     }
 
-    private boolean validate(WritingBoard targetBoard, WritingBoard destinationBoard, User user){
+    private boolean validate(WritingBoard targetBoard, WritingBoard destinationBoard, User user) {
         return user.equals(targetBoard.getUser()) && user.equals(destinationBoard.getUser());
+    }
+
+    /**
+     * 보드를 수정합니다.null이 아닌 항목만 변경됩니다.
+     *
+     * @param writingBoardId 수정할 보드 아이디넘버
+     * @param userId         사용자 아이디넘버
+     * @param requestDto     수정 사항
+     */
+    @Transactional
+    public void updateBoard(Long writingBoardId, Long userId, WritingDto.UpdateRequest requestDto) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        WritingBoard writingBoard = writingBoardRepository.findById(writingBoardId).orElseThrow(ResourceNotFoundException::new);
+        if (user.equals(writingBoard.getUser())) {
+            update(writingBoard, requestDto);
+            return;
+        }
+        throw new AccessDeniedException();
+    }
+
+    private void update(WritingBoard writingBoard, WritingDto.UpdateRequest requestDto) {
+        if (requestDto.getTitle() != null && !requestDto.getTitle().isBlank()) {
+            writingBoard.setTitle(requestDto.getTitle());
+        }
+        if (requestDto.getContent() != null) {
+            writingBoard.setContent(requestDto.getContent());
+        }
     }
 }

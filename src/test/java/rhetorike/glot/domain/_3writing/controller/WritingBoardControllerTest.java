@@ -192,5 +192,32 @@ class WritingBoardControllerTest {
     }
 
 
+    @Test
+    @WithMockUser
+    @DisplayName("[작문 보드 수정]")
+    void updateBoard() throws Exception {
+        //given
+        final String ACCESS_TOKEN = "access-token";
+        WritingDto.UpdateRequest requestDto = new WritingDto.UpdateRequest("수정 제목", "수정 내용");
+
+        //when
+        ResultActions actions = mockMvc.perform(patch(WritingBoardController.UPDATE_BOARD_URI, 1L)
+                .with(csrf())
+                .content(objectMapper.writeValueAsString(requestDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(Header.AUTH, ACCESS_TOKEN));
+
+        //then
+        actions.andExpect(status().isNoContent())
+                .andDo(docs("board-update",
+                        requestHeaders(
+                                header(Header.AUTH).description("액세스 토큰").optional()
+                        ),
+                        requestFields(
+                                field("title").description("수정할 제목 (변경하지 않으려면 null)"),
+                                field("content").description("수정할 내용 (변경하지 않으려면 null)")
+                        )));
+    }
+
 
 }

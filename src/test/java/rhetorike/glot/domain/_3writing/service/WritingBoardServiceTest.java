@@ -208,4 +208,67 @@ class WritingBoardServiceTest {
         verify(writingBoardRepository).findById(targetId);
         verify(writingBoardRepository).findById(destinationId);
     }
+
+    @Test
+    @DisplayName("[작문 보드 수정]")
+    void updateBoard(){
+        //given
+        final long userId = 1L;
+        final long writingBoardId = 1L;
+        WritingDto.UpdateRequest requestDto = new WritingDto.UpdateRequest("수정할 제목", "수정할 내용");
+
+        User user = Personal.builder().id(userId).build();
+        WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
+
+        //when
+        writingBoardService.updateBoard(writingBoardId, userId, requestDto);
+
+        //then
+        verify(userRepository).findById(userId);
+        verify(writingBoardRepository).findById(writingBoardId);
+    }
+
+    @Test
+    @DisplayName("[작문 보드 수정] - 제목만 수정")
+    void updateTitleOnly(){
+        //given
+        final long userId = 1L;
+        final long writingBoardId = 1L;
+        WritingDto.UpdateRequest requestDto = new WritingDto.UpdateRequest("수정할 제목", null);
+
+        User user = Personal.builder().id(userId).build();
+        WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
+
+        //when
+        writingBoardService.updateBoard(writingBoardId, userId, requestDto);
+
+        //then
+        verify(userRepository).findById(userId);
+        verify(writingBoardRepository).findById(writingBoardId);
+    }
+
+    @Test
+    @DisplayName("[작문 보드 수정] - 내용만 수정")
+    void updateContentOnly(){
+        //given
+        final long userId = 1L;
+        final long writingBoardId = 1L;
+        WritingDto.UpdateRequest requestDto = new WritingDto.UpdateRequest(null, "수정할 내용");
+
+        User user = Personal.builder().id(userId).build();
+        WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
+
+        //when
+        writingBoardService.updateBoard(writingBoardId, userId, requestDto);
+
+        //then
+        verify(userRepository).findById(userId);
+        verify(writingBoardRepository).findById(writingBoardId);
+    }
 }

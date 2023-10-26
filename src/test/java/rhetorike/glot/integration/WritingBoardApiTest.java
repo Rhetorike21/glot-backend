@@ -204,6 +204,34 @@ public class WritingBoardApiTest extends IntegrationTest {
         );
     }
 
+    @Test
+    @DisplayName("[작문 보드 수정]")
+    void updateBoard() {
+        //given
+        final String accessToken = getTokenFromNewUser().getAccessToken();
+        long writingBoardId = create(accessToken, "작문 보드 수정 테스트");
+        String content = "내용 추가";
+        WritingDto.UpdateRequest requestDto = new WritingDto.UpdateRequest(null, content);
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header(Header.AUTH, accessToken)
+                .body(requestDto)
+                .contentType(ContentType.JSON)
+                .when().patch(WritingBoardController.UPDATE_BOARD_URI, writingBoardId)
+                .then().log().all()
+                .extract();
+
+        Optional<WritingBoard> result = writingBoardRepository.findById(writingBoardId);
+
+        //then
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value()),
+                () -> assertThat(result).isPresent(),
+                () -> assertThat(result.get().getContent()).isEqualTo(content)
+        );
+    }
+
     private long create(String accessToken, String title) {
         WritingDto.CreationRequest requestDto = new WritingDto.CreationRequest(title);
         ExtractableResponse<Response> response = RestAssured.given().log().all()
