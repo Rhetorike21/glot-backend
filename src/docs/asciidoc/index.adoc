@@ -161,3 +161,18 @@ operation::board-move[]
 수정할 항목이 아닌 경우, null을 주면 됩니다.
 ----
 operation::board-update[]
+
+=== 🟢 작문 보드 삭제
+----
+작문 보드를 수정합니다.
+수정할 항목이 아닌 경우, null을 주면 됩니다.
+----
+operation::board-delete[]
+
+
+=== 🟢 AI 작문 추천
+----
+AI 작문 추천 기능을 수행합니다.
+발전형/반대형/결론형 중 하나의 결과를 받을 수 있습니다.
+----
+operation::help-writing[]

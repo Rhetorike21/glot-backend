@@ -2,7 +2,6 @@ package rhetorike.glot.integration;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.mapper.ObjectMapper;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -12,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import rhetorike.glot.domain._3writing.controller.WritingBoardController;
-import rhetorike.glot.domain._3writing.dto.WritingDto;
+import rhetorike.glot.domain._3writing.dto.WritingBoardDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
 import rhetorike.glot.global.constant.Header;
@@ -35,7 +34,7 @@ public class WritingBoardApiTest extends IntegrationTest {
     @DisplayName("[작문 보드 생성] - 비회원")
     void createBoardByUnknown() {
         //given
-        WritingDto.CreationRequest requestDto = new WritingDto.CreationRequest("제목");
+        WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest("제목");
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -55,7 +54,7 @@ public class WritingBoardApiTest extends IntegrationTest {
     @DisplayName("[작문 보드 생성] - 회원")
     void createBoardByUser() {
         //given
-        WritingDto.CreationRequest requestDto = new WritingDto.CreationRequest("제목");
+        WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest("제목");
         final String ACCESS_TOKEN = getTokenFromNewUser().getAccessToken();
 
         //when
@@ -110,11 +109,11 @@ public class WritingBoardApiTest extends IntegrationTest {
 
         //then
         JsonPath jsonPath = response.jsonPath();
-        List<WritingDto.Response> list = jsonPath.getList("", WritingDto.Response.class);
+        List<WritingBoardDto.Response> list = jsonPath.getList("", WritingBoardDto.Response.class);
         assertAll(
                 () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
                 () -> assertThat(list).hasSize(3),
-                () -> assertThat(list.stream().map(WritingDto.Response::getTitle)).containsExactly("제목3", "제목2", "제목1")
+                () -> assertThat(list.stream().map(WritingBoardDto.Response::getTitle)).containsExactly("제목3", "제목2", "제목1")
         );
     }
 
@@ -125,7 +124,7 @@ public class WritingBoardApiTest extends IntegrationTest {
         //given
         final String accessToken = getTokenFromNewUser().getAccessToken();
         final String title = "부자되는 법";
-        WritingDto.CreationRequest requestDto = new WritingDto.CreationRequest(title);
+        WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest(title);
         long writingId = create(accessToken, title);
 
         //when
@@ -152,7 +151,7 @@ public class WritingBoardApiTest extends IntegrationTest {
         //given
         final String accessToken = getTokenFromNewUser().getAccessToken();
         final String title = "부자되는 법";
-        WritingDto.CreationRequest requestDto = new WritingDto.CreationRequest(title);
+        WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest(title);
         long writingId = create(accessToken, title);
 
         //when
@@ -180,7 +179,7 @@ public class WritingBoardApiTest extends IntegrationTest {
         for (int i = 1; i <= 5; i++) {
             idList.add(create(accessToken, title + i));
         }
-        WritingDto.MoveRequest requestDto = new WritingDto.MoveRequest(idList.get(0), idList.get(3));
+        WritingBoardDto.MoveRequest requestDto = new WritingBoardDto.MoveRequest(idList.get(0), idList.get(3));
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -211,7 +210,7 @@ public class WritingBoardApiTest extends IntegrationTest {
         final String accessToken = getTokenFromNewUser().getAccessToken();
         long writingBoardId = create(accessToken, "작문 보드 수정 테스트");
         String content = "내용 추가";
-        WritingDto.UpdateRequest requestDto = new WritingDto.UpdateRequest(null, content);
+        WritingBoardDto.UpdateRequest requestDto = new WritingBoardDto.UpdateRequest(null, content);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -232,8 +231,10 @@ public class WritingBoardApiTest extends IntegrationTest {
         );
     }
 
+
+
     private long create(String accessToken, String title) {
-        WritingDto.CreationRequest requestDto = new WritingDto.CreationRequest(title);
+        WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest(title);
         ExtractableResponse<Response> response = RestAssured.given().log().all()
                 .header(Header.AUTH, accessToken)
                 .body(requestDto)

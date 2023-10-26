@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
-import rhetorike.glot.domain._3writing.dto.WritingDto;
+import rhetorike.glot.domain._3writing.dto.WritingBoardDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
 import rhetorike.glot.global.error.exception.AccessDeniedException;
@@ -48,7 +48,7 @@ class WritingBoardServiceTest {
         //given
         final Long USER_ID = 1L;
         User user = Personal.builder().id(USER_ID).writingBoards(List.of()).build();
-        WritingDto.CreationRequest requestDto = new WritingDto.CreationRequest("제목");
+        WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest("제목");
         given(userRepository.findById(USER_ID)).willReturn(Optional.of(user));
         given(writingBoardRepository.save(any())).willReturn(WritingBoard.builder().id(1L).user(user).build());
 
@@ -67,7 +67,7 @@ class WritingBoardServiceTest {
     void createBoardByUnknown() {
         //given
         final Long USER_ID = null;
-        WritingDto.CreationRequest requestDto = new WritingDto.CreationRequest("제목");
+        WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest("제목");
 
         //then
         Assertions.assertThatThrownBy(() -> writingBoardService.createBoard(requestDto, USER_ID)).isInstanceOf(UserNotFoundException.class);
@@ -96,7 +96,7 @@ class WritingBoardServiceTest {
         for (int i = 0; i < 100; i++) {
             writingBoards.add(WritingBoard.builder().user(user).build());
         }
-        WritingDto.CreationRequest requestDto = new WritingDto.CreationRequest("제목");
+        WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest("제목");
         given(userRepository.findById(USER_ID)).willReturn(Optional.of(user));
         given(writingBoardRepository.save(any())).willReturn(WritingBoard.builder().id(1L).user(user).build());
 
@@ -198,7 +198,7 @@ class WritingBoardServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(writingBoardRepository.findById(targetId)).willReturn(Optional.of(targetBoard));
         given(writingBoardRepository.findById(destinationId)).willReturn(Optional.of(destinationBoard));
-        WritingDto.MoveRequest moveRequest = new WritingDto.MoveRequest(1L, 2L);
+        WritingBoardDto.MoveRequest moveRequest = new WritingBoardDto.MoveRequest(1L, 2L);
 
         //when
         writingBoardService.moveBoard(moveRequest, userId);
@@ -215,7 +215,7 @@ class WritingBoardServiceTest {
         //given
         final long userId = 1L;
         final long writingBoardId = 1L;
-        WritingDto.UpdateRequest requestDto = new WritingDto.UpdateRequest("수정할 제목", "수정할 내용");
+        WritingBoardDto.UpdateRequest requestDto = new WritingBoardDto.UpdateRequest("수정할 제목", "수정할 내용");
 
         User user = Personal.builder().id(userId).build();
         WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
@@ -236,7 +236,7 @@ class WritingBoardServiceTest {
         //given
         final long userId = 1L;
         final long writingBoardId = 1L;
-        WritingDto.UpdateRequest requestDto = new WritingDto.UpdateRequest("수정할 제목", null);
+        WritingBoardDto.UpdateRequest requestDto = new WritingBoardDto.UpdateRequest("수정할 제목", null);
 
         User user = Personal.builder().id(userId).build();
         WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
@@ -257,7 +257,7 @@ class WritingBoardServiceTest {
         //given
         final long userId = 1L;
         final long writingBoardId = 1L;
-        WritingDto.UpdateRequest requestDto = new WritingDto.UpdateRequest(null, "수정할 내용");
+        WritingBoardDto.UpdateRequest requestDto = new WritingBoardDto.UpdateRequest(null, "수정할 내용");
 
         User user = Personal.builder().id(userId).build();
         WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();

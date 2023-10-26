@@ -14,12 +14,12 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import rhetorike.glot.domain._3writing.dto.WritingDto;
+import rhetorike.glot.domain._3writing.dto.WritingBoardDto;
 import rhetorike.glot.domain._3writing.service.WritingBoardService;
 import rhetorike.glot.global.constant.Header;
 import rhetorike.glot.global.security.JwtAuthenticationFilter;
 import rhetorike.glot.global.security.SecurityConfig;
-import rhetorike.glot.global.util.dto.SingleResponseDto;
+import rhetorike.glot.global.util.dto.SingleParamDto;
 
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -61,8 +61,8 @@ class WritingBoardControllerTest {
     void createBoard() throws Exception {
         //given
         final String ACCESS_TOKEN = "access-token";
-        WritingDto.CreationRequest requestDto = new WritingDto.CreationRequest("부자 되는 법");
-        given(writingBoardService.createBoard(any(), any())).willReturn(new SingleResponseDto<>(1L));
+        WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest("부자 되는 법");
+        given(writingBoardService.createBoard(any(), any())).willReturn(new SingleParamDto<>(1L));
 
         //when
         ResultActions actions = mockMvc.perform(post(WritingBoardController.CREATE_WRITING_BOARD_URI)
@@ -91,7 +91,7 @@ class WritingBoardControllerTest {
     void getAllBoards() throws Exception {
         //given
         final String ACCESS_TOKEN = "access-token";
-        given(writingBoardService.getAllBoards(any())).willReturn(List.of(new WritingDto.Response(1L, "제목", YearMonth.of(2023, 10))));
+        given(writingBoardService.getAllBoards(any())).willReturn(List.of(new WritingBoardDto.Response(1L, "제목", YearMonth.of(2023, 10))));
 
         //when
         ResultActions actions = mockMvc.perform(get(WritingBoardController.GET_ALL_WRITING_BOARD_URI)
@@ -117,7 +117,7 @@ class WritingBoardControllerTest {
     void getBoard() throws Exception {
         //given
         final String ACCESS_TOKEN = "access-token";
-        given(writingBoardService.getBoard(any(), any())).willReturn(new WritingDto.DetailResponse("제목", "내용", LocalDateTime.now(), LocalDateTime.now()));
+        given(writingBoardService.getBoard(any(), any())).willReturn(new WritingBoardDto.DetailResponse("제목", "내용", LocalDateTime.now(), LocalDateTime.now()));
 
         //when
         ResultActions actions = mockMvc.perform(get(WritingBoardController.GET_WRITING_BOARD_URI, 1L)
@@ -170,7 +170,7 @@ class WritingBoardControllerTest {
     void moveBoard() throws Exception {
         //given
         final String ACCESS_TOKEN = "access-token";
-        WritingDto.MoveRequest requestDto = new WritingDto.MoveRequest(1, 2);
+        WritingBoardDto.MoveRequest requestDto = new WritingBoardDto.MoveRequest(1, 2);
 
         //when
         ResultActions actions = mockMvc.perform(post(WritingBoardController.MOVE_BOARD_URI)
@@ -198,7 +198,7 @@ class WritingBoardControllerTest {
     void updateBoard() throws Exception {
         //given
         final String ACCESS_TOKEN = "access-token";
-        WritingDto.UpdateRequest requestDto = new WritingDto.UpdateRequest("수정 제목", "수정 내용");
+        WritingBoardDto.UpdateRequest requestDto = new WritingBoardDto.UpdateRequest("수정 제목", "수정 내용");
 
         //when
         ResultActions actions = mockMvc.perform(patch(WritingBoardController.UPDATE_BOARD_URI, 1L)

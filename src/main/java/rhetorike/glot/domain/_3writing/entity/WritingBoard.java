@@ -1,17 +1,15 @@
 package rhetorike.glot.domain._3writing.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import rhetorike.glot.domain._2user.entity.User;
-import rhetorike.glot.domain._3writing.dto.WritingDto;
+import rhetorike.glot.domain._3writing.dto.WritingBoardDto;
 import rhetorike.glot.domain._3writing.service.Movable;
 import rhetorike.glot.global.config.jpa.BaseTimeEntity;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Objects;
 
 @Getter
@@ -80,7 +78,7 @@ public class WritingBoard extends BaseTimeEntity implements Movable {
         return this.sequence;
     }
 
-    public static WritingBoard from(WritingDto.CreationRequest dto, User user) {
+    public static WritingBoard from(WritingBoardDto.CreationRequest dto, User user) {
         int lastSequence = getLastSequence(user);
         return WritingBoard.builder()
                 .title(dto.getTitle())

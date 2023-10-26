@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 
-public class WritingDto {
+public class WritingBoardDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor

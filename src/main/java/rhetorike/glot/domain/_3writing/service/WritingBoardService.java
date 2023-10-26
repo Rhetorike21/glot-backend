@@ -6,13 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
-import rhetorike.glot.domain._3writing.dto.WritingDto;
+import rhetorike.glot.domain._3writing.dto.WritingBoardDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
 import rhetorike.glot.global.error.exception.AccessDeniedException;
 import rhetorike.glot.global.error.exception.ResourceNotFoundException;
 import rhetorike.glot.global.error.exception.UserNotFoundException;
-import rhetorike.glot.global.util.dto.SingleResponseDto;
+import rhetorike.glot.global.util.dto.SingleParamDto;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class WritingBoardService {
      *
      * @param requestDto 제목
      */
-    public SingleResponseDto<Long> createBoard(WritingDto.CreationRequest requestDto, Long userId) {
+    public SingleParamDto<Long> createBoard(WritingBoardDto.CreationRequest requestDto, Long userId) {
         if (userId == null) {
             throw new UserNotFoundException();
         }
@@ -39,7 +39,7 @@ public class WritingBoardService {
             writingBoardRepository.deleteLastModified();
         }
         WritingBoard writingBoard = WritingBoard.from(requestDto, user);
-        return new SingleResponseDto<>(writingBoardRepository.save(writingBoard).getId());
+        return new SingleParamDto<>(writingBoardRepository.save(writingBoard).getId());
     }
 
     /**
@@ -48,11 +48,11 @@ public class WritingBoardService {
      * @param userId 회원 아이디넘버
      * @return 전체 작문 보드 목록
      */
-    public List<WritingDto.Response> getAllBoards(Long userId) {
+    public List<WritingBoardDto.Response> getAllBoards(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         List<WritingBoard> writingBoards = writingBoardRepository.findByUserOrderBySequenceDesc(user);
         return writingBoards.stream()
-                .map(WritingDto.Response::new)
+                .map(WritingBoardDto.Response::new)
                 .toList();
     }
 
@@ -64,11 +64,11 @@ public class WritingBoardService {
      * @param writingBoardId 작문 보드 아이디넘버
      * @return 보드 정보
      */
-    public WritingDto.DetailResponse getBoard(Long userId, Long writingBoardId) {
+    public WritingBoardDto.DetailResponse getBoard(Long userId, Long writingBoardId) {
         User found = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         WritingBoard writingBoard = writingBoardRepository.findById(writingBoardId).orElseThrow(ResourceNotFoundException::new);
         if (writingBoard.getUser().equals(found)) {
-            return new WritingDto.DetailResponse(writingBoard);
+            return new WritingBoardDto.DetailResponse(writingBoard);
         }
         throw new AccessDeniedException();
     }
@@ -91,7 +91,7 @@ public class WritingBoardService {
     }
 
     @Transactional
-    public void moveBoard(WritingDto.MoveRequest requestDto, Long userId) {
+    public void moveBoard(WritingBoardDto.MoveRequest requestDto, Long userId) {
         WritingBoard targetBoard = writingBoardRepository.findById(requestDto.getTargetId()).orElseThrow(ResourceNotFoundException::new);
         WritingBoard destinationBoard = writingBoardRepository.findById(requestDto.getDestinationId()).orElseThrow(ResourceNotFoundException::new);
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
@@ -115,7 +115,7 @@ public class WritingBoardService {
      * @param requestDto     수정 사항
      */
     @Transactional
-    public void updateBoard(Long writingBoardId, Long userId, WritingDto.UpdateRequest requestDto) {
+    public void updateBoard(Long writingBoardId, Long userId, WritingBoardDto.UpdateRequest requestDto) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         WritingBoard writingBoard = writingBoardRepository.findById(writingBoardId).orElseThrow(ResourceNotFoundException::new);
         if (user.equals(writingBoard.getUser())) {
@@ -125,7 +125,7 @@ public class WritingBoardService {
         throw new AccessDeniedException();
     }
 
-    private void update(WritingBoard writingBoard, WritingDto.UpdateRequest requestDto) {
+    private void update(WritingBoard writingBoard, WritingBoardDto.UpdateRequest requestDto) {
         if (requestDto.getTitle() != null && !requestDto.getTitle().isBlank()) {
             writingBoard.setTitle(requestDto.getTitle());
         }

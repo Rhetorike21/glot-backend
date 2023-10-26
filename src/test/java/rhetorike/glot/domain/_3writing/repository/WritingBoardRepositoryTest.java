@@ -1,15 +1,13 @@
 package rhetorike.glot.domain._3writing.repository;
 
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.support.PersistableIsNewStrategy;
 import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
-import rhetorike.glot.domain._3writing.dto.WritingDto;
+import rhetorike.glot.domain._3writing.dto.WritingBoardDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.setup.RepositoryTest;
 
@@ -133,10 +131,10 @@ class WritingBoardRepositoryTest {
     void setSequence(){
         //given
         User user = userRepository.save(Personal.builder().build());
-        WritingBoard writingBoard1 = writingBoardRepository.save(WritingBoard.from(new WritingDto.CreationRequest("1"), user));
-        WritingBoard writingBoard2 = writingBoardRepository.save(WritingBoard.from(new WritingDto.CreationRequest("2"), user));
-        WritingBoard writingBoard3 = writingBoardRepository.save(WritingBoard.from(new WritingDto.CreationRequest("3"), user));
-        WritingBoard writingBoard4 = writingBoardRepository.save(WritingBoard.from(new WritingDto.CreationRequest("4"), user));
+        WritingBoard writingBoard1 = writingBoardRepository.save(WritingBoard.from(new WritingBoardDto.CreationRequest("1"), user));
+        WritingBoard writingBoard2 = writingBoardRepository.save(WritingBoard.from(new WritingBoardDto.CreationRequest("2"), user));
+        WritingBoard writingBoard3 = writingBoardRepository.save(WritingBoard.from(new WritingBoardDto.CreationRequest("3"), user));
+        WritingBoard writingBoard4 = writingBoardRepository.save(WritingBoard.from(new WritingBoardDto.CreationRequest("4"), user));
 
         //when
         List<WritingBoard> result = writingBoardRepository.findByUserOrderBySequenceDesc(user);
