@@ -33,6 +33,7 @@ class WritingHelpServiceTest {
 
         //then
         verify(writingHelper).help(WritingHelper.Type.PROGRESS, sentence);
+
     }
 
     @Test

@@ -36,3 +36,8 @@ spring:
           timeout: 5000 # Socket Read Timeout 시간(ms) (기본값 : 무한대)
           starttls:
             enable: true # StartTLS 활성화 여부 (기본값 : false)
+
+api:
+  port-one:
+    imp-key: 8164131572514411
+    imp-secret: 7oKrRXzWYmwaJJgmltYUwc226F23qnr4VHqZ4DEGyE2R3xF7CFffPNbkFh2MH0fyHPT3TirH7fuUmWqz
