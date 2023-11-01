@@ -4,6 +4,7 @@ import jakarta.annotation.security.PermitAll;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import rhetorike.glot.domain._3writing.dto.WritingBoardDto;
@@ -15,19 +16,19 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class WritingBoardController {
-    public final static String CREATE_WRITING_BOARD_URI = "/api/writing";
     public final static String GET_ALL_WRITING_BOARD_URI = "/api/writing";
     public final static String GET_WRITING_BOARD_URI = "/api/writing/{writingId}";
     public final static String DELETE_WRITING_BOARD_URI = "/api/writing/{writingId}";
     public final static String MOVE_BOARD_URI = "/api/writing/move";
-    public final static String UPDATE_BOARD_URI = "/api/writing/{writingId}";
+    public final static String SAVE_BOARD_URI = "/api/writing";
 
     private final WritingBoardService writingBoardService;
 
-    @PermitAll
-    @PostMapping(CREATE_WRITING_BOARD_URI)
-    public ResponseEntity<SingleParamDto<Long>> create(@RequestBody WritingBoardDto.CreationRequest requestDto, @AuthenticationPrincipal Long userId) {
-        SingleParamDto<Long> responseBody = writingBoardService.createBoard(requestDto, userId);
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @PostMapping(SAVE_BOARD_URI)
+    public ResponseEntity<SingleParamDto<Long>> saveBoard(@AuthenticationPrincipal Long userId, @RequestBody WritingBoardDto.SaveRequest requestDto) {
+        SingleParamDto<Long> responseBody = writingBoardService.saveBoard(userId, requestDto);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
@@ -58,12 +59,4 @@ public class WritingBoardController {
         writingBoardService.moveBoard(requestDto, userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-    @PermitAll
-    @PatchMapping(UPDATE_BOARD_URI)
-    public ResponseEntity<Void> updateBoard(@PathVariable Long writingId, @AuthenticationPrincipal Long userId, @RequestBody WritingBoardDto.UpdateRequest requestDto) {
-        writingBoardService.updateBoard(writingId, userId, requestDto);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
 }

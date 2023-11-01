@@ -51,14 +51,11 @@ public class CertificationService {
 
     /**
      * 모바일로 전달된 코드가 유효한지 검증합니다.
-     * 유효하다면, 그 즉시 파기합니다.
      *
      * @param number 인증 번호
      * @return 검증 여부
      */
     public boolean isValidNumber(String number) {
-        boolean result = certCodeRepository.doesExists(number);
-        certCodeRepository.delete(number);
-        return result;
+        return certCodeRepository.doesExists(number);
     }
 }

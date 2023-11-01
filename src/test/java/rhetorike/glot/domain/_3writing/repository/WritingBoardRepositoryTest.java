@@ -131,10 +131,10 @@ class WritingBoardRepositoryTest {
     void setSequence(){
         //given
         User user = userRepository.save(Personal.builder().build());
-        WritingBoard writingBoard1 = writingBoardRepository.save(WritingBoard.from(new WritingBoardDto.CreationRequest("1"), user));
-        WritingBoard writingBoard2 = writingBoardRepository.save(WritingBoard.from(new WritingBoardDto.CreationRequest("2"), user));
-        WritingBoard writingBoard3 = writingBoardRepository.save(WritingBoard.from(new WritingBoardDto.CreationRequest("3"), user));
-        WritingBoard writingBoard4 = writingBoardRepository.save(WritingBoard.from(new WritingBoardDto.CreationRequest("4"), user));
+        WritingBoard writingBoard1 = writingBoardRepository.save(WritingBoard.from(new WritingBoardDto.SaveRequest(null, "1", "내용"), user));
+        WritingBoard writingBoard2 = writingBoardRepository.save(WritingBoard.from(new WritingBoardDto.SaveRequest(null, "2", "내용"), user));
+        WritingBoard writingBoard3 = writingBoardRepository.save(WritingBoard.from(new WritingBoardDto.SaveRequest(null, "3", "내용"), user));
+        WritingBoard writingBoard4 = writingBoardRepository.save(WritingBoard.from(new WritingBoardDto.SaveRequest(null, "4", "내용"), user));
 
         //when
         List<WritingBoard> result = writingBoardRepository.findByUserOrderBySequenceDesc(user);

@@ -66,7 +66,8 @@ public class WritingBoardDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class UpdateRequest {
+    public static class SaveRequest {
+        private Long writingBoardId;
         private String title;
         private String content;
     }

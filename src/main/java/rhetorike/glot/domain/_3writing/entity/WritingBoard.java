@@ -34,9 +34,10 @@ public class WritingBoard extends BaseTimeEntity implements Movable {
     private User user;
 
     @Builder
-    public WritingBoard(Long id, String title, User user, int sequence, LocalDateTime createdTime, LocalDateTime modifiedTime) {
+    public WritingBoard(Long id, String title, String content, User user, int sequence, LocalDateTime createdTime, LocalDateTime modifiedTime) {
         this.id = id;
         this.title = title;
+        this.content = content;
         this.sequence = sequence;
         this.createdTime = createdTime;
         this.modifiedTime = modifiedTime;
@@ -51,37 +52,38 @@ public class WritingBoard extends BaseTimeEntity implements Movable {
         user.getWritingBoards().add(this);
     }
 
-    public void deleteUser(){
-        if (this.user != null){
+    public void deleteUser() {
+        if (this.user != null) {
             this.user.getWritingBoards().remove(this);
         }
         this.user = null;
     }
 
     @Override
-    public void increaseSequence(){
+    public void increaseSequence() {
         this.sequence++;
     }
 
     @Override
-    public void decreaseSequence(){
+    public void decreaseSequence() {
         this.sequence--;
     }
 
     @Override
-    public void setSequence(int sequence){
+    public void setSequence(int sequence) {
         this.sequence = sequence;
     }
 
     @Override
-    public int getSequence(){
+    public int getSequence() {
         return this.sequence;
     }
 
-    public static WritingBoard from(WritingBoardDto.CreationRequest dto, User user) {
+    public static WritingBoard from(WritingBoardDto.SaveRequest dto, User user) {
         int lastSequence = getLastSequence(user);
         return WritingBoard.builder()
                 .title(dto.getTitle())
+                .content(dto.getContent())
                 .sequence(lastSequence + 1)
                 .user(user)
                 .build();
@@ -115,11 +117,12 @@ public class WritingBoard extends BaseTimeEntity implements Movable {
                 '}';
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
+    public void update(WritingBoardDto.SaveRequest requestDto) {
+        if (requestDto.getTitle() != null) {
+            this.title = requestDto.getTitle();
+        }
+        if (requestDto.getContent() != null) {
+            this.content = requestDto.getContent();
+        }
     }
 }

@@ -57,31 +57,32 @@ class WritingBoardControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("[작문 보드 생성]")
-    void createBoard() throws Exception {
+    @DisplayName("[작문 보드 저장] - 기존 보드 수정")
+    void updateBoard() throws Exception {
         //given
         final String ACCESS_TOKEN = "access-token";
-        WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest("부자 되는 법");
-        given(writingBoardService.createBoard(any(), any())).willReturn(new SingleParamDto<>(1L));
-
+        WritingBoardDto.SaveRequest requestDto = new WritingBoardDto.SaveRequest(1L, "제목", "내용");
+        given(writingBoardService.saveBoard(any(), any())).willReturn(new SingleParamDto<>(1L));
         //when
-        ResultActions actions = mockMvc.perform(post(WritingBoardController.CREATE_WRITING_BOARD_URI)
+        ResultActions actions = mockMvc.perform(post(WritingBoardController.SAVE_BOARD_URI)
                 .with(csrf())
-                .header(Header.AUTH, ACCESS_TOKEN)
                 .content(objectMapper.writeValueAsString(requestDto))
-                .contentType(MediaType.APPLICATION_JSON));
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(Header.AUTH, ACCESS_TOKEN));
 
         //then
         actions.andExpect(status().isOk())
-                .andDo(docs("board-create",
+                .andDo(docs("board-save",
                         requestHeaders(
                                 header(Header.AUTH).description("액세스 토큰").optional()
                         ),
                         requestFields(
-                                field("title").description("제목")
+                                field("writingBoardId").type(JsonFieldType.NUMBER).description("보드 아이디넘버").optional(),
+                                field("title").description("제목 (변경하지 않으려면 null)"),
+                                field("content").description("내용 (변경하지 않으려면 null)")
                         ),
                         responseFields(
-                                field("data").type(JsonFieldType.NUMBER).description("생성된 보드의 아이디넘버")
+                                field("data").type(JsonFieldType.NUMBER).description("생성(수정)된 보드의 아이디넘버")
                         )));
     }
 
@@ -191,33 +192,6 @@ class WritingBoardControllerTest {
                         )));
     }
 
-
-    @Test
-    @WithMockUser
-    @DisplayName("[작문 보드 수정]")
-    void updateBoard() throws Exception {
-        //given
-        final String ACCESS_TOKEN = "access-token";
-        WritingBoardDto.UpdateRequest requestDto = new WritingBoardDto.UpdateRequest("수정 제목", "수정 내용");
-
-        //when
-        ResultActions actions = mockMvc.perform(patch(WritingBoardController.UPDATE_BOARD_URI, 1L)
-                .with(csrf())
-                .content(objectMapper.writeValueAsString(requestDto))
-                .contentType(MediaType.APPLICATION_JSON)
-                .header(Header.AUTH, ACCESS_TOKEN));
-
-        //then
-        actions.andExpect(status().isNoContent())
-                .andDo(docs("board-update",
-                        requestHeaders(
-                                header(Header.AUTH).description("액세스 토큰").optional()
-                        ),
-                        requestFields(
-                                field("title").description("수정할 제목 (변경하지 않으려면 null)"),
-                                field("content").description("수정할 내용 (변경하지 않으려면 null)")
-                        )));
-    }
 
 
 }

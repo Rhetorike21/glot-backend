@@ -25,24 +25,6 @@ public class WritingBoardService {
     private final WriteBoardMover writeBoardMover;
 
     /**
-     * 작문 보드를 생성합니다.
-     *
-     * @param requestDto 제목
-     */
-    public SingleParamDto<Long> createBoard(WritingBoardDto.CreationRequest requestDto, Long userId) {
-        if (userId == null) {
-            throw new UserNotFoundException();
-        }
-        requestDto.setTitleIfEmpty();
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        if (WritingBoard.MAX_BOARD_LIMIT <= user.countBoard()) {
-            writingBoardRepository.deleteLastModified();
-        }
-        WritingBoard writingBoard = WritingBoard.from(requestDto, user);
-        return new SingleParamDto<>(writingBoardRepository.save(writingBoard).getId());
-    }
-
-    /**
      * 전체 작문 보드를 조회합니다.
      *
      * @param userId 회원 아이디넘버
@@ -108,29 +90,34 @@ public class WritingBoardService {
     }
 
     /**
-     * 보드를 수정합니다.null이 아닌 항목만 변경됩니다.
+     * 보드를 저장합니다.null이 아닌 항목만 변경됩니다. id를 찾을 수 없는 경우, 새로 생성합니다.
      *
-     * @param writingBoardId 수정할 보드 아이디넘버
-     * @param userId         사용자 아이디넘버
-     * @param requestDto     수정 사항
+     * @param userId     사용자 아이디넘버
+     * @param requestDto 수정 사항
      */
     @Transactional
-    public void updateBoard(Long writingBoardId, Long userId, WritingBoardDto.UpdateRequest requestDto) {
+    public SingleParamDto<Long> saveBoard(Long userId, WritingBoardDto.SaveRequest requestDto) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        WritingBoard writingBoard = writingBoardRepository.findById(writingBoardId).orElseThrow(ResourceNotFoundException::new);
-        if (user.equals(writingBoard.getUser())) {
-            update(writingBoard, requestDto);
-            return;
+        if (requestDto.getWritingBoardId() == null){
+            return new SingleParamDto<>(createNewBoard(user, requestDto).getId());
         }
-        throw new AccessDeniedException();
+        WritingBoard writingBoard = writingBoardRepository.findById(requestDto.getWritingBoardId()).orElseThrow(ResourceNotFoundException::new);
+        return new SingleParamDto<>(updateBoard(user, writingBoard, requestDto));
     }
 
-    private void update(WritingBoard writingBoard, WritingBoardDto.UpdateRequest requestDto) {
-        if (requestDto.getTitle() != null && !requestDto.getTitle().isBlank()) {
-            writingBoard.setTitle(requestDto.getTitle());
+    private WritingBoard createNewBoard(User user, WritingBoardDto.SaveRequest requestDto) {
+        if (WritingBoard.MAX_BOARD_LIMIT <= user.countBoard()) {
+            writingBoardRepository.deleteLastModified();
         }
-        if (requestDto.getContent() != null) {
-            writingBoard.setContent(requestDto.getContent());
+        WritingBoard writingBoard = WritingBoard.from(requestDto, user);
+        return writingBoardRepository.save(writingBoard);
+    }
+
+    private Long updateBoard(User user, WritingBoard writingBoard, WritingBoardDto.SaveRequest requestDto) {
+        if (user.equals(writingBoard.getUser())) {
+            writingBoard.update(requestDto);
+            return writingBoard.getId();
         }
+        throw new AccessDeniedException();
     }
 }

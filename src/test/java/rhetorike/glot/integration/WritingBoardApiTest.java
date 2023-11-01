@@ -31,30 +31,30 @@ public class WritingBoardApiTest extends IntegrationTest {
     WritingBoardRepository writingBoardRepository;
 
     @Test
-    @DisplayName("[작문 보드 생성] - 비회원")
+    @DisplayName("[작문 보드 저장] - 비회원: 신규 보드 저장 불가")
     void createBoardByUnknown() {
         //given
-        WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest("제목");
+        WritingBoardDto.SaveRequest requestDto = new WritingBoardDto.SaveRequest(null, "제목", "내용");
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
                 .body(requestDto)
                 .contentType(ContentType.JSON)
-                .when().post(WritingBoardController.CREATE_WRITING_BOARD_URI)
+                .when().post(WritingBoardController.SAVE_BOARD_URI)
                 .then().log().all()
                 .extract();
 
         //then
         assertAll(
-                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value())
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.FORBIDDEN.value())
         );
     }
 
     @Test
-    @DisplayName("[작문 보드 생성] - 회원")
+    @DisplayName("[작문 보드 저장] - 회원: 신규 보드 저장")
     void createBoardByUser() {
         //given
-        WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest("제목");
+        WritingBoardDto.SaveRequest requestDto = new WritingBoardDto.SaveRequest(null, "제목", "내용");
         final String ACCESS_TOKEN = getTokenFromNewUser().getAccessToken();
 
         //when
@@ -62,13 +62,41 @@ public class WritingBoardApiTest extends IntegrationTest {
                 .header(Header.AUTH, ACCESS_TOKEN)
                 .body(requestDto)
                 .contentType(ContentType.JSON)
-                .when().post(WritingBoardController.CREATE_WRITING_BOARD_URI)
+                .when().post(WritingBoardController.SAVE_BOARD_URI)
                 .then().log().all()
                 .extract();
 
         //then
         assertAll(
                 () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value())
+        );
+    }
+
+    @Test
+    @DisplayName("[작문 보드 저장] - 기존 보드 수정")
+    void updateBoard() {
+        //given
+        final String accessToken = getTokenFromNewUser().getAccessToken();
+        long writingBoardId = create(accessToken, "작문 보드 수정 테스트");
+        String content = "내용 추가";
+        WritingBoardDto.SaveRequest requestDto = new WritingBoardDto.SaveRequest(writingBoardId, null, content);
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header(Header.AUTH, accessToken)
+                .body(requestDto)
+                .contentType(ContentType.JSON)
+                .when().post(WritingBoardController.SAVE_BOARD_URI)
+                .then().log().all()
+                .extract();
+
+        Optional<WritingBoard> result = writingBoardRepository.findById(writingBoardId);
+
+        //then
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
+                () -> assertThat(result).isPresent(),
+                () -> assertThat(result.get().getContent()).isEqualTo(content)
         );
     }
 
@@ -203,43 +231,13 @@ public class WritingBoardApiTest extends IntegrationTest {
         );
     }
 
-    @Test
-    @DisplayName("[작문 보드 수정]")
-    void updateBoard() {
-        //given
-        final String accessToken = getTokenFromNewUser().getAccessToken();
-        long writingBoardId = create(accessToken, "작문 보드 수정 테스트");
-        String content = "내용 추가";
-        WritingBoardDto.UpdateRequest requestDto = new WritingBoardDto.UpdateRequest(null, content);
-
-        //when
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header(Header.AUTH, accessToken)
-                .body(requestDto)
-                .contentType(ContentType.JSON)
-                .when().patch(WritingBoardController.UPDATE_BOARD_URI, writingBoardId)
-                .then().log().all()
-                .extract();
-
-        Optional<WritingBoard> result = writingBoardRepository.findById(writingBoardId);
-
-        //then
-        assertAll(
-                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value()),
-                () -> assertThat(result).isPresent(),
-                () -> assertThat(result.get().getContent()).isEqualTo(content)
-        );
-    }
-
-
-
     private long create(String accessToken, String title) {
-        WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest(title);
+        WritingBoardDto.SaveRequest requestDto = new WritingBoardDto.SaveRequest(null, title, "내용");
         ExtractableResponse<Response> response = RestAssured.given().log().all()
                 .header(Header.AUTH, accessToken)
                 .body(requestDto)
                 .contentType(ContentType.JSON)
-                .when().post(WritingBoardController.CREATE_WRITING_BOARD_URI)
+                .when().post(WritingBoardController.SAVE_BOARD_URI)
                 .then().log().all()
                 .extract();
         JsonPath jsonPath = response.jsonPath();

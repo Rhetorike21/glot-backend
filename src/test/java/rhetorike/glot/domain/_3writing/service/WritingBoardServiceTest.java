@@ -43,51 +43,25 @@ class WritingBoardServiceTest {
 
 
     @Test
-    @DisplayName("[작문 보드 생성] - 회원")
+    @DisplayName("[작문 보드 저장] - 신규 보드 생성")
     void createBoardByUser() {
         //given
         final Long USER_ID = 1L;
         User user = Personal.builder().id(USER_ID).writingBoards(List.of()).build();
-        WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest("제목");
+        WritingBoardDto.SaveRequest requestDto = new WritingBoardDto.SaveRequest(null, "제목", "내용");
+        WritingBoard writingBoard = WritingBoard.builder().id(1L).user(user).build();
         given(userRepository.findById(USER_ID)).willReturn(Optional.of(user));
-        given(writingBoardRepository.save(any())).willReturn(WritingBoard.builder().id(1L).user(user).build());
-
+        given(writingBoardRepository.save(any())).willReturn(writingBoard);
 
         //when
-        writingBoardService.createBoard(requestDto, USER_ID);
+        writingBoardService.saveBoard(USER_ID, requestDto);
 
         //then
-        verify(userRepository).findById(USER_ID);
-        verify(writingBoardRepository).save(any(WritingBoard.class));
         verify(writingBoardRepository).save(any());
     }
 
     @Test
-    @DisplayName("[작문 보드 생성] - 비회원")
-    void createBoardByUnknown() {
-        //given
-        final Long USER_ID = null;
-        WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest("제목");
-
-        //then
-        Assertions.assertThatThrownBy(() -> writingBoardService.createBoard(requestDto, USER_ID)).isInstanceOf(UserNotFoundException.class);
-    }
-
-
-    @Test
-    @DisplayName("[작문 보드 생성] - 현재 시간을 제목으로 설정")
-    void test() {
-        //given
-        String format = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
-        //when
-        log.info(format);
-
-        //then
-    }
-
-    @Test
-    @DisplayName("[작문 보드 생성] - 생성된 보드가 제한 수량 이상인 경우, 가장 오래된 보드 삭제")
+    @DisplayName("[작문 보드 저장] - 생성된 보드가 제한 수량 이상인 경우, 가장 오래된 보드 삭제")
     void deleteLastModified() {
         //given
         final Long USER_ID = 1L;
@@ -96,12 +70,12 @@ class WritingBoardServiceTest {
         for (int i = 0; i < 100; i++) {
             writingBoards.add(WritingBoard.builder().user(user).build());
         }
-        WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest("제목");
+        WritingBoardDto.SaveRequest requestDto = new WritingBoardDto.SaveRequest(null, "제목", "내용");
         given(userRepository.findById(USER_ID)).willReturn(Optional.of(user));
         given(writingBoardRepository.save(any())).willReturn(WritingBoard.builder().id(1L).user(user).build());
 
         //when
-        writingBoardService.createBoard(requestDto, USER_ID);
+        writingBoardService.saveBoard(USER_ID, requestDto);
 
         //then
         verify(userRepository).findById(USER_ID);
@@ -109,6 +83,69 @@ class WritingBoardServiceTest {
         verify(writingBoardRepository).save(any(WritingBoard.class));
     }
 
+
+    @Test
+    @DisplayName("[작문 보드 저장] - 기존 보드 수정")
+    void updateBoard(){
+        //given
+        final long userId = 1L;
+        final long writingBoardId = 1L;
+        WritingBoardDto.SaveRequest requestDto = new WritingBoardDto.SaveRequest(writingBoardId, "수정할 제목", "수정할 내용");
+
+        User user = Personal.builder().id(userId).build();
+        WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
+
+        //when
+        writingBoardService.saveBoard(userId, requestDto);
+
+        //then
+        verify(userRepository).findById(userId);
+        verify(writingBoardRepository).findById(writingBoardId);
+    }
+
+    @Test
+    @DisplayName("[작문 보드 저장] - 기존 보드 제목 수정")
+    void updateTitleOnly(){
+        //given
+        final long userId = 1L;
+        final long writingBoardId = 1L;
+        WritingBoardDto.SaveRequest requestDto = new WritingBoardDto.SaveRequest(writingBoardId, "수정할 제목", null);
+
+        User user = Personal.builder().id(userId).build();
+        WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
+
+        //when
+        writingBoardService.saveBoard(userId, requestDto);
+
+        //then
+        verify(userRepository).findById(userId);
+        verify(writingBoardRepository).findById(writingBoardId);
+    }
+
+    @Test
+    @DisplayName("[작문 보드 저장] - 기존 보드 내용 수정")
+    void updateContentOnly(){
+        //given
+        final long userId = 1L;
+        final long writingBoardId = 1L;
+        WritingBoardDto.SaveRequest requestDto = new WritingBoardDto.SaveRequest(writingBoardId, null, "수정할 내용");
+
+        User user = Personal.builder().id(userId).build();
+        WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
+
+        //when
+        writingBoardService.saveBoard(userId, requestDto);
+
+        //then
+        verify(userRepository).findById(userId);
+        verify(writingBoardRepository).findById(writingBoardId);
+    }
 
     @Test
     @DisplayName("[전체 작문 보드 조회]")
@@ -209,66 +246,4 @@ class WritingBoardServiceTest {
         verify(writingBoardRepository).findById(destinationId);
     }
 
-    @Test
-    @DisplayName("[작문 보드 수정]")
-    void updateBoard(){
-        //given
-        final long userId = 1L;
-        final long writingBoardId = 1L;
-        WritingBoardDto.UpdateRequest requestDto = new WritingBoardDto.UpdateRequest("수정할 제목", "수정할 내용");
-
-        User user = Personal.builder().id(userId).build();
-        WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
-        given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
-
-        //when
-        writingBoardService.updateBoard(writingBoardId, userId, requestDto);
-
-        //then
-        verify(userRepository).findById(userId);
-        verify(writingBoardRepository).findById(writingBoardId);
-    }
-
-    @Test
-    @DisplayName("[작문 보드 수정] - 제목만 수정")
-    void updateTitleOnly(){
-        //given
-        final long userId = 1L;
-        final long writingBoardId = 1L;
-        WritingBoardDto.UpdateRequest requestDto = new WritingBoardDto.UpdateRequest("수정할 제목", null);
-
-        User user = Personal.builder().id(userId).build();
-        WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
-        given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
-
-        //when
-        writingBoardService.updateBoard(writingBoardId, userId, requestDto);
-
-        //then
-        verify(userRepository).findById(userId);
-        verify(writingBoardRepository).findById(writingBoardId);
-    }
-
-    @Test
-    @DisplayName("[작문 보드 수정] - 내용만 수정")
-    void updateContentOnly(){
-        //given
-        final long userId = 1L;
-        final long writingBoardId = 1L;
-        WritingBoardDto.UpdateRequest requestDto = new WritingBoardDto.UpdateRequest(null, "수정할 내용");
-
-        User user = Personal.builder().id(userId).build();
-        WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
-        given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
-
-        //when
-        writingBoardService.updateBoard(writingBoardId, userId, requestDto);
-
-        //then
-        verify(userRepository).findById(userId);
-        verify(writingBoardRepository).findById(writingBoardId);
-    }
 }
