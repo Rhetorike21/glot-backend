@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @ActiveProfiles("secret")
-//@Disabled
+@Disabled
 class PortOneClientTest extends IntegrationTest {
 
     @Value("${pay.card}")
