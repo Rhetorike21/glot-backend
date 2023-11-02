@@ -1,7 +1,5 @@
 package rhetorike.glot.global.util.portone;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -17,8 +15,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import rhetorike.glot.global.error.exception.ConnectionFailedException;
 
-import java.util.UUID;
-
 @Slf4j
 @Component
 public class PortOneClient {
@@ -26,9 +22,12 @@ public class PortOneClient {
     private final static String HTTPS = "https";
     private final static String HOST = "api.iamport.kr";
     private final static String TOKEN_URI = "/users/getToken";
+    private final static String BILLING_KEY_URI = "/subscribe/customers/{customer_uid}";
     private final static String ONETIME_PAY_URI = "/subscribe/payments/onetime";
     private final static String HISTORY_URI = "/payments/{imp_uid}";
     private final static String AGAIN_URI = "/subscribe/payments/again";
+    private final static String CANCEL_URI = "/payments/cancel";
+    private final static String DELETE_BILLING_KEY = "/subscribe/customers/{customer_uid}";
     @Value("${api.port-one.imp-key}")
     private String IMP_KEY;
     @Value("${api.port-one.imp-secret}")
@@ -40,7 +39,7 @@ public class PortOneClient {
      *
      * @return 액세스 토큰
      */
-    public TokenResponse getAccessToken() {
+    public PortOneResponse.Token issueToken() {
         LinkedMultiValueMap<String, String> param = new LinkedMultiValueMap<>();
         param.add("imp_key", IMP_KEY);
         param.add("imp_secret", IMP_SECRET);
@@ -57,18 +56,20 @@ public class PortOneClient {
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
-        Response response = getData(result, TokenResponseForm.class);
-        return (TokenResponse) response;
+        PortOneResponse response = getData(result, PortOneForm.Token.class);
+        return (PortOneResponse.Token) response;
     }
 
-    public OneTimePayResponse payAndSaveBillingKey(String merchantUid) {
+    public PortOneResponse.OneTimePay payAndSaveBillingKey(String merchantUid, String customer_uid, String name, String amount, String cardNumber, String expiry, String birth, String password) {
         LinkedMultiValueMap<String, String> param = new LinkedMultiValueMap<>();
-        param.add("merchant_uid", merchantUid); // 매번 다른 코드를 넘겨줘야 함
-        param.add("amount", "1000");
-        param.add("card_number", "5462-1234-0920-1234"); //테스트 시 카드 정보 상관 없음
-        param.add("expiry", "2026-11");
-        param.add("birth", "000123");
-        param.add("pg", "tosspayments"); //나이스페이먼츠 -> nice_v2
+        param.add("merchant_uid", merchantUid);
+        param.add("customer_uid", customer_uid);
+        param.add("name", name);
+        param.add("amount", amount);
+        param.add("card_number", cardNumber); //테스트 시 카드 정보 상관 없음
+        param.add("expiry", expiry);
+        param.add("birth", birth);
+        param.add("pwd_2digit", password);
 
         WebClient wc = createWebClient();
         String result = wc.method(HttpMethod.POST)
@@ -78,17 +79,17 @@ public class PortOneClient {
                         .path(ONETIME_PAY_URI)
                         .build()
                 )
-                .header("Authorization", "Bearer " + getAccessToken().getAccessToken())
+                .header("Authorization", "Bearer " + issueToken().getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromFormData(param))
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
-        Response response = getData(result, OneTimePayResponseForm.class);
-        return (OneTimePayResponse) response;
+        PortOneResponse response = getData(result, PortOneForm.OneTimePay.class);
+        return (PortOneResponse.OneTimePay) response;
     }
 
-    public HistoryResponse getPaymentsHistory(String impUid) {
+    public PortOneResponse.PayHistory getPaymentsHistory(String impUid) {
         WebClient wc = createWebClient();
         String result = wc.method(HttpMethod.GET)
                 .uri(uriBuilder -> uriBuilder
@@ -97,21 +98,21 @@ public class PortOneClient {
                         .path(HISTORY_URI)
                         .build(impUid)
                 )
-                .header("Authorization", "Bearer " + getAccessToken().getAccessToken())
+                .header("Authorization", "Bearer " + issueToken().getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
-        Response response = getData(result, HistoryResponseForm.class);
-        return (HistoryResponse) response;
+        PortOneResponse response = getData(result, PortOneForm.History.class);
+        return (PortOneResponse.PayHistory) response;
     }
 
-    public AgainResponse payAgain(String customerUid, String merchantUid) {
+    public PortOneResponse.AgainPay payAgain(String merchantUid, String customerUid, String name, String amount) {
         LinkedMultiValueMap<String, String> param = new LinkedMultiValueMap<>();
-        param.add("customer_uid", customerUid);
         param.add("merchant_uid", merchantUid);
-        param.add("amount", "1000");
-        param.add("name", "사과");
+        param.add("customer_uid", customerUid);
+        param.add("name", name);
+        param.add("amount", amount);
 
         WebClient wc = createWebClient();
         String result = wc.method(HttpMethod.POST)
@@ -121,17 +122,82 @@ public class PortOneClient {
                         .path(AGAIN_URI)
                         .build()
                 )
-                .header("Authorization", "Bearer " + getAccessToken().getAccessToken())
+                .header("Authorization", "Bearer " + issueToken().getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromFormData(param))
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
-        Response response = getData(result, AgainResponseForm.class);
-        return (AgainResponse) response;
+        PortOneResponse response = getData(result, PortOneForm.Again.class);
+        return (PortOneResponse.AgainPay) response;
     }
 
-    private <T extends ResponseForm> Response getData(String result, Class<T> form) {
+    public PortOneResponse.Cancel cancel(String impUid, String amount) {
+        LinkedMultiValueMap<String, String> param = new LinkedMultiValueMap<>();
+        param.add("imp_uid", impUid);
+        param.add("amount", amount);
+
+        WebClient wc = createWebClient();
+        String result = wc.method(HttpMethod.POST)
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(HTTPS)
+                        .host(HOST)
+                        .path(CANCEL_URI)
+                        .build()
+                )
+                .header("Authorization", "Bearer " + issueToken().getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromFormData(param))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        PortOneResponse response = getData(result, PortOneForm.Cancel.class);
+        return (PortOneResponse.Cancel) response;
+    }
+
+    public PortOneResponse.IssueBillingKey issueBillingKey(String customerUid, String cardNumber, String expiry, String birth, String password) {
+        LinkedMultiValueMap<String, String> param = new LinkedMultiValueMap<>();
+        param.add("card_number", cardNumber); //테스트 시 카드 정보 상관 없음
+        param.add("expiry", expiry);
+        param.add("birth", birth);
+        param.add("pwd_2digit", password);
+        WebClient wc = createWebClient();
+        String result = wc.method(HttpMethod.POST)
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(HTTPS)
+                        .host(HOST)
+                        .path(DELETE_BILLING_KEY)
+                        .build(customerUid)
+                )
+                .header("Authorization", "Bearer " + issueToken().getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromFormData(param))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        PortOneResponse response = getData(result, PortOneForm.IssueBillingKey.class);
+        return (PortOneResponse.IssueBillingKey) response;
+    }
+
+    public PortOneResponse.DeleteBillingKey deleteBillingKey(String customerUid) {
+        WebClient wc = createWebClient();
+        String result = wc.method(HttpMethod.DELETE)
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(HTTPS)
+                        .host(HOST)
+                        .path(DELETE_BILLING_KEY)
+                        .build(customerUid)
+                )
+                .header("Authorization", "Bearer " + issueToken().getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        PortOneResponse response = getData(result, PortOneForm.DeleteBillingKey.class);
+        return (PortOneResponse.DeleteBillingKey) response;
+    }
+
+    private <T extends PortOneForm> PortOneResponse getData(String result, Class<T> form) {
         T responseForm;
         try {
             responseForm = new ObjectMapper().readValue(result, form);
@@ -152,91 +218,5 @@ public class PortOneClient {
                 .uriBuilderFactory(factory)
                 .baseUrl("localhost:8080")
                 .build();
-    }
-
-    @ToString
-    @Getter
-    public static abstract class ResponseForm {
-        private int code;
-        private String message;
-        private Response response;
-    }
-
-    @ToString
-    @Getter
-    public static class TokenResponseForm extends ResponseForm {
-        private TokenResponse response;
-    }
-
-    @ToString
-    @Getter
-    public static class OneTimePayResponseForm extends ResponseForm {
-        private OneTimePayResponse response;
-    }
-
-    @ToString
-    @Getter
-    public static class HistoryResponseForm extends ResponseForm {
-        private HistoryResponse response;
-    }
-
-    @ToString
-    @Getter
-    public static class AgainResponseForm extends ResponseForm {
-        private AgainResponse response;
-    }
-
-    public static abstract class Response {
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    @ToString
-    @Getter
-    public static class TokenResponse extends Response{
-        @JsonProperty("access_token")
-        private String accessToken;
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    @ToString
-    @Getter
-    public static class OneTimePayResponse extends Response{
-        @JsonProperty("imp_uid")
-        private String impUid;
-        private String pay_method;
-        private String bank_code;
-        private String bank_name;
-        private String buyer_name;
-        private String client_uid;
-        private String customer_uid;
-        private String status;
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    @ToString
-    @Getter
-    public static class HistoryResponse extends Response{
-        @JsonProperty("imp_uid")
-        private String impUid;
-        private String pay_method;
-        private String bank_code;
-        private String bank_name;
-        private String buyer_name;
-        private String client_uid;
-        private String status;
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    @ToString
-    @Getter
-    public static class AgainResponse extends Response{
-        @JsonProperty("imp_uid")
-        private String impUid;
-        private String pay_method;
-        private String bank_code;
-        private String bank_name;
-        private String buyer_name;
-        private String client_uid;
-        private String status;
     }
 }
