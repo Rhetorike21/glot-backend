@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
+import rhetorike.glot.domain._4order.entity.Subscription;
 import rhetorike.glot.global.config.jpa.BaseTimeEntity;
 
 import java.util.ArrayList;
@@ -50,6 +51,10 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
     @OneToMany
     protected List<WritingBoard> writingBoards;
 
+    @ManyToOne
+    @JoinColumn
+    protected Subscription subscription;
+
     public User(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles, List<WritingBoard> writingBoards) {
         this.id = id;
         this.accountId = accountId;
@@ -67,6 +72,19 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
         if (roles != null){
             this.roles.addAll(roles);
         }
+    }
+
+
+    public void changePassword(String password) {
+        this.password = password;
+    }
+
+    public int countBoard() {
+        return writingBoards.size();
+    }
+
+    public void setSubscription(Subscription subscription) {
+        this.subscription = subscription;
     }
 
     @Override
@@ -130,11 +148,4 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
         return "없음";
     }
 
-    public void changePassword(String password) {
-        this.password = password;
-    }
-
-    public int countBoard() {
-        return writingBoards.size();
-    }
 }

@@ -23,7 +23,7 @@ public enum ErrorCode {
     USER_EXIST("0014", "이미 해당 회원이 존재합니다.", HttpStatus.BAD_REQUEST),
     MAILING_FAILED("0015", "이메일 전송에 실패했습니다.", HttpStatus.BAD_REQUEST),
     ILLEGAL_ARGUMENT("0016", "잘못된 파라미터입니다.", HttpStatus.BAD_REQUEST),
-    ACCESS_DENIED("0017", "접근 권한이 없습니다.", HttpStatus.BAD_REQUEST);
+    ACCESS_DENIED("0017", "접근 권한이 없습니다.", HttpStatus.BAD_REQUEST), ORDER_NOT_COMPLETED("0018", "주문이 완료되지 않았습니다.", HttpStatus.BAD_REQUEST);
 
     private final String code;
     private final String message;

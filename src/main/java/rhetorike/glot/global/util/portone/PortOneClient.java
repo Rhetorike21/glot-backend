@@ -13,6 +13,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
+import rhetorike.glot.domain._4order.entity.Order;
+import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.global.error.exception.ConnectionFailedException;
 
 @Slf4j
@@ -60,16 +62,16 @@ public class PortOneClient {
         return (PortOneResponse.Token) response;
     }
 
-    public PortOneResponse.OneTimePay payAndSaveBillingKey(String merchantUid, String customer_uid, String name, String amount, String cardNumber, String expiry, String birth, String password) {
+    public PortOneResponse.OneTimePay payAndSaveBillingKey(Order order, Payment payment) {
         LinkedMultiValueMap<String, String> param = new LinkedMultiValueMap<>();
-        param.add("merchant_uid", merchantUid);
-        param.add("customer_uid", customer_uid);
-        param.add("name", name);
-        param.add("amount", amount);
-        param.add("card_number", cardNumber); //테스트 시 카드 정보 상관 없음
-        param.add("expiry", expiry);
-        param.add("birth", birth);
-        param.add("pwd_2digit", password);
+        param.add("merchant_uid", String.valueOf(order.getId()));
+        param.add("customer_uid", String.valueOf(order.getUser().getId()));
+        param.add("name", order.getPlan().getName());
+        param.add("amount", String.valueOf(order.totalAmount()));
+        param.add("card_number", payment.getCardNumber()); //테스트 시 카드 정보 상관 없음
+        param.add("expiry", payment.getExpiry());
+        param.add("birth", payment.getBirthDate());
+        param.add("pwd_2digit", payment.getPassword());
 
         WebClient wc = createWebClient();
         String result = wc.method(HttpMethod.POST)
@@ -107,12 +109,12 @@ public class PortOneClient {
         return (PortOneResponse.PayHistory) response;
     }
 
-    public PortOneResponse.AgainPay payAgain(String merchantUid, String customerUid, String name, String amount) {
+    public PortOneResponse.AgainPay payAgain(Order order) {
         LinkedMultiValueMap<String, String> param = new LinkedMultiValueMap<>();
-        param.add("merchant_uid", merchantUid);
-        param.add("customer_uid", customerUid);
-        param.add("name", name);
-        param.add("amount", amount);
+        param.add("merchant_uid", order.getId());
+        param.add("customer_uid", String.valueOf(order.getUser().getId()));
+        param.add("name", order.getPlan().getName());
+        param.add("amount", String.valueOf(order.totalAmount()));
 
         WebClient wc = createWebClient();
         String result = wc.method(HttpMethod.POST)
@@ -155,19 +157,19 @@ public class PortOneClient {
         return (PortOneResponse.Cancel) response;
     }
 
-    public PortOneResponse.IssueBillingKey issueBillingKey(String customerUid, String cardNumber, String expiry, String birth, String password) {
+    public PortOneResponse.IssueBillingKey issueBillingKey(Long userId, Payment payment) {
         LinkedMultiValueMap<String, String> param = new LinkedMultiValueMap<>();
-        param.add("card_number", cardNumber); //테스트 시 카드 정보 상관 없음
-        param.add("expiry", expiry);
-        param.add("birth", birth);
-        param.add("pwd_2digit", password);
+        param.add("card_number", payment.getCardNumber()); //테스트 시 카드 정보 상관 없음
+        param.add("expiry", payment.getExpiry());
+        param.add("birth", payment.getBirthDate());
+        param.add("pwd_2digit", payment.getPassword());
         WebClient wc = createWebClient();
         String result = wc.method(HttpMethod.POST)
                 .uri(uriBuilder -> uriBuilder
                         .scheme(HTTPS)
                         .host(HOST)
                         .path(DELETE_BILLING_KEY)
-                        .build(customerUid)
+                        .build(userId)
                 )
                 .header("Authorization", "Bearer " + issueToken().getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -179,14 +181,14 @@ public class PortOneClient {
         return (PortOneResponse.IssueBillingKey) response;
     }
 
-    public PortOneResponse.DeleteBillingKey deleteBillingKey(String customerUid) {
+    public PortOneResponse.DeleteBillingKey deleteBillingKey(Long userId) {
         WebClient wc = createWebClient();
         String result = wc.method(HttpMethod.DELETE)
                 .uri(uriBuilder -> uriBuilder
                         .scheme(HTTPS)
                         .host(HOST)
                         .path(DELETE_BILLING_KEY)
-                        .build(customerUid)
+                        .build(userId)
                 )
                 .header("Authorization", "Bearer " + issueToken().getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
