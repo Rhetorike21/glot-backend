@@ -9,9 +9,9 @@ import rhetorike.glot.global.util.dto.SingleParamDto;
 @RequiredArgsConstructor
 public class WritingHelpService {
     private final WritingHelper writingHelper;
-    public SingleParamDto<String> write(WritingHelpDto.Request requestDto){
+    public WritingHelpDto.Response write(WritingHelpDto.Request requestDto){
         String sentence = requestDto.getSentence();
         WritingHelper.Type type = WritingHelper.Type.findByName(requestDto.getType());
-        return new SingleParamDto<>(writingHelper.help(type, sentence));
+        return new WritingHelpDto.Response(writingHelper.help(type, sentence));
     }
 }

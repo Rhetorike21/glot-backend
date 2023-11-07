@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 public class WritingHelpDto {
     @Getter
     @NoArgsConstructor
@@ -14,5 +16,9 @@ public class WritingHelpDto {
         private String sentence;
         private String type;
     }
-
+    @Getter
+    @AllArgsConstructor
+    public static class Response{
+        private List<String> result;
+    }
 }

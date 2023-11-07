@@ -3,14 +3,15 @@ package rhetorike.glot.domain._3writing.service;
 import lombok.AllArgsConstructor;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 public interface WritingHelper {
     @AllArgsConstructor
     enum Type {
-        PROGRESS("progress", () -> ""),
-        REVERSE("reverse", () -> "reverse"),
-        CONCLUSION("conclusion", () -> "");
+        PROGRESS("progress", () -> "그런데"),
+        REVERSE("reverse", () -> "그러나"),
+        CONCLUSION("conclusion", () -> "따라서");
         private final String name;
         private final Supplier<String> param;
 
@@ -24,5 +25,5 @@ public interface WritingHelper {
         }
     }
 
-    String help(Type type, String sentence);
+    List<String> help(Type type, String sentence);
 }
