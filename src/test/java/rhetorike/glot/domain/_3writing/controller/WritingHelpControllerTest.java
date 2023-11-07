@@ -10,6 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -19,6 +20,8 @@ import rhetorike.glot.global.constant.Header;
 import rhetorike.glot.global.security.JwtAuthenticationFilter;
 import rhetorike.glot.global.security.SecurityConfig;
 import rhetorike.glot.global.util.dto.SingleParamDto;
+
+import java.util.List;
 
 import static hansol.restdocsdsl.docs.RestDocsAdapter.docs;
 import static hansol.restdocsdsl.docs.RestDocsHeader.requestHeaders;
@@ -54,7 +57,7 @@ class WritingHelpControllerTest {
     void createBoard() throws Exception {
         //given
         WritingHelpDto.Request requestDto = new WritingHelpDto.Request("나는 바보 아니다.", "progress");
-        given(writingHelpService.write(requestDto)).willReturn(new SingleParamDto<>("AI 작문 결과"));
+        given(writingHelpService.write(requestDto)).willReturn(new WritingHelpDto.Response(List.of("AI 작문 결과1", "AI 작문 결과2")));
 
         //when
         ResultActions actions = mockMvc.perform(post(WritingHelpController.WRITING_HELP_API)
@@ -70,7 +73,7 @@ class WritingHelpControllerTest {
                                 field("type").description("유형 (progress | reverse | conclusion)")
                         ),
                         responseFields(
-                                field("data").description("AI 작문 결과")
+                                field("result").type(JsonFieldType.ARRAY).description("AI 작문 결과")
                         )));
     }
 }

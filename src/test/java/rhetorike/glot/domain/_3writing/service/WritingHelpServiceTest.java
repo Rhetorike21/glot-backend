@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import rhetorike.glot.domain._3writing.dto.WritingHelpDto;
 import rhetorike.glot.setup.ServiceTest;
 
+import java.util.List;
+
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -26,7 +28,7 @@ class WritingHelpServiceTest {
         String sentence = "작문 내용";
         String writingResult = "작문 결과";
         WritingHelpDto.Request requestDto = new WritingHelpDto.Request(sentence, "progress");
-        given(writingHelper.help(WritingHelper.Type.PROGRESS, sentence)).willReturn(writingResult);
+        given(writingHelper.help(WritingHelper.Type.PROGRESS, sentence)).willReturn(List.of(writingResult));
 
         //when
         writingHelpService.write(requestDto);
@@ -43,7 +45,7 @@ class WritingHelpServiceTest {
         String sentence = "작문 내용";
         String writingResult = "작문 결과";
         WritingHelpDto.Request requestDto = new WritingHelpDto.Request(sentence, "reverse");
-        given(writingHelper.help(WritingHelper.Type.REVERSE, sentence)).willReturn(writingResult);
+        given(writingHelper.help(WritingHelper.Type.REVERSE, sentence)).willReturn(List.of(writingResult));
 
         //when
         writingHelpService.write(requestDto);
@@ -59,7 +61,7 @@ class WritingHelpServiceTest {
         String sentence = "작문 내용";
         String writingResult = "작문 결과";
         WritingHelpDto.Request requestDto = new WritingHelpDto.Request(sentence, "conclusion");
-        given(writingHelper.help(WritingHelper.Type.CONCLUSION, sentence)).willReturn(writingResult);
+        given(writingHelper.help(WritingHelper.Type.CONCLUSION, sentence)).willReturn(List.of(writingResult));
 
         //when
         writingHelpService.write(requestDto);

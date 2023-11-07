@@ -18,8 +18,8 @@ public class WritingHelpController {
     private final WritingHelpService writingHelpService;
 
     @PostMapping(WRITING_HELP_API)
-    public ResponseEntity<SingleParamDto<String>> write(@RequestBody WritingHelpDto.Request requestDto) {
-        SingleParamDto<String> responseBody = writingHelpService.write(requestDto);
+    public ResponseEntity<WritingHelpDto.Response> write(@RequestBody WritingHelpDto.Request requestDto) {
+        WritingHelpDto.Response responseBody = writingHelpService.write(requestDto);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 }
