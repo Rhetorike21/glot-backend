@@ -3,6 +3,8 @@ package rhetorike.glot.global.util.portone;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.List;
+
 @ToString
 @Getter
 public abstract class PortOneForm {

@@ -13,6 +13,8 @@ import rhetorike.glot.domain._4order.repository.OrderRepository;
 import rhetorike.glot.global.error.exception.ResourceNotFoundException;
 import rhetorike.glot.global.error.exception.UserNotFoundException;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -23,12 +25,18 @@ public class OrderService {
     private final SubscriptionService subscriptionService;
 
     @Transactional
-    public void makeOrder(OrderDto orderDto, Long userId) {
+    public void makeOrder(OrderDto.MakeRequest requestDto, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        Plan plan = planRepository.findById(orderDto.getPlanId()).orElseThrow(ResourceNotFoundException::new);
-        Order order = Order.newOrder(user, plan, orderDto.getQuantity());
-        payService.pay(order, orderDto.getPayment());
-        orderRepository.save(order);
+        Plan plan = planRepository.findById(requestDto.getPlanId()).orElseThrow(ResourceNotFoundException::new);
+        Order order = Order.newOrder(user, plan, requestDto.getQuantity());
+        payService.pay(order, requestDto.getPayment());
         subscriptionService.subscribe(order);
+        orderRepository.save(order);
+    }
+
+    public List<OrderDto.GetResponse> getOrders(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        List<Order> orders = orderRepository.findByUserOrderByCreatedTimeDesc(user);
+        return payService.getHistory(orders);
     }
 }

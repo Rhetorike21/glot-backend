@@ -2,6 +2,7 @@ package rhetorike.glot.integration;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Disabled;
@@ -24,6 +25,7 @@ import rhetorike.glot.global.constant.Header;
 import rhetorike.glot.setup.IntegrationTest;
 
 import java.time.Period;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,11 +52,11 @@ public class OrderApiTest extends IntegrationTest {
 
     @Test
     @DisplayName("[베이직 요금제 구매]")
-    void sendResetLink() {
+    void orderBasicPlan() {
         //given
         String accessToken = getTokenFromNewUser().getAccessToken();
         Long planId = planRepository.save(new BasicPlan(null, "월 베이직 요금제", 100L, Period.ofMonths(1))).getId();
-        OrderDto requestDto = new OrderDto(planId, 1, new Payment(cardNumber, expiry, birth, password));
+        OrderDto.MakeRequest requestDto = new OrderDto.MakeRequest(planId, 1, new Payment(cardNumber, expiry, birth, password));
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -67,5 +69,41 @@ public class OrderApiTest extends IntegrationTest {
 
         //then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
+    }
+
+    @Test
+    @DisplayName("[주문 내역 조회]")
+    void getHistory() {
+        //given
+        String accessToken = getTokenFromNewUser().getAccessToken();
+        Long planId = planRepository.save(new BasicPlan(null, "월 베이직 요금제", 100L, Period.ofMonths(1))).getId();
+        orderPlan(accessToken, planId, 1);
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header(Header.AUTH, accessToken)
+                .contentType(ContentType.JSON)
+                .when().get(OrderController.GET_ORDER_URI)
+                .then().log().all()
+                .extract();
+
+        //then
+        List<OrderDto.GetResponse> list = response.jsonPath().getList("");
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
+                () -> assertThat(list).hasSize(1)
+        );
+
+    }
+
+    private void orderPlan(String accessToken, Long planId, int quantity){
+        OrderDto.MakeRequest requestDto = new OrderDto.MakeRequest(planId, quantity, new Payment(cardNumber, expiry, birth, password));
+        RestAssured.given().log().all()
+                .body(requestDto)
+                .header(Header.AUTH, accessToken)
+                .contentType(ContentType.JSON)
+                .when().post(OrderController.MAKE_ORDER_URI)
+                .then().log().all()
+                .extract();
     }
 }

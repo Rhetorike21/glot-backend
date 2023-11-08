@@ -160,7 +160,7 @@ operation::board-move[]
 
 === 🟢 작문 보드 삭제
 ----
-작문 보드를 수정합니다.
+작문 보드를 수정합니다.가
 수정할 항목이 아닌 경우, null을 주면 됩니다.
 ----
 operation::board-delete[]
@@ -181,3 +181,9 @@ operation::help-writing[]
 요금제를 구매합니다.
 ----
 operation::order-make[]
+
+=== 🟢 구매 내역 조회
+----
+구매 내역을 조회합니다.
+----
+operation::order-get[]

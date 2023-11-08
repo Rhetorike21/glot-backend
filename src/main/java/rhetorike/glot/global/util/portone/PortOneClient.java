@@ -17,6 +17,9 @@ import rhetorike.glot.domain._4order.entity.Order;
 import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.global.error.exception.ConnectionFailedException;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Slf4j
 @Component
 public class PortOneClient {
@@ -27,6 +30,7 @@ public class PortOneClient {
     private final static String BILLING_KEY_URI = "/subscribe/customers/{customer_uid}";
     private final static String ONETIME_PAY_URI = "/subscribe/payments/onetime";
     private final static String HISTORY_URI = "/payments/{imp_uid}";
+    private final static String ALL_HISTORY_URI = "/payments";
     private final static String AGAIN_URI = "/subscribe/payments/again";
     private final static String CANCEL_URI = "/payments/cancel";
     private final static String DELETE_BILLING_KEY = "/subscribe/customers/{customer_uid}";
@@ -91,7 +95,7 @@ public class PortOneClient {
         return (PortOneResponse.OneTimePay) response;
     }
 
-    public PortOneResponse.PayHistory getPaymentsHistory(String impUid) {
+    public PortOneResponse.PayHistory getPaymentHistory(String impUid) {
         WebClient wc = createWebClient();
         String result = wc.method(HttpMethod.GET)
                 .uri(uriBuilder -> uriBuilder
@@ -107,6 +111,26 @@ public class PortOneClient {
                 .block();
         PortOneResponse response = getData(result, PortOneForm.History.class);
         return (PortOneResponse.PayHistory) response;
+    }
+
+    public List<PortOneResponse.PayHistory> getAllPaymentHistory(List<String> orderIds) {
+        LinkedMultiValueMap<String, String> param = new LinkedMultiValueMap<>();
+        WebClient wc = createWebClient();
+        String result = wc.method(HttpMethod.GET)
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(HTTPS)
+                        .host(HOST)
+                        .path(ALL_HISTORY_URI)
+                        .queryParam("merchant_uid[]", orderIds)
+                        .build()
+                )
+                .header("Authorization", "Bearer " + issueToken().getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromFormData(param))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        return getListData(result);
     }
 
     public PortOneResponse.AgainPay payAgain(Order order) {
@@ -213,6 +237,21 @@ public class PortOneClient {
         throw new ConnectionFailedException();
     }
 
+    private List<PortOneResponse.PayHistory> getListData(String result) {
+        ListForm responseForm;
+        try {
+            responseForm = new ObjectMapper().readValue(result, ListForm.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        if (responseForm.getCode() == 0) {
+            return responseForm.getResponse();
+        }
+        log.error(responseForm.getMessage());
+        throw new ConnectionFailedException();
+    }
+
+
     private WebClient createWebClient() {
         DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory("localhost:8080");
         factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.URI_COMPONENT);
@@ -220,5 +259,13 @@ public class PortOneClient {
                 .uriBuilderFactory(factory)
                 .baseUrl("localhost:8080")
                 .build();
+    }
+
+    @ToString
+    @Getter
+    public static class ListForm {
+        private int code;
+        private String message;
+        private List<PortOneResponse.PayHistory> response;
     }
 }

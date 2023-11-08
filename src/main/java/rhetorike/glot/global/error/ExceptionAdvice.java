@@ -7,6 +7,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import rhetorike.glot.global.error.exception.GlotDetailedException;
 import rhetorike.glot.global.error.exception.GlotException;
 import rhetorike.glot.global.error.exception.InternalServerException;
 
@@ -73,5 +74,12 @@ public class ExceptionAdvice {
         ErrorCode errorCode = e.getErrorCode();
         e.printStackTrace();
         return new ResponseEntity<>(new ErrorResponseDto(errorCode), errorCode.getHttpStatus());
+    }
+
+    @ExceptionHandler(GlotDetailedException.class)
+    protected ResponseEntity<ErrorResponseDto> handle(GlotDetailedException e) {
+        ErrorCode errorCode = e.getErrorCode();
+        e.printStackTrace();
+        return new ResponseEntity<>(new ErrorResponseDto(errorCode, e.getDetailMessage()), errorCode.getHttpStatus());
     }
 }

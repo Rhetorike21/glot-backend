@@ -17,4 +17,11 @@ public class ErrorResponseDto {
         this.name = errorCode.name();
         this.message = errorCode.getMessage();
     }
+
+    public ErrorResponseDto(ErrorCode errorCode, String detailMessage){
+        this.status = errorCode.getHttpStatus().value();
+        this.code = errorCode.getCode();
+        this.name = errorCode.name();
+        this.message = errorCode.getMessage() + " " + detailMessage;
+    }
 }

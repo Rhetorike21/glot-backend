@@ -2,7 +2,9 @@ package rhetorike.glot.global.util.portone;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 public class PortOneResponse {
@@ -16,18 +18,14 @@ public class PortOneResponse {
         private String accessToken;
     }
 
+    @AllArgsConstructor
+    @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     @ToString
     @Getter
     public static class OneTimePay extends PortOneResponse {
         @JsonProperty("imp_uid")
         private String impUid;
-        private String pay_method;
-        private String bank_code;
-        private String bank_name;
-        private String buyer_name;
-        private String client_uid;
-        private String customer_uid;
         private String status;
         private String fail_reason;
         private String cancel_reason;
@@ -39,12 +37,12 @@ public class PortOneResponse {
     public static class PayHistory extends PortOneResponse {
         @JsonProperty("imp_uid")
         private String impUid;
-        private String pay_method;
-        private String bank_code;
-        private String bank_name;
-        private String buyer_name;
-        private String client_uid;
+        @JsonProperty("merchant_uid")
+        private String merchantUid;
+        @JsonProperty("card_number")
+        private String cardNumber;
         private String status;
+        private long amount;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -53,11 +51,6 @@ public class PortOneResponse {
     public static class AgainPay extends PortOneResponse {
         @JsonProperty("imp_uid")
         private String impUid;
-        private String pay_method;
-        private String bank_code;
-        private String bank_name;
-        private String buyer_name;
-        private String client_uid;
         private String status;
     }
 
@@ -67,11 +60,6 @@ public class PortOneResponse {
     public static class Cancel extends PortOneResponse {
         @JsonProperty("imp_uid")
         private String impUid;
-        private String pay_method;
-        private String bank_code;
-        private String bank_name;
-        private String buyer_name;
-        private String client_uid;
         private String status;
     }
 
@@ -86,5 +74,4 @@ public class PortOneResponse {
     @Getter
     public static class DeleteBillingKey extends PortOneResponse{
     }
-
 }

@@ -16,12 +16,13 @@ import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.setup.IntegrationTest;
 
 import java.time.Period;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @ActiveProfiles("secret")
-@Disabled
+//@Disabled
 class PortOneClientTest extends IntegrationTest {
 
     @Value("${pay.card}")
@@ -65,7 +66,6 @@ class PortOneClientTest extends IntegrationTest {
 
         //then
         assertThat(response.getImpUid()).isNotEmpty();
-        assertThat(response.getCustomer_uid()).isNotEmpty();
     }
 
     @Test
@@ -115,11 +115,33 @@ class PortOneClientTest extends IntegrationTest {
         String impUid = response.getImpUid();
 
         //when
-        PortOneResponse.PayHistory historyResponse = portOneClient.getPaymentsHistory(impUid);
+        PortOneResponse.PayHistory historyResponse = portOneClient.getPaymentHistory(impUid);
         log.info("{}", historyResponse);
 
         //then
         assertThat(historyResponse.getImpUid()).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("[모든 결제 내역 조회]")
+    void getAllPaymentHistory() {
+        //given
+        User user = Personal.builder().id(1L).build();
+        Plan plan = new BasicPlan(null, "test", 100, Period.ofMonths(1));
+        Payment payment = new Payment(cardNumber, expiry, birth, password);
+
+        Order order1 = Order.newOrder(user, plan, 1);
+        portOneClient.payAndSaveBillingKey(order1, payment);
+
+        Order order2 = Order.newOrder(user, plan, 1);
+        portOneClient.payAgain(order2);
+
+        //when
+        List<PortOneResponse.PayHistory> result = portOneClient.getAllPaymentHistory(List.of(order1.getId(), order2.getId()));
+        log.info("{}", result);
+
+        //then
+        assertThat(result).hasSize(2);
     }
 
     @Test
