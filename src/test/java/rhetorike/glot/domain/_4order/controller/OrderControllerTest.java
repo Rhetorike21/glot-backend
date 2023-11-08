@@ -41,6 +41,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureRestDocs
@@ -117,6 +118,34 @@ class OrderControllerTest {
                                 field("[].amount").type(JsonFieldType.NUMBER).description("결제 금액"),
                                 field("[].surtax").type(JsonFieldType.NUMBER).description("부가세"),
                                 field("[].status").description("주문 상태(주문 완료 | 주문 취소 | 결제 실패 | 미결제)")
+                        )));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("[지불 방식 변경]")
+    void changePayMethod() throws Exception {
+        //given
+        Payment payment = new Payment("1234-1234-1234-1234", "2028-04", "990101", "01");
+
+        //when
+        ResultActions actions = mockMvc.perform(patch(OrderController.CHANGE_PAY_METHOD_URI)
+                .header(Header.AUTH, "access-token")
+                .content(objectMapper.writeValueAsString(payment))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf()));
+
+        //then
+        actions.andExpect(status().isNoContent())
+                .andDo(docs("payment-update",
+                        requestHeaders(
+                                HeaderElement.header(Header.AUTH).description("액세스 토큰")
+                        ),
+                        requestFields(
+                                field("cardNumber").description("카드 번호(NNNN-NNNN-NNNN-NNNN)"),
+                                field("expiry").description("카드 유효기간(YYYY-MM)"),
+                                field("birthDate").description("생년월일(YYMMDD)"),
+                                field("password").description("비밀번호 앞 두자리(XX)")
                         )));
     }
 }

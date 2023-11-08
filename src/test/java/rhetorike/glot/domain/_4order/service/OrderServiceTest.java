@@ -77,4 +77,20 @@ class OrderServiceTest {
         verify(orderRepository).findByUserOrderByCreatedTimeDesc(user);
     }
 
+    @Test
+    @DisplayName("[지불 방식 변경]")
+    void changePayMethod(){
+        //given
+        Long userId = 1L;
+        User user = Personal.builder().build();
+        Payment payment = new Payment("1234-1234-1234-1234", "2028-07", "990311", "11");
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+
+        //when
+        orderService.changePayMethod(payment, userId);
+
+        //then
+        verify(userRepository).findById(userId);
+    }
+
 }

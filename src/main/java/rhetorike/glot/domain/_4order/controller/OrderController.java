@@ -18,6 +18,7 @@ public class OrderController {
 
     public final static String MAKE_ORDER_URI = "/api/orders";
     public final static String GET_ORDER_URI = "/api/orders";
+    public final static String CHANGE_PAY_METHOD_URI = "/api/payments";
     private final OrderService orderService;
 
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -32,5 +33,12 @@ public class OrderController {
     public ResponseEntity<List<OrderDto.GetResponse>> getOrders(@AuthenticationPrincipal Long userId){
         List<OrderDto.GetResponse> responseBody = orderService.getOrders(userId);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @PatchMapping(CHANGE_PAY_METHOD_URI)
+    public ResponseEntity<List<OrderDto.GetResponse>> changePayMethod(@RequestBody Payment payment, @AuthenticationPrincipal Long userId){
+        orderService.changePayMethod(payment, userId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

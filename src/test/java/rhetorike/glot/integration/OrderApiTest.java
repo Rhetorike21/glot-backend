@@ -93,7 +93,28 @@ public class OrderApiTest extends IntegrationTest {
                 () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
                 () -> assertThat(list).hasSize(1)
         );
+    }
 
+    @Test
+    @DisplayName("[지불 방식 변경]")
+    void updatePayMethod() {
+        //given
+        String accessToken = getTokenFromNewUser().getAccessToken();
+        Payment requestBody = new Payment(cardNumber, expiry, birth, password);
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header(Header.AUTH, accessToken)
+                .contentType(ContentType.JSON)
+                .body(requestBody)
+                .when().patch(OrderController.CHANGE_PAY_METHOD_URI)
+                .then().log().all()
+                .extract();
+
+        //then
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value())
+        );
     }
 
     private void orderPlan(String accessToken, Long planId, int quantity){

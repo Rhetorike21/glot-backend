@@ -10,6 +10,7 @@ import rhetorike.glot.domain._4order.entity.Plan;
 import rhetorike.glot.domain._4order.entity.Order;
 import rhetorike.glot.domain._4order.repository.PlanRepository;
 import rhetorike.glot.domain._4order.repository.OrderRepository;
+import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.global.error.exception.ResourceNotFoundException;
 import rhetorike.glot.global.error.exception.UserNotFoundException;
 
@@ -38,5 +39,10 @@ public class OrderService {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         List<Order> orders = orderRepository.findByUserOrderByCreatedTimeDesc(user);
         return payService.getHistory(orders);
+    }
+
+    public void changePayMethod(Payment payment, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        payService.changePayMethod(user, payment);
     }
 }
