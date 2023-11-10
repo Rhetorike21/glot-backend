@@ -8,10 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import rhetorike.glot.domain._1auth.entity.CertCode;
 import rhetorike.glot.domain._1auth.entity.EmailCertCode;
 import rhetorike.glot.global.error.exception.MailingFailedException;
-import rhetorike.glot.global.util.email.Email;
 
 @Service
 @Slf4j

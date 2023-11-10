@@ -1,4 +1,4 @@
-package rhetorike.glot.integration;
+package rhetorike.glot.domain._2user.controller;
 
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;

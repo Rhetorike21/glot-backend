@@ -17,7 +17,6 @@ import rhetorike.glot.domain._4order.entity.Order;
 import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.global.error.exception.ConnectionFailedException;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j

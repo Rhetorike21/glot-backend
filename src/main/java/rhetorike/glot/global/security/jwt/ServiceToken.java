@@ -2,8 +2,6 @@ package rhetorike.glot.global.security.jwt;
 
 import io.jsonwebtoken.*;
 import lombok.Getter;
-import rhetorike.glot.global.error.exception.JwtExpiredException;
-import rhetorike.glot.global.error.exception.JwtWrongFormatException;
 
 import java.util.Objects;
 

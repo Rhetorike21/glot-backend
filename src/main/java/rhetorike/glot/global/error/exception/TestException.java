@@ -4,11 +4,11 @@ import lombok.Getter;
 import rhetorike.glot.global.error.ErrorCode;
 
 @Getter
-public class LoginFailedException extends GlotUncheckedException {
+public class TestException extends GlotCheckedException {
     private final ErrorCode errorCode;
 
-    public LoginFailedException() {
+    public TestException() {
         super();
-        errorCode = ErrorCode.LOGIN_FAILED;
+        errorCode = ErrorCode.USER_EXIST;
     }
 }

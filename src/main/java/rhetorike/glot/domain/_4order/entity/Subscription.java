@@ -18,24 +18,32 @@ public class Subscription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private boolean continued;
+    private LocalDate startDate;
     private LocalDate endDate;
     @OneToMany(mappedBy = "subscription", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<User> members;
+    @OneToOne(mappedBy = "subscription", fetch = FetchType.LAZY)
+    private Order order;
 
     @Builder
-    public Subscription(Long id, boolean continued, LocalDate endDate, List<User> members){
+    public Subscription(Long id, boolean continued, LocalDate startDate, LocalDate endDate, Order order){
         this.id = id;
         this.continued = continued;
+        this.startDate = startDate;
         this.endDate = endDate;
+        this.order = order;
+    }
+
+    public void setMembers(List<? extends User> members){
         this.members = new ArrayList<>();
         this.members.addAll(members);
     }
 
-    public static Subscription newSubscription(LocalDate localDate, List<User> members){
+    public static Subscription newSubscription(LocalDate startDate, LocalDate endDate){
         return Subscription.builder()
+                .startDate(startDate)
+                .endDate(endDate)
                 .continued(true)
-                .endDate(localDate)
-                .members(members)
                 .build();
     }
 }

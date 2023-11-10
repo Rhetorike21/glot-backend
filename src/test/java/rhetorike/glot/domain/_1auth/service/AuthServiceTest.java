@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import rhetorike.glot.domain._1auth.dto.LoginDto;
 import rhetorike.glot.domain._1auth.dto.SignUpDto;
-import rhetorike.glot.domain._1auth.entity.CertCode;
 import rhetorike.glot.domain._1auth.repository.blockedtoken.BlockedTokenRepository;
 import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
 import rhetorike.glot.domain._2user.entity.Personal;

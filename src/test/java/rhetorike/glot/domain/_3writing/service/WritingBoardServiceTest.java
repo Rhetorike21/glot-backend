@@ -13,11 +13,9 @@ import rhetorike.glot.domain._3writing.dto.WritingBoardDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
 import rhetorike.glot.global.error.exception.AccessDeniedException;
-import rhetorike.glot.global.error.exception.UserNotFoundException;
 import rhetorike.glot.setup.ServiceTest;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

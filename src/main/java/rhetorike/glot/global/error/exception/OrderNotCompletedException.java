@@ -3,7 +3,7 @@ package rhetorike.glot.global.error.exception;
 
 import rhetorike.glot.global.error.ErrorCode;
 
-public class OrderNotCompletedException extends GlotException {
+public class OrderNotCompletedException extends GlotUncheckedException {
     private final ErrorCode errorCode;
 
     public OrderNotCompletedException() {

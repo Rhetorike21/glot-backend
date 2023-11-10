@@ -1,4 +1,4 @@
-package rhetorike.glot.integration;
+package rhetorike.glot.domain._1auth.controller;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;

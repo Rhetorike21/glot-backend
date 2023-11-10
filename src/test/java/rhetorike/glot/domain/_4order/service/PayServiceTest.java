@@ -9,6 +9,7 @@ import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._4order.entity.BasicPlan;
 import rhetorike.glot.domain._4order.entity.Order;
 import rhetorike.glot.domain._4order.entity.Plan;
+import rhetorike.glot.domain._4order.entity.PlanPeriod;
 import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.global.util.portone.PortOneClient;
 import rhetorike.glot.global.util.portone.PortOneResponse;
@@ -33,7 +34,7 @@ class PayServiceTest {
     void pay(){
         //given
         User user = Personal.builder().id(1L).build();
-        Plan plan = new BasicPlan(null, "test", 100, Period.ofMonths(1));
+        Plan plan = new BasicPlan(null, "test", 100, PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 1);
         Payment payment = new Payment("", "", "", "");
         given(portOneClient.payAndSaveBillingKey(order, payment)).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));

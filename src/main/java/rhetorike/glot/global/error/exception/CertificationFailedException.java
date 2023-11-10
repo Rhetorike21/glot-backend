@@ -4,7 +4,7 @@ import lombok.Getter;
 import rhetorike.glot.global.error.ErrorCode;
 
 @Getter
-public class CertificationFailedException extends GlotException {
+public class CertificationFailedException extends GlotUncheckedException {
     private final ErrorCode errorCode;
 
     public CertificationFailedException() {

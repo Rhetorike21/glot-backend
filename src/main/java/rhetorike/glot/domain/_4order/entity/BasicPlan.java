@@ -15,13 +15,9 @@ import java.util.List;
 @DiscriminatorValue("basic")
 public class BasicPlan extends Plan {
 
-    public BasicPlan(Long id, String name, long price, Period expiryPeriod) {
+    public BasicPlan(Long id, String name, long price, PlanPeriod expiryPeriod) {
         super(id, name, price, expiryPeriod);
     }
 
-    @Override
-    public Subscription subscribe(User owner, int size) {
-        LocalDate endDate = LocalDate.now().plus(this.expiryPeriod);
-        return Subscription.newSubscription(endDate, List.of(owner));
-    }
+
 }

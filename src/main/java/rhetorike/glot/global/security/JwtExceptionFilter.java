@@ -1,7 +1,6 @@
 package rhetorike.glot.global.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,12 +22,13 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
-        } catch (JwtBlockedException | JwtExpiredException | JwtWrongFormatException | UserNotFoundException e) {
+        } catch (JwtBlockedException | JwtExpiredException | JwtWrongFormatException |
+                 UserNotFoundException e) {
             setErrorResponse(response, e);
         }
     }
 
-    public void setErrorResponse(HttpServletResponse response, GlotException e) throws IOException {
+    public void setErrorResponse(HttpServletResponse response, GlotUncheckedException e) throws IOException {
         ErrorCode errorCode = e.getErrorCode();
         setResponseBody(response, errorCode);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

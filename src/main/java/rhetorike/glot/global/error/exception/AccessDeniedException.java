@@ -4,7 +4,7 @@ import lombok.Getter;
 import rhetorike.glot.global.error.ErrorCode;
 
 @Getter
-public class AccessDeniedException extends GlotException {
+public class AccessDeniedException extends GlotUncheckedException {
     private final ErrorCode errorCode;
 
     public AccessDeniedException() {

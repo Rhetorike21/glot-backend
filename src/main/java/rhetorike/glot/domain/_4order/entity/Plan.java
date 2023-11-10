@@ -4,10 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import rhetorike.glot.domain._2user.entity.User;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Objects;
 
 @Entity
@@ -15,13 +13,15 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @DiscriminatorColumn(name = "type")
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"type", "planPeriod"}))
 public abstract class Plan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     private String name;
     private long price;
-    Period expiryPeriod;
+    @Enumerated
+    PlanPeriod planPeriod;
 
     @Override
     public boolean equals(Object object) {
@@ -36,5 +36,7 @@ public abstract class Plan {
         return Objects.hash(id);
     }
 
-    public abstract Subscription subscribe(User owner, int size);
+    public LocalDate endDateFrom(LocalDate time) {
+        return time.plus(this.planPeriod.getPeriod()).minusDays(1);
+    }
 }

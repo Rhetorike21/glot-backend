@@ -88,6 +88,41 @@ public class IntegrationTest {
         RefreshToken refreshToken = RefreshToken.from(jsonPath.getString("refreshToken"));
         return new TokenDto.FullResponse(accessToken, refreshToken);
     }
+
+    protected TokenDto.FullResponse getTokenFromNewOrganization() {
+        final String CODE = "1234";
+        String str = RandomStringUtils.randomAlphabetic(4);
+        String num = RandomStringUtils.randomNumeric(4);
+        final String accountId = str + num;
+        final String password = str + num;
+        final String mobile = "010" + "1234" + num;
+        final String email = str + num + "@personal.com";
+        final String orgName = "test org";
+
+
+        given(certCodeRepository.doesExists(CODE)).willReturn(true);
+        SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest(accountId, password, "김철수", mobile, mobile, email, true, CODE, orgName);
+        RestAssured.given().log().all()
+                .body(requestDto)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post(AuthController.SIGN_UP_ORGANIZATION_URI)
+                .then().log().all()
+                .extract();
+
+        LoginDto loginRequestDto = new LoginDto(accountId, password);
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .body(loginRequestDto)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post(AuthController.LOGIN_URI)
+                .then().log().all()
+                .extract();
+
+
+        JsonPath jsonPath = response.jsonPath();
+        AccessToken accessToken = AccessToken.from(jsonPath.getString("accessToken"));
+        RefreshToken refreshToken = RefreshToken.from(jsonPath.getString("refreshToken"));
+        return new TokenDto.FullResponse(accessToken, refreshToken);
+    }
 }
 
 

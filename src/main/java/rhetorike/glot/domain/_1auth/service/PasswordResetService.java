@@ -5,13 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import rhetorike.glot.domain._1auth.dto.PasswordResetDto;
-import rhetorike.glot.domain._1auth.entity.EmailCertCode;
-import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
-import rhetorike.glot.domain._1auth.service.codesender.emailsender.EmailCodeSender;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.global.error.exception.UserNotFoundException;
-import rhetorike.glot.global.util.RandomTextGenerator;
 
 @Service
 @RequiredArgsConstructor

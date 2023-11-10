@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import rhetorike.glot.domain._4order.dto.OrderDto;
 import rhetorike.glot.domain._4order.service.OrderService;
 import rhetorike.glot.domain._4order.vo.Payment;
+import rhetorike.glot.global.util.dto.SingleParamDto;
 
 import java.util.List;
 
@@ -16,16 +17,24 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
 
-    public final static String MAKE_ORDER_URI = "/api/orders";
+    public final static String MAKE_BASIC_ORDER_URI = "/api/orders/basic";
+    public final static String MAKE_ENTERPRISE_ORDER_URI = "/api/orders/enterprise";
     public final static String GET_ORDER_URI = "/api/orders";
     public final static String CHANGE_PAY_METHOD_URI = "/api/payments";
     private final OrderService orderService;
 
     @PreAuthorize("hasRole('ROLE_USER')")
-    @PostMapping(MAKE_ORDER_URI)
-    public ResponseEntity<Void> makeOrder(@RequestBody OrderDto.MakeRequest requestDto, @AuthenticationPrincipal Long userId){
-        orderService.makeOrder(requestDto, userId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    @PostMapping(MAKE_BASIC_ORDER_URI)
+    public ResponseEntity<SingleParamDto<String>> makeBasicOrder(@RequestBody OrderDto.BasicOrderRequest requestDto, @AuthenticationPrincipal Long userId){
+        SingleParamDto<String> responseBody = orderService.makeBasicOrder(requestDto, userId);
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @PostMapping(MAKE_ENTERPRISE_ORDER_URI)
+    public ResponseEntity<SingleParamDto<String>> makeEnterpriseOrder(@RequestBody OrderDto.EnterpriseOrderRequest requestDto, @AuthenticationPrincipal Long userId){
+        SingleParamDto<String> responseBody = orderService.makeEnterpriseOrder(requestDto, userId);
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")

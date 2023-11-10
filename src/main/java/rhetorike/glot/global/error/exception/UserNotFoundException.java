@@ -4,7 +4,7 @@ import lombok.Getter;
 import rhetorike.glot.global.error.ErrorCode;
 
 @Getter
-public class UserNotFoundException extends GlotException {
+public class UserNotFoundException extends GlotUncheckedException {
     private final ErrorCode errorCode;
 
     public UserNotFoundException() {

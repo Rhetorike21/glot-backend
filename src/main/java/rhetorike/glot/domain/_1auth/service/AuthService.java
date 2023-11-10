@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import rhetorike.glot.domain._1auth.dto.LoginDto;
 import rhetorike.glot.domain._1auth.dto.SignUpDto;
 import rhetorike.glot.domain._1auth.dto.TokenDto;
-import rhetorike.glot.domain._1auth.entity.CertCode;
 import rhetorike.glot.domain._1auth.repository.blockedtoken.BlockedTokenRepository;
 import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
 import rhetorike.glot.domain._2user.entity.User;
@@ -19,8 +18,6 @@ import rhetorike.glot.global.error.exception.UserExistException;
 import rhetorike.glot.global.error.exception.UserNotFoundException;
 import rhetorike.glot.global.security.jwt.AccessToken;
 import rhetorike.glot.global.security.jwt.RefreshToken;
-
-import java.util.Optional;
 
 @Slf4j
 @Service

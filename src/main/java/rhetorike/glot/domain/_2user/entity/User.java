@@ -55,7 +55,7 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
     @JoinColumn
     protected Subscription subscription;
 
-    public User(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles, List<WritingBoard> writingBoards) {
+    public User(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles, List<WritingBoard> writingBoards, Subscription subscription) {
         this.id = id;
         this.accountId = accountId;
         this.password = password;
@@ -66,6 +66,7 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
         this.marketingAgreement = marketingAgreement;
         this.roles = new ArrayList<>();
         this.writingBoards = new ArrayList<>();
+        this.subscription = subscription;
         if (writingBoards != null){
             this.writingBoards.addAll(writingBoards);
         }
@@ -147,5 +148,7 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
         }
         return "없음";
     }
+
+
 
 }

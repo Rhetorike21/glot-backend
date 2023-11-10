@@ -31,6 +31,8 @@ public class PortOneResponse {
         private String cancel_reason;
     }
 
+    @AllArgsConstructor
+    @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     @ToString
     @Getter

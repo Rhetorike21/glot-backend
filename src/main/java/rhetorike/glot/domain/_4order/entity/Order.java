@@ -29,7 +29,11 @@ public class Order extends BaseTimeEntity {
     private long totalPrice;
     private long supplyPrice;
     private long vat;
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn
+    private Subscription subscription;
 
     public long totalAmount() {
         return plan.getPrice() * quantity;
@@ -50,15 +54,16 @@ public class Order extends BaseTimeEntity {
                 .build();
     }
 
-    public void complete(){
-        this.status = OrderStatus.COMPLETED;
+    public void setStatus(OrderStatus orderStatus){
+        this.status = orderStatus;
     }
 
     public void cancel(){
         this.status = OrderStatus.CANCELLED;
     }
 
-    public Subscription subscribe() {
-        return plan.subscribe(user, quantity);
+
+    public void setSubscription(Subscription subscription) {
+        this.subscription = subscription;
     }
 }

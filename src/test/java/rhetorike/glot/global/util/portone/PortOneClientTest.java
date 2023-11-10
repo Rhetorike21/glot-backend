@@ -12,6 +12,7 @@ import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._4order.entity.BasicPlan;
 import rhetorike.glot.domain._4order.entity.Order;
 import rhetorike.glot.domain._4order.entity.Plan;
+import rhetorike.glot.domain._4order.entity.PlanPeriod;
 import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.setup.IntegrationTest;
 
@@ -56,7 +57,7 @@ class PortOneClientTest extends IntegrationTest {
     void payAndSaveBillingKey() {
         //given
         User user = Personal.builder().id(1L).build();
-        Plan plan = new BasicPlan(null, "test", 100, Period.ofMonths(1));
+        Plan plan = new BasicPlan(null, "test", 100, PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 1);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
 
@@ -73,7 +74,7 @@ class PortOneClientTest extends IntegrationTest {
     void issueBillingKey() {
         //given
         User user = Personal.builder().id(1L).build();
-        Plan plan = new BasicPlan(null, "test", 100, Period.ofMonths(1));
+        Plan plan = new BasicPlan(null, "test", 100, PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 1);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
         portOneClient.payAndSaveBillingKey(order, payment);
@@ -90,7 +91,7 @@ class PortOneClientTest extends IntegrationTest {
     void deleteBillingKey() {
         //given
         User user = Personal.builder().id(1L).build();
-        Plan plan = new BasicPlan(null, "test", 100, Period.ofMonths(1));
+        Plan plan = new BasicPlan(null, "test", 100, PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 1);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
         portOneClient.payAndSaveBillingKey(order, payment);
@@ -108,7 +109,7 @@ class PortOneClientTest extends IntegrationTest {
     void getPaymentsHistory() {
         //given
         User user = Personal.builder().id(1L).build();
-        Plan plan = new BasicPlan(null, "test", 100, Period.ofMonths(1));
+        Plan plan = new BasicPlan(null, "test", 100, PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 1);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
         PortOneResponse.OneTimePay response = portOneClient.payAndSaveBillingKey(order, payment);
@@ -127,7 +128,7 @@ class PortOneClientTest extends IntegrationTest {
     void getAllPaymentHistory() {
         //given
         User user = Personal.builder().id(1L).build();
-        Plan plan = new BasicPlan(null, "test", 100, Period.ofMonths(1));
+        Plan plan = new BasicPlan(null, "test", 100, PlanPeriod.MONTH);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
 
         Order order1 = Order.newOrder(user, plan, 1);
@@ -149,7 +150,7 @@ class PortOneClientTest extends IntegrationTest {
     void payAgain() {
         //given
         User user = Personal.builder().id(1L).build();
-        Plan plan = new BasicPlan(null, "test", 100, Period.ofMonths(1));
+        Plan plan = new BasicPlan(null, "test", 100, PlanPeriod.MONTH);
         Order order1 = Order.newOrder(user, plan, 1);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
         portOneClient.payAndSaveBillingKey(order1, payment);
@@ -168,7 +169,7 @@ class PortOneClientTest extends IntegrationTest {
     void cancel() {
         //given
         User user = Personal.builder().id(1L).build();
-        Plan plan = new BasicPlan(null, "test", 100, Period.ofMonths(1));
+        Plan plan = new BasicPlan(null, "test", 100, PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 1);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
         PortOneResponse.OneTimePay oneTimePayResponse = portOneClient.payAndSaveBillingKey(order, payment);
@@ -187,7 +188,7 @@ class PortOneClientTest extends IntegrationTest {
     void cancelPartially() {
         //given
         User user = Personal.builder().id(1L).build();
-        Plan plan = new BasicPlan(null, "test", 100, Period.ofMonths(1));
+        Plan plan = new BasicPlan(null, "test", 100, PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 1);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
         PortOneResponse.OneTimePay oneTimePayResponse = portOneClient.payAndSaveBillingKey(order, payment);

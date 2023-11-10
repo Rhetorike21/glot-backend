@@ -24,4 +24,12 @@ public abstract class BaseTimeEntity {
     @LastModifiedDate
     @Column(name = "modified_time")
     protected LocalDateTime modifiedTime;
+
+    public void setCreatedTime(LocalDateTime createdTime) {
+        this.createdTime = createdTime;
+    }
+
+    public void setModifiedTime(LocalDateTime modifiedTime) {
+        this.modifiedTime = modifiedTime;
+    }
 }

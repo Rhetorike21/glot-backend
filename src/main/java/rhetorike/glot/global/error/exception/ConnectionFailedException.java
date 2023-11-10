@@ -4,7 +4,7 @@ import lombok.Getter;
 import rhetorike.glot.global.error.ErrorCode;
 
 @Getter
-public class ConnectionFailedException extends GlotException {
+public class ConnectionFailedException extends GlotUncheckedException {
     private final ErrorCode errorCode;
 
     public ConnectionFailedException() {

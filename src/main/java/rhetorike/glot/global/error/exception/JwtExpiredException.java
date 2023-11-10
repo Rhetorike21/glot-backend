@@ -3,7 +3,7 @@ package rhetorike.glot.global.error.exception;
 
 import rhetorike.glot.global.error.ErrorCode;
 
-public class JwtExpiredException extends GlotException {
+public class JwtExpiredException extends GlotUncheckedException {
     private final ErrorCode errorCode;
 
     public JwtExpiredException() {

@@ -4,20 +4,19 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import rhetorike.glot.global.error.exception.AccessDeniedException;
 
+import java.time.Period;
 import java.util.Arrays;
 
 @Getter
 @AllArgsConstructor
-public enum OrderStatus {
-    PAID( "paid", "결제 완료"),
-    CANCELLED( "cancelled", "결제 취소"),
-    FAILED( "failed", "결제 실패"),
-    READY("ready", "미결제");
+public enum PlanPeriod {
+    MONTH("1m", Period.ofMonths(1)),
+    YEAR("1y", Period.ofYears(1));
 
-    private final String name;
-    private final String description;
+    public final String name;
+    private final Period period;
 
-    public static OrderStatus findByName(String name){
+    public static PlanPeriod findByName(String name){
         return Arrays.stream(values())
                 .filter(payStatus -> payStatus.getName().equals(name))
                 .findFirst().orElseThrow(AccessDeniedException::new);

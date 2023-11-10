@@ -3,9 +3,9 @@ package rhetorike.glot.global.error.exception;
 
 import rhetorike.glot.global.error.ErrorCode;
 
-public abstract class GlotException extends RuntimeException{
+public abstract class GlotUncheckedException extends RuntimeException{
 
-    public GlotException() {
+    public GlotUncheckedException() {
         super();
     }
 
