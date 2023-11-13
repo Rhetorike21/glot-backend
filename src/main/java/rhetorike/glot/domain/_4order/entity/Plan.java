@@ -20,7 +20,7 @@ public abstract class Plan {
     Long id;
     private String name;
     private long price;
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     PlanPeriod planPeriod;
 
     @Override

@@ -27,7 +27,8 @@ public class PortOneResponse {
         @JsonProperty("imp_uid")
         private String impUid;
         private String status;
-        private String fail_reason;
+        @JsonProperty("fail_reason")
+        private String failReason;
         private String cancel_reason;
     }
 
@@ -54,6 +55,9 @@ public class PortOneResponse {
         @JsonProperty("imp_uid")
         private String impUid;
         private String status;
+        @JsonProperty("fail_reason")
+        private String failReason;
+        private String cancel_reason;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

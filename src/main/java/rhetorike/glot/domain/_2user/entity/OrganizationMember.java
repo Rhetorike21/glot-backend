@@ -21,6 +21,11 @@ public class OrganizationMember extends User{
         super(id, accountId, password, name, phone, mobile, email, marketingAgreement, roles, writingBoards, subscription);
     }
 
+    @Override
+    public String generateEnterpriseName() {
+        return "";
+    }
+
     public static OrganizationMember newOrganizationMember(String accountId, String password){
         return OrganizationMember.builder()
                 .accountId(accountId)

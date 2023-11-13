@@ -31,7 +31,7 @@ public class Order extends BaseTimeEntity {
     private long vat;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn
     private Subscription subscription;
 
@@ -50,6 +50,21 @@ public class Order extends BaseTimeEntity {
                 .totalPrice(supplyPrice + vat)
                 .supplyPrice(supplyPrice)
                 .vat(vat)
+                .status(OrderStatus.READY)
+                .build();
+    }
+
+    public static Order newReorder(Order order){
+        long supplyPrice = order.getSupplyPrice();
+        long vat = order.getVat();
+        return Order.builder()
+                .id(UUID.randomUUID().toString())
+                .user(order.getUser())
+                .plan(order.getPlan())
+                .quantity(order.getQuantity())
+                .supplyPrice(supplyPrice)
+                .vat(vat)
+                .totalPrice(supplyPrice + vat)
                 .status(OrderStatus.READY)
                 .build();
     }

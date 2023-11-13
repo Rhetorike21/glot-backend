@@ -27,4 +27,9 @@ public class Organization extends User {
         super(id, accountId, password, name, phone, mobile, email, marketingAgreement, roles, writingBoards, subscription);
         this.organizationName = organizationName;
     }
+
+    @Override
+    public String generateEnterpriseName() {
+        return organizationName;
+    }
 }

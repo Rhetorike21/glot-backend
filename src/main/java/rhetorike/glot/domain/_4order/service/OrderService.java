@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import rhetorike.glot.domain._2user.entity.Organization;
-import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._4order.dto.OrderDto;
@@ -19,6 +18,7 @@ import rhetorike.glot.global.error.exception.UserNotFoundException;
 import rhetorike.glot.global.util.dto.SingleParamDto;
 import rhetorike.glot.global.util.portone.PortOneResponse;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +52,7 @@ public class OrderService {
         throw new AccessDeniedException();
     }
 
+    @Transactional(dontRollbackOn = PaymentFailedException.class)
     public String payOrder(Order order, Payment payment) {
         PortOneResponse.OneTimePay payResponse = payService.pay(order, payment);
         OrderStatus status = OrderStatus.findByName(payResponse.getStatus());
@@ -59,7 +60,21 @@ public class OrderService {
 
         Order payedOrder = orderRepository.save(order);
         if (status != OrderStatus.PAID) {
-            throw new PaymentFailedException(payResponse.getFail_reason());
+            throw new PaymentFailedException(payResponse.getFailReason());
+        }
+        Subscription subscription = subscriptionService.makeSubscribe(payedOrder);
+        payedOrder.setSubscription(subscription);
+        return payedOrder.getId();
+    }
+    @Transactional(dontRollbackOn = PaymentFailedException.class)
+    public String payOrder(Order order) {
+        PortOneResponse.AgainPay payResponse = payService.payAgain(order);
+        OrderStatus status = OrderStatus.findByName(payResponse.getStatus());
+        order.setStatus(status);
+
+        Order payedOrder = orderRepository.save(order);
+        if (status != OrderStatus.PAID) {
+            throw new PaymentFailedException(payResponse.getFailReason());
         }
         Subscription subscription = subscriptionService.makeSubscribe(payedOrder);
         payedOrder.setSubscription(subscription);
@@ -80,5 +95,13 @@ public class OrderService {
     public void changePayMethod(Payment payment, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         payService.changePayMethod(user, payment);
+    }
+
+    @Transactional
+    public void reorder(LocalDate endDate) {
+        List<Order> readiedOrders = orderRepository.findAllByContinuedAndEndDate(true, endDate);
+        for (Order readiedOrder : readiedOrders) {
+            payOrder(Order.newReorder(readiedOrder));
+        }
     }
 }

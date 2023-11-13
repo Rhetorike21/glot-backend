@@ -85,7 +85,13 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
     }
 
     public void setSubscription(Subscription subscription) {
+        if (this.subscription != null){
+            this.subscription.getMembers().remove(this);
+        }
         this.subscription = subscription;
+        if (this.subscription != null){
+            this.subscription.getMembers().add(this);
+        }
     }
 
     @Override
@@ -150,5 +156,9 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
     }
 
 
+    public abstract String generateEnterpriseName();
 
+    public void freeSubscription() {
+
+    }
 }

@@ -6,14 +6,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.annotation.Rollback;
 import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._4order.dto.OrderDto;
 import rhetorike.glot.domain._4order.entity.BasicPlan;
 import rhetorike.glot.domain._4order.entity.Order;
-import rhetorike.glot.domain._4order.entity.Plan;
 import rhetorike.glot.domain._4order.entity.PlanPeriod;
 import rhetorike.glot.domain._4order.repository.OrderRepository;
 import rhetorike.glot.domain._4order.repository.PlanRepository;
@@ -53,8 +51,9 @@ public class CommonTest extends IntegrationTest {
         //given
         Payment payment = new Payment("1234-1234-1234-1234", "2028-07", "990311", "11");
         User user = Personal.builder().build();
-        Plan plan = new BasicPlan(null, null, 0, PlanPeriod.MONTH);
-        planRepository.save(plan);
+        if (planRepository.findBasicByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
+            planRepository.save(new BasicPlan(null, "베이직 요금제 월간 결제", 100L, PlanPeriod.MONTH));
+        }
         given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "failed", "", ""));
         Long userId = userRepository.save(user).getId();
 

@@ -199,3 +199,9 @@ operation::order-get[]
 지불 방식을 변경합니다.
 ----
 operation::payment-update[]
+
+=== 🟢 구독 중지
+----
+요금제 구독을 중지합니다.
+----
+operation::subscription-stop[]

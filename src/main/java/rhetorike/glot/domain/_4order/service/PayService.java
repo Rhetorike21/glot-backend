@@ -28,6 +28,10 @@ public class PayService {
         return portOneClient.payAndSaveBillingKey(order, payment);
     }
 
+    public PortOneResponse.AgainPay payAgain(Order order) {
+        return portOneClient.payAgain(order);
+    }
+
     public List<PortOneResponse.PayHistory> getHistory(List<Order> orders) {
         List<String> ids = orders.stream().map(Order::getId).toList();
         return portOneClient.getAllPaymentHistory(ids);
