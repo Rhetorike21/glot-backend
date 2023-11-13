@@ -14,7 +14,6 @@ import rhetorike.glot.domain._4order.entity.*;
 import rhetorike.glot.domain._4order.repository.SubscriptionRepository;
 import rhetorike.glot.setup.ServiceTest;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -72,16 +71,16 @@ class SubscriptionServiceTest {
         //given
         Long userId = 1L;
         User user = Personal.builder().id(userId).build();
-        Subscription subscription = Subscription.newSubscription(LocalDate.now(), LocalDate.now());
+        Subscription subscription = Subscription.builder().build();
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(subscriptionRepository.findByUser(user)).willReturn(Optional.of(subscription));
+        given(subscriptionRepository.findByOrderer(user)).willReturn(Optional.of(subscription));
 
         //when
         subscriptionService.unsubscribe(userId);
 
         //then
         verify(userRepository).findById(userId);
-        verify(subscriptionRepository).findByUser(user);
+        verify(subscriptionRepository).findByOrderer(user);
     }
 
 

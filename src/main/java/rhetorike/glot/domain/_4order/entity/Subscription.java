@@ -18,21 +18,24 @@ public class Subscription {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String name;
     private boolean continued;
     private LocalDate startDate;
     private LocalDate endDate;
     @OneToMany(mappedBy = "subscription", fetch = FetchType.LAZY)
     private List<User> members;
-    @OneToOne(mappedBy = "subscription", fetch = FetchType.LAZY)
+    @OneToOne
+    @JoinColumn
     private Order order;
 
     @Builder
-    public Subscription(Long id, boolean continued, LocalDate startDate, LocalDate endDate, Order order) {
+    public Subscription(Long id, boolean continued, LocalDate startDate, LocalDate endDate, Order order, String name) {
         this.id = id;
         this.continued = continued;
         this.startDate = startDate;
         this.endDate = endDate;
         this.order = order;
+        this.name = name;
         this.members = new ArrayList<>();
     }
 
@@ -41,10 +44,12 @@ public class Subscription {
         this.members.addAll(members);
     }
 
-    public static Subscription newSubscription(LocalDate startDate, LocalDate endDate) {
+    public static Subscription newSubscription(Order order) {
         return Subscription.builder()
-                .startDate(startDate)
-                .endDate(endDate)
+                .startDate(order.getCreatedTime().toLocalDate())
+                .endDate(order.getPlan().endDateFrom(order.getCreatedTime().toLocalDate()))
+                .name(order.getPlan().getName())
+                .order(order)
                 .continued(true)
                 .build();
     }

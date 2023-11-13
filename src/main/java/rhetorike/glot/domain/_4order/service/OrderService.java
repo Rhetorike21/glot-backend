@@ -10,6 +10,7 @@ import rhetorike.glot.domain._4order.dto.OrderDto;
 import rhetorike.glot.domain._4order.entity.*;
 import rhetorike.glot.domain._4order.repository.PlanRepository;
 import rhetorike.glot.domain._4order.repository.OrderRepository;
+import rhetorike.glot.domain._4order.repository.SubscriptionRepository;
 import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.global.error.exception.AccessDeniedException;
 import rhetorike.glot.global.error.exception.PaymentFailedException;
@@ -30,6 +31,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final PayService payService;
     private final SubscriptionService subscriptionService;
+    private final SubscriptionRepository subscriptionRepository;
 
     @Transactional(dontRollbackOn = PaymentFailedException.class)
     public SingleParamDto<String> makeBasicOrder(OrderDto.BasicOrderRequest requestDto, Long userId) {
@@ -62,9 +64,8 @@ public class OrderService {
         if (status != OrderStatus.PAID) {
             throw new PaymentFailedException(payResponse.getFailReason());
         }
-        Subscription subscription = subscriptionService.makeSubscribe(payedOrder);
-        payedOrder.setSubscription(subscription);
-        return payedOrder.getId();
+        subscriptionService.makeSubscribe(payedOrder);
+        return order.getId();
     }
     @Transactional(dontRollbackOn = PaymentFailedException.class)
     public String payOrder(Order order) {
@@ -76,8 +77,7 @@ public class OrderService {
         if (status != OrderStatus.PAID) {
             throw new PaymentFailedException(payResponse.getFailReason());
         }
-        Subscription subscription = subscriptionService.makeSubscribe(payedOrder);
-        payedOrder.setSubscription(subscription);
+        subscriptionService.makeSubscribe(payedOrder);
         return payedOrder.getId();
     }
 
@@ -99,9 +99,9 @@ public class OrderService {
 
     @Transactional
     public void reorder(LocalDate endDate) {
-        List<Order> readiedOrders = orderRepository.findAllByContinuedAndEndDate(true, endDate);
-        for (Order readiedOrder : readiedOrders) {
-            payOrder(Order.newReorder(readiedOrder));
+        List<Subscription> closedSubscriptions = subscriptionRepository.findByContinuedIsTrueAndEndDate(endDate);
+        for (Subscription subscription : closedSubscriptions) {
+            payOrder(Order.newReorder(subscription.getOrder()));
         }
     }
 }

@@ -5,6 +5,7 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import rhetorike.glot.domain._2user.dto.UserProfileDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._4order.entity.Subscription;
 
@@ -14,11 +15,16 @@ import java.util.List;
 @DiscriminatorValue("org_member")
 @NoArgsConstructor
 @Entity
-public class OrganizationMember extends User{
+public class OrganizationMember extends User {
 
     @Builder
-    public OrganizationMember(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles, List<WritingBoard> writingBoards, Subscription subscription){
+    public OrganizationMember(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles, List<WritingBoard> writingBoards, Subscription subscription) {
         super(id, accountId, password, name, phone, mobile, email, marketingAgreement, roles, writingBoards, subscription);
+    }
+
+    @Override
+    public String getUserType() {
+        return null;
     }
 
     @Override
@@ -26,7 +32,17 @@ public class OrganizationMember extends User{
         return "";
     }
 
-    public static OrganizationMember newOrganizationMember(String accountId, String password){
+    @Override
+    public void update(UserProfileDto.UpdateRequest requestDto) {
+        if (requestDto.getName() != null) {
+            this.name = requestDto.getName();
+        }
+        if (requestDto.getPassword() != null) {
+            this.password = requestDto.getPassword();
+        }
+    }
+
+    public static OrganizationMember newOrganizationMember(String accountId, String password) {
         return OrganizationMember.builder()
                 .accountId(accountId)
                 .password(password)

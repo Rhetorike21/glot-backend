@@ -2,9 +2,11 @@ package rhetorike.glot.domain._4order.controller;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -106,7 +108,13 @@ public class OrderApiTest extends IntegrationTest {
                 .extract();
 
         //then
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        JsonPath jsonPath = response.jsonPath();
+        String orderId = jsonPath.getString("data");
+        Subscription subscription = orderRepository.findById(orderId).get().getSubscription();
+        Assertions.assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
+                () -> assertThat(subscription.getMembers()).hasSize(3)
+        );
     }
 
     @Test

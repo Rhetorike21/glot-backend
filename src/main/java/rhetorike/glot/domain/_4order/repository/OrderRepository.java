@@ -13,6 +13,4 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, String> {
     List<Order> findByUserOrderByCreatedTimeDesc(User user);
 
-    @Query(" select o from Order o join Subscription sc on o.subscription = sc where sc.continued = :continued and sc.endDate = :endDate")
-    List<Order> findAllByContinuedAndEndDate(@Param("continued") boolean continued, @Param("endDate") LocalDate endDate);
 }

@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import rhetorike.glot.domain._2user.dto.UserProfileDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._4order.entity.Subscription;
 import rhetorike.glot.global.config.jpa.BaseTimeEntity;
@@ -67,10 +68,10 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
         this.roles = new ArrayList<>();
         this.writingBoards = new ArrayList<>();
         this.subscription = subscription;
-        if (writingBoards != null){
+        if (writingBoards != null) {
             this.writingBoards.addAll(writingBoards);
         }
-        if (roles != null){
+        if (roles != null) {
             this.roles.addAll(roles);
         }
     }
@@ -85,11 +86,11 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
     }
 
     public void setSubscription(Subscription subscription) {
-        if (this.subscription != null){
+        if (this.subscription != null) {
             this.subscription.getMembers().remove(this);
         }
         this.subscription = subscription;
-        if (this.subscription != null){
+        if (this.subscription != null) {
             this.subscription.getMembers().add(this);
         }
     }
@@ -144,16 +145,7 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
         return Objects.hash(id);
     }
 
-    public String getType() {
-        if (this instanceof Personal){
-            return "개인";
-
-        }
-        if (this instanceof Organization) {
-            return "기관";
-        }
-        return "없음";
-    }
+    public abstract String getUserType();
 
 
     public abstract String generateEnterpriseName();
@@ -161,4 +153,6 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
     public void freeSubscription() {
 
     }
+
+    public abstract void update(UserProfileDto.UpdateRequest requestDto);
 }

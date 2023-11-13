@@ -61,13 +61,14 @@ public class IntegrationTest {
         final String CODE = "1234";
         String str = RandomStringUtils.randomAlphabetic(4);
         String num = RandomStringUtils.randomNumeric(4);
+        final String name = USER_1_NAME;
         final String accountId = str + num;
         final String password = str + num;
         final String mobile = "010" + "1234" + num;
         final String email = str + num + "@personal.com";
 
         given(certCodeRepository.doesExists(CODE)).willReturn(true);
-        SignUpDto.PersonalRequest signupRequestDto = new SignUpDto.PersonalRequest(accountId, password, "김철수", mobile, mobile, email, true, CODE);
+        SignUpDto.PersonalRequest signupRequestDto = new SignUpDto.PersonalRequest(accountId, password, name, mobile, mobile, email, true, CODE);
         RestAssured.given().log().all()
                 .body(signupRequestDto)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

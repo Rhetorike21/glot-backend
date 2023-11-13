@@ -15,6 +15,8 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
 
     List<Subscription> findAllByEndDate(LocalDate localDate);
 
-    @Query(" select s from Order o join Subscription s on o.subscription = s join User u on o.user = u where u = :user ")
-    Optional<Subscription> findByUser(@Param("user") User user);
+    @Query(" select s from User u join Subscription s on u.subscription = s join Order o on s.order = o where o.user = :orderer ")
+    Optional<Subscription> findByOrderer(@Param("orderer") User orderer);
+
+    List<Subscription> findByContinuedIsTrueAndEndDate(LocalDate endDate);
 }

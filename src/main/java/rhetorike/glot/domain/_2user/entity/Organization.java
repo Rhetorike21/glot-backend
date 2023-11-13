@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import rhetorike.glot.domain._2user.dto.UserProfileDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._4order.entity.Subscription;
 
@@ -29,7 +30,28 @@ public class Organization extends User {
     }
 
     @Override
+    public String getUserType() {
+        return "기관";
+    }
+
+    @Override
     public String generateEnterpriseName() {
         return organizationName;
+    }
+
+    @Override
+    public void update(UserProfileDto.UpdateRequest requestDto) {
+        if (requestDto.getName() != null) {
+            this.name = requestDto.getName();
+        }
+        if (requestDto.getMobile() != null) {
+            this.mobile = requestDto.getMobile();
+        }
+        if (requestDto.getEmail() != null) {
+            this.email = requestDto.getEmail();
+        }
+        if (requestDto.getPassword() != null) {
+            this.password = requestDto.getPassword();
+        }
     }
 }

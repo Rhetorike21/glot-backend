@@ -23,13 +23,12 @@ public class SubscriptionService {
     private final UserRepository userRepository;
     private final UserService userService;
 
-    public Subscription makeSubscribe(Order order) {
-        LocalDate startDate = order.getCreatedTime().toLocalDate();
-        LocalDate endDate = order.getPlan().endDateFrom(startDate);
-        Subscription subscription = subscriptionRepository.save(Subscription.newSubscription(startDate, endDate));
+    public void makeSubscribe(Order order) {
+        Subscription subscription = subscriptionRepository.save(Subscription.newSubscription(order));
         List<User> members = initMembers(order);
-        setSubscriptionToMembers(members, subscription);
-        return subscription;
+        for (User member : members) {
+            member.setSubscription(subscription);
+        }
     }
 
     public List<User> initMembers(Order order) {
@@ -51,11 +50,6 @@ public class SubscriptionService {
         }
         throw new AccessDeniedException();
     }
-    private void setSubscriptionToMembers(List<User> members, Subscription subscription) {
-        for (User member : members) {
-            member.setSubscription(subscription);
-        }
-    }
 
     @Transactional
     public void deleteOverdue(LocalDate endDate) {
@@ -64,18 +58,21 @@ public class SubscriptionService {
             deleteSubscription(subscription);
         }
     }
-    private void deleteSubscription(Subscription subscription){
+
+    private void deleteSubscription(Subscription subscription) {
         freeMember(subscription);
         freeOrder(subscription.getOrder());
         subscriptionRepository.delete(subscription);
     }
+
     private void freeMember(Subscription subscription) {
         List<User> members = userRepository.findBySubscription(subscription);
         for (int i = 0; i < members.size(); i++) {
             members.get(i).setSubscription(null);
         }
     }
-    private void freeOrder(Order order){
+
+    private void freeOrder(Order order) {
         order.setSubscription(null);
         order.getUser().setSubscription(null);
     }
@@ -83,7 +80,7 @@ public class SubscriptionService {
     @Transactional
     public void unsubscribe(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        Subscription subscription = subscriptionRepository.findByUser(user).orElseThrow(ResourceNotFoundException::new);
+        Subscription subscription = subscriptionRepository.findByOrderer(user).orElseThrow(ResourceNotFoundException::new);
         subscription.unsubscribe();
     }
 }

@@ -31,8 +31,7 @@ public class Order extends BaseTimeEntity {
     private long vat;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    @OneToOne
-    @JoinColumn
+    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
     private Subscription subscription;
 
     public long totalAmount() {

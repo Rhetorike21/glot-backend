@@ -1,6 +1,5 @@
 package rhetorike.glot.domain._2user.entity;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +14,7 @@ class UserEntityTest {
         User user = new Personal();
 
         //when
-        String type = user.getType();
+        String type = user.getUserType();
 
         //then
         assertThat(type).isEqualTo("개인");
@@ -28,7 +27,7 @@ class UserEntityTest {
         User user = new Organization();
 
         //when
-        String type = user.getType();
+        String type = user.getUserType();
 
         //then
         assertThat(type).isEqualTo("기관");
