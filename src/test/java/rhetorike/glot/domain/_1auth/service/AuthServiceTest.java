@@ -20,8 +20,10 @@ import rhetorike.glot.global.security.jwt.AccessToken;
 import rhetorike.glot.global.security.jwt.RefreshToken;
 import rhetorike.glot.setup.ServiceTest;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -120,6 +122,28 @@ class AuthServiceTest {
         //then
         verify(userRepository).findByAccountId(id);
         verify(passwordEncoder).matches(password, encodedPassword);
+    }
+
+    @Test
+    @DisplayName("[로그인] - 로그인에 성공하면, 최종 로그인 시각이 변경된다.")
+    void updateLoggedInAt() {
+        //given
+        String id = "abcd1234";
+        String password = "efgh5678";
+        String encodedPassword = "(encoded)efgh5678";
+        User user = Personal.builder()
+                .id(1L)
+                .password(encodedPassword)
+                .build();
+        LoginDto requestDto = new LoginDto(id, password);
+        given(userRepository.findByAccountId(id)).willReturn(Optional.of(user));
+        given(passwordEncoder.matches(password, encodedPassword)).willReturn(true);
+
+        //when
+        authService.login(requestDto);
+
+        //then
+        assertThat(user.getLastLoggedInAt()).isBetween(LocalDate.now().atStartOfDay(), LocalDate.now().plusDays(1).atStartOfDay());
     }
 
     @Test

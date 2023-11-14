@@ -19,6 +19,8 @@ import rhetorike.glot.global.error.exception.UserNotFoundException;
 import rhetorike.glot.global.security.jwt.AccessToken;
 import rhetorike.glot.global.security.jwt.RefreshToken;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -57,9 +59,11 @@ public class AuthService {
      * @param requestDto 아이디, 비밀번호
      * @return 액세스 토큰, 리프레시 토큰
      */
+    @Transactional
     public TokenDto.FullResponse login(LoginDto requestDto) {
         User user = userRepository.findByAccountId(requestDto.getAccountId()).orElseThrow(UserNotFoundException::new);
         if (passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
+            user.updateLoginLog(LocalDateTime.now());
             AccessToken accessToken = AccessToken.generatedFrom(user);
             RefreshToken refreshToken = RefreshToken.generatedFrom(user);
             return new TokenDto.FullResponse(accessToken, refreshToken);

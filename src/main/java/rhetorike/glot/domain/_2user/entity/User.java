@@ -10,6 +10,7 @@ import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._4order.entity.Subscription;
 import rhetorike.glot.global.config.jpa.BaseTimeEntity;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -45,6 +46,8 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
     protected String email;
 
     protected boolean marketingAgreement;
+    protected boolean active;
+    protected LocalDateTime lastLoggedInAt;
 
     @ElementCollection(fetch = FetchType.LAZY)
     protected List<String> roles;
@@ -56,7 +59,7 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
     @JoinColumn
     protected Subscription subscription;
 
-    public User(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles, List<WritingBoard> writingBoards, Subscription subscription) {
+    public User(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles, List<WritingBoard> writingBoards, Subscription subscription, boolean active, LocalDateTime lastLoggedInAt) {
         this.id = id;
         this.accountId = accountId;
         this.password = password;
@@ -68,6 +71,8 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
         this.roles = new ArrayList<>();
         this.writingBoards = new ArrayList<>();
         this.subscription = subscription;
+        this.active = active;
+        this.lastLoggedInAt = lastLoggedInAt;
         if (writingBoards != null) {
             this.writingBoards.addAll(writingBoards);
         }
@@ -93,6 +98,9 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
         if (this.subscription != null) {
             this.subscription.getMembers().add(this);
         }
+    }
+    public void updateLoginLog(LocalDateTime time){
+        this.lastLoggedInAt = time;
     }
 
     @Override
@@ -149,10 +157,5 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
 
 
     public abstract String generateEnterpriseName();
-
-    public void freeSubscription() {
-
-    }
-
     public abstract void update(UserProfileDto.UpdateRequest requestDto);
 }

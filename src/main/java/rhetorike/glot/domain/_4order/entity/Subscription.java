@@ -29,7 +29,7 @@ public class Subscription {
     private Order order;
 
     @Builder
-    public Subscription(Long id, boolean continued, LocalDate startDate, LocalDate endDate, Order order, String name) {
+    public Subscription(Long id, boolean continued, LocalDate startDate, LocalDate endDate, Order order, String name, List<User> members) {
         this.id = id;
         this.continued = continued;
         this.startDate = startDate;
@@ -37,6 +37,9 @@ public class Subscription {
         this.order = order;
         this.name = name;
         this.members = new ArrayList<>();
+        if (members != null){
+            this.members.addAll(members);
+        }
     }
 
     public void setMembers(List<? extends User> members) {

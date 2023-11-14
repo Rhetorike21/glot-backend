@@ -12,9 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import rhetorike.glot.domain._1auth.controller.AuthController;
+import rhetorike.glot.domain._1auth.dto.LoginDto;
+import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._4order.dto.OrderDto;
+import rhetorike.glot.domain._4order.dto.SubscriptionDto;
 import rhetorike.glot.domain._4order.entity.*;
 import rhetorike.glot.domain._4order.repository.OrderRepository;
 import rhetorike.glot.domain._4order.repository.PlanRepository;
@@ -102,6 +107,77 @@ public class SubscriptionApiTest extends IntegrationTest {
                 () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value()),
                 () -> assertThat(subscription.isContinued()).isFalse()
         );
+    }
+
+    @Test
+    @DisplayName("[구독 계정 조회]")
+    void getSubscriptionMembers() {
+        //given
+        String accessToken = getTokenFromNewOrganization().getAccessToken();
+        if (planRepository.findEnterpriseByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
+            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, PlanPeriod.MONTH));
+        }
+
+        given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
+        String orderId = orderEnterprisePlan(accessToken, PlanPeriod.MONTH, 10);
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header(Header.AUTH, accessToken)
+                .when().get(SubscriptionController.GET_SUBS_MEMBER_URI)
+                .then().log().all()
+                .extract();
+
+        //then
+        Subscription subscription = orderRepository.findById(orderId).get().getSubscription();
+        List<String> foundAccountIds = subscription.getMembers().stream()
+                .map(User::getAccountId)
+                .toList();
+        String[] resultAccountIds = response.jsonPath().getList("", SubscriptionDto.MemberResponse.class).stream()
+                .map(SubscriptionDto.MemberResponse::getAccountId)
+                .toArray(String[]::new);
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
+                () -> assertThat(foundAccountIds).containsExactly(resultAccountIds)
+        );
+    }
+
+    @Test
+    @DisplayName("[구독 계정 조회] - 마지막 접속 시간 확인")
+    void getSubscriptionMembersLastLoggedInAt() {
+        //given
+        String accessToken = getTokenFromNewOrganization().getAccessToken();
+        if (planRepository.findEnterpriseByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
+            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, PlanPeriod.MONTH));
+        }
+        given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
+        String orderId = orderEnterprisePlan(accessToken, PlanPeriod.MONTH, 10);
+        Subscription subscription = orderRepository.findById(orderId).get().getSubscription();
+
+        String memberAccountId1 = subscription.getMembers().get(0).getAccountId();
+
+        //when
+        LoginDto requestDto = new LoginDto(memberAccountId1, memberAccountId1);
+        RestAssured.given().log().all()
+                .body(requestDto)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post(AuthController.LOGIN_URI)
+                .then().log().all()
+                .extract();
+
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header(Header.AUTH, accessToken)
+                .when().get(SubscriptionController.GET_SUBS_MEMBER_URI)
+                .then().log().all()
+                .extract();
+
+        //then
+        List<SubscriptionDto.MemberResponse> list = response.jsonPath().getList("", SubscriptionDto.MemberResponse.class);
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
+                () -> assertThat(list.get(0).getLastLog()).isNotNull()
+        );
+
     }
 
 

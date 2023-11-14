@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._2user.service.UserService;
+import rhetorike.glot.domain._4order.dto.SubscriptionDto;
 import rhetorike.glot.domain._4order.entity.*;
 import rhetorike.glot.domain._4order.repository.SubscriptionRepository;
 import rhetorike.glot.global.error.exception.AccessDeniedException;
@@ -15,6 +16,7 @@ import rhetorike.glot.global.error.exception.UserNotFoundException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -82,5 +84,13 @@ public class SubscriptionService {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         Subscription subscription = subscriptionRepository.findByOrderer(user).orElseThrow(ResourceNotFoundException::new);
         subscription.unsubscribe();
+    }
+
+    public List<SubscriptionDto.MemberResponse> getSubscriptionMembers(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        Subscription subscription = subscriptionRepository.findByOrderer(user).orElseThrow(ResourceNotFoundException::new);
+        return subscription.getMembers().stream()
+                .map(SubscriptionDto.MemberResponse::new)
+                .toList();
     }
 }

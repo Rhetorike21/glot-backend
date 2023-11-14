@@ -132,6 +132,12 @@ operation::user-profile-get[]
 ----
 operation::user-profile-update[]
 
+=== 🟢 구매 계정 정보 조회
+----
+구매 계정 정보를 조회합니다.
+----
+operation::subscription-members[]
+
 
 == 🐣 3. 작문
 
