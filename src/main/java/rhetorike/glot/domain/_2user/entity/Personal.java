@@ -5,14 +5,12 @@ import jakarta.persistence.Entity;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
-import rhetorike.glot.domain._1auth.dto.SignUpDto;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import rhetorike.glot.domain._2user.dto.UserProfileDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._4order.entity.Subscription;
-import rhetorike.glot.global.util.RandomTextGenerator;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
 @DiscriminatorValue("personal")
@@ -36,7 +34,7 @@ public class Personal extends User {
     }
 
     @Override
-    public void update(UserProfileDto.UpdateRequest requestDto) {
+    public void update(UserProfileDto.UpdateParam requestDto, PasswordEncoder passwordEncoder) {
         if (requestDto.getName() != null) {
             this.name = requestDto.getName();
         }
@@ -47,7 +45,7 @@ public class Personal extends User {
             this.email = requestDto.getEmail();
         }
         if (requestDto.getPassword() != null) {
-            this.password = requestDto.getPassword();
+            this.password = passwordEncoder.encode(requestDto.getPassword());
         }
     }
 }

@@ -6,15 +6,13 @@ import jakarta.persistence.Entity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import rhetorike.glot.domain._2user.dto.UserProfileDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._4order.entity.Subscription;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.IntStream;
 
 @Getter
 @DiscriminatorValue("organization")
@@ -41,7 +39,7 @@ public class Organization extends User {
     }
 
     @Override
-    public void update(UserProfileDto.UpdateRequest requestDto) {
+    public void update(UserProfileDto.UpdateParam requestDto, PasswordEncoder passwordEncoder) {
         if (requestDto.getName() != null) {
             this.name = requestDto.getName();
         }
@@ -52,7 +50,7 @@ public class Organization extends User {
             this.email = requestDto.getEmail();
         }
         if (requestDto.getPassword() != null) {
-            this.password = requestDto.getPassword();
+            this.password = passwordEncoder.encode(requestDto.getPassword());
         }
     }
 }

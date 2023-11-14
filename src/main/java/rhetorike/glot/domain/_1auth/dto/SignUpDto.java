@@ -8,9 +8,10 @@ import lombok.NoArgsConstructor;
 import rhetorike.glot.domain._2user.entity.Organization;
 import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
-import rhetorike.glot.global.constant.Role;
 
-import java.util.Collections;
+import java.util.List;
+
+import static rhetorike.glot.global.constant.Role.*;
 
 
 public class SignUpDto {
@@ -51,7 +52,7 @@ public class SignUpDto {
                     .mobile(this.mobile)
                     .email(this.email)
                     .marketingAgreement(this.marketingAgreement)
-                    .roles(Collections.singletonList(Role.USER.value()))
+                    .roles(List.of(USER.value(), PERSONAL.value()))
                     .build();
         }
     }
@@ -77,7 +78,7 @@ public class SignUpDto {
                     .mobile(this.mobile)
                     .email(this.email)
                     .marketingAgreement(this.marketingAgreement)
-                    .roles(Collections.singletonList(Role.USER.value()))
+                    .roles(List.of(USER.value(), ORGANIZATION.value()))
                     .build();
         }
     }

@@ -1,17 +1,18 @@
 package rhetorike.glot.domain._2user.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import rhetorike.glot.domain._2user.dto.UserProfileDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._4order.entity.Subscription;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+
+import static rhetorike.glot.global.constant.Role.*;
 
 @DiscriminatorValue("org_member")
 @NoArgsConstructor
@@ -34,12 +35,12 @@ public class OrganizationMember extends User {
     }
 
     @Override
-    public void update(UserProfileDto.UpdateRequest requestDto) {
+    public void update(UserProfileDto.UpdateParam requestDto, PasswordEncoder passwordEncoder) {
         if (requestDto.getName() != null) {
             this.name = requestDto.getName();
         }
         if (requestDto.getPassword() != null) {
-            this.password = requestDto.getPassword();
+            this.password = passwordEncoder.encode(requestDto.getPassword());
         }
     }
 
@@ -48,6 +49,7 @@ public class OrganizationMember extends User {
                 .accountId(accountId)
                 .password(password)
                 .active(true)
+                .roles(List.of(USER.value(), MEMBER.value()))
                 .build();
     }
 

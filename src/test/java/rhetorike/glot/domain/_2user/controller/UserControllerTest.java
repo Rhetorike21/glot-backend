@@ -10,9 +10,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import rhetorike.glot.domain._2user.dto.UserDto;
 import rhetorike.glot.domain._2user.dto.UserProfileDto;
 import rhetorike.glot.domain._2user.service.UserService;
 import rhetorike.glot.global.constant.Header;
@@ -27,8 +29,7 @@ import static hansol.restdocsdsl.element.FieldElement.field;
 import static hansol.restdocsdsl.element.HeaderElement.header;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -87,7 +88,7 @@ class UserControllerTest {
     void updateUserProfile() throws Exception {
         //given
         String accessToken = "access-token";
-        UserProfileDto.UpdateRequest requestBody = new UserProfileDto.UpdateRequest("홍길동", "01012345678", null, "aaa1123");
+        UserProfileDto.UpdateParam requestBody = new UserProfileDto.UpdateParam("홍길동", "01012345678", null, "aaa1123");
 
         //when
         ResultActions actions = mockMvc.perform(patch(UserController.USER_PROFILE_UPDATE_URI)

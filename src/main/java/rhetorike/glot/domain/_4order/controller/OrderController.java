@@ -23,33 +23,31 @@ public class OrderController {
     public final static String CHANGE_PAY_METHOD_URI = "/api/payments";
     private final OrderService orderService;
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('PERSONAL', 'ORG')")
     @PostMapping(MAKE_BASIC_ORDER_URI)
-    public ResponseEntity<SingleParamDto<String>> makeBasicOrder(@RequestBody OrderDto.BasicOrderRequest requestDto, @AuthenticationPrincipal Long userId){
+    public ResponseEntity<SingleParamDto<String>> makeBasicOrder(@RequestBody OrderDto.BasicOrderRequest requestDto, @AuthenticationPrincipal Long userId) {
         SingleParamDto<String> responseBody = orderService.makeBasicOrder(requestDto, userId);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('PERSONAL', 'ORG')")
     @PostMapping(MAKE_ENTERPRISE_ORDER_URI)
-    public ResponseEntity<SingleParamDto<String>> makeEnterpriseOrder(@RequestBody OrderDto.EnterpriseOrderRequest requestDto, @AuthenticationPrincipal Long userId){
+    public ResponseEntity<SingleParamDto<String>> makeEnterpriseOrder(@RequestBody OrderDto.EnterpriseOrderRequest requestDto, @AuthenticationPrincipal Long userId) {
         SingleParamDto<String> responseBody = orderService.makeEnterpriseOrder(requestDto, userId);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('PERSONAL', 'ORG')")
     @GetMapping(GET_ORDER_URI)
-    public ResponseEntity<List<OrderDto.GetResponse>> getOrders(@AuthenticationPrincipal Long userId){
+    public ResponseEntity<List<OrderDto.GetResponse>> getOrders(@AuthenticationPrincipal Long userId) {
         List<OrderDto.GetResponse> responseBody = orderService.getOrders(userId);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasAnyRole('PERSONAL', 'ORG')")
     @PatchMapping(CHANGE_PAY_METHOD_URI)
-    public ResponseEntity<List<OrderDto.GetResponse>> changePayMethod(@RequestBody Payment payment, @AuthenticationPrincipal Long userId){
+    public ResponseEntity<List<OrderDto.GetResponse>> changePayMethod(@RequestBody Payment payment, @AuthenticationPrincipal Long userId) {
         orderService.changePayMethod(payment, userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
-
 }

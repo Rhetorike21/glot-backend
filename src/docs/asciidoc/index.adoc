@@ -115,7 +115,7 @@ operation::find-password-email[]
 사용자의 비밀번호를 재설정합니다.
 재설정 링크에 포함된 파라미터와 일치하지 않은 경우, 에러가 발생합니다.
 ----
-operation::reset-password[]
+operation::reset-password[]ㄱㄱ
 
 
 == 🦝 2. 사용자
@@ -138,6 +138,12 @@ operation::user-profile-update[]
 ----
 operation::subscription-members[]
 
+
+=== 🟢 구매 계정 정보 수정
+----
+구매 계정 정보를 수정합니다.
+----
+operation::subscription-members-update[]
 
 == 🐣 3. 작문
 

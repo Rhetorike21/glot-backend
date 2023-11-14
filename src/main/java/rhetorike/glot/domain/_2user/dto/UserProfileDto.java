@@ -41,17 +41,11 @@ public class UserProfileDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class UpdateRequest {
+    public static class UpdateParam {
         private String name;
         private String mobile;
         private String email;
         private String password;
-
-        public void encodePassword(PasswordEncoder passwordEncoder) {
-            if (!password.isEmpty()) {
-                this.password = passwordEncoder.encode(this.password);
-            }
-        }
     }
 }
 

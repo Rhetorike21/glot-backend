@@ -16,6 +16,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import rhetorike.glot.domain._1auth.controller.AuthController;
 import rhetorike.glot.domain._1auth.dto.LoginDto;
+import rhetorike.glot.domain._2user.controller.UserController;
+import rhetorike.glot.domain._2user.dto.UserDto;
+import rhetorike.glot.domain._2user.entity.OrganizationMember;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._4order.dto.OrderDto;
@@ -143,6 +146,58 @@ public class SubscriptionApiTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("[구독 계정 정보 수정]")
+    void updateSubscriptionMembers() {
+        //given
+        String accessToken = getTokenFromNewOrganization().getAccessToken();
+        if (planRepository.findEnterpriseByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
+            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, PlanPeriod.MONTH));
+        }
+        given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
+        String orderId = orderEnterprisePlan(accessToken, PlanPeriod.MONTH, 10);
+        Subscription subscription = orderRepository.findById(orderId).get().getSubscription();
+        String memberAccountId = subscription.getMembers().get(0).getAccountId();
+        log.info(memberAccountId);
+        SubscriptionDto.MemberUpdateRequest requestDto = new SubscriptionDto.MemberUpdateRequest(memberAccountId, "zxcv123", "name", null);
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header(Header.AUTH, accessToken)
+                .body(requestDto)
+                .contentType(ContentType.JSON)
+                .when().patch(SubscriptionController.UPDATE_SUBS_MEMBER_URI)
+                .then().log().all()
+                .extract();
+
+        //then
+        User member = userRepository.findByAccountId(memberAccountId).get();
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value()),
+                () -> assertThat(member.getName()).isEqualTo("name"),
+                () -> assertThat(member.isActive()).isTrue()
+        );
+    }
+
+    @Test
+    @DisplayName("[구독 계정 조회] - 기관 계정만 조회 가능")
+    void getSubscriptionMembersAccessDenied() {
+        //given
+        String accessToken = getTokenFromNewUser().getAccessToken();
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header(Header.AUTH, accessToken)
+                .when().get(SubscriptionController.GET_SUBS_MEMBER_URI)
+                .then().log().all()
+                .extract();
+
+        //then
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.FORBIDDEN.value())
+        );
+    }
+
+    @Test
     @DisplayName("[구독 계정 조회] - 마지막 접속 시간 확인")
     void getSubscriptionMembersLastLoggedInAt() {
         //given
@@ -180,6 +235,59 @@ public class SubscriptionApiTest extends IntegrationTest {
 
     }
 
+    @Test
+    @DisplayName("[계정 비활성화/활성화] - 기관 계정")
+    void activateUser() {
+        //given
+        String accessToken = getTokenFromNewOrganization().getAccessToken();
+        if (planRepository.findEnterpriseByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
+            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, PlanPeriod.MONTH));
+        }
+        given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
+        String orderId = orderEnterprisePlan(accessToken, PlanPeriod.MONTH, 3);
+        Subscription subscription = orderRepository.findById(orderId).get().getSubscription();
+        String memberAccountId1 = subscription.getMembers().get(0).getAccountId();
+        UserDto.ActivateRequest requestBody = new UserDto.ActivateRequest(memberAccountId1, false);
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header(Header.AUTH, accessToken)
+                .body(requestBody)
+                .contentType(ContentType.JSON)
+                .when().post(UserController.ACTIVATE_MEMBER)
+                .then().log().all()
+                .extract();
+
+        //then
+        User member = orderRepository.findById(orderId).get().getSubscription().getOrder().getSubscription().getMembers().get(0);
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value()),
+                () -> assertThat(member.getAccountId()).isEqualTo(memberAccountId1),
+                () -> assertThat(member.isActive()).isFalse()
+        );
+    }
+
+    @Test
+    @DisplayName("[계정 비활성화/활성화] - 기관 계정만 호출 가능")
+    void activateUserForbidden() {
+        //given
+        String accessToken = getTokenFromNewUser().getAccessToken();
+        UserDto.ActivateRequest requestBody = new UserDto.ActivateRequest("", false);
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header(Header.AUTH, accessToken)
+                .body(requestBody)
+                .contentType(ContentType.JSON)
+                .when().post(UserController.ACTIVATE_MEMBER)
+                .then().log().all()
+                .extract();
+
+        //then
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.FORBIDDEN.value())
+        );
+    }
 
     private String orderBasicPlan(String accessToken, PlanPeriod planPeriod) {
         OrderDto.BasicOrderRequest requestDto = new OrderDto.BasicOrderRequest(planPeriod.getName(), new Payment("cardNumber", "expiry", "birth", "password"));

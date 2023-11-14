@@ -6,6 +6,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.ResultActions;
+import rhetorike.glot.domain._2user.controller.UserController;
+import rhetorike.glot.domain._2user.dto.UserDto;
 import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
@@ -18,6 +23,7 @@ import rhetorike.glot.domain._4order.repository.PlanRepository;
 import rhetorike.glot.domain._4order.service.OrderService;
 import rhetorike.glot.domain._4order.service.PayService;
 import rhetorike.glot.domain._4order.vo.Payment;
+import rhetorike.glot.global.constant.Header;
 import rhetorike.glot.global.error.exception.PaymentFailedException;
 import rhetorike.glot.global.util.portone.PortOneResponse;
 import rhetorike.glot.setup.IntegrationTest;
@@ -27,6 +33,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @Slf4j
 public class CommonTest extends IntegrationTest {
@@ -65,4 +73,8 @@ public class CommonTest extends IntegrationTest {
         log.info("{}", orders);
         assertThat(orders).isNotEmpty();
     }
+
+
+
+
 }

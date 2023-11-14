@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import rhetorike.glot.domain._2user.dto.UserProfileDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._4order.entity.Subscription;
@@ -90,6 +91,13 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
         return writingBoards.size();
     }
 
+
+    public void updateActive(Boolean active) {
+        if (active != null) {
+            this.active = active;
+        }
+    }
+
     public void setSubscription(Subscription subscription) {
         if (this.subscription != null) {
             this.subscription.getMembers().remove(this);
@@ -99,7 +107,8 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
             this.subscription.getMembers().add(this);
         }
     }
-    public void updateLoginLog(LocalDateTime time){
+
+    public void updateLoginLog(LocalDateTime time) {
         this.lastLoggedInAt = time;
     }
 
@@ -157,5 +166,6 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
 
 
     public abstract String generateEnterpriseName();
-    public abstract void update(UserProfileDto.UpdateRequest requestDto);
+
+    public abstract void update(UserProfileDto.UpdateParam requestDto, PasswordEncoder passwordEncoder);
 }

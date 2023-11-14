@@ -25,7 +25,7 @@ public class WritingBoardController {
     private final WritingBoardService writingBoardService;
 
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping(SAVE_BOARD_URI)
     public ResponseEntity<SingleParamDto<Long>> saveBoard(@AuthenticationPrincipal Long userId, @RequestBody WritingBoardDto.SaveRequest requestDto) {
         SingleParamDto<Long> responseBody = writingBoardService.saveBoard(userId, requestDto);

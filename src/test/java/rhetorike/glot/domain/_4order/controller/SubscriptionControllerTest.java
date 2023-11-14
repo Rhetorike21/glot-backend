@@ -15,16 +15,11 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import rhetorike.glot.domain._4order.dto.OrderDto;
 import rhetorike.glot.domain._4order.dto.SubscriptionDto;
-import rhetorike.glot.domain._4order.entity.PlanPeriod;
-import rhetorike.glot.domain._4order.service.OrderService;
 import rhetorike.glot.domain._4order.service.SubscriptionService;
-import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.global.constant.Header;
 import rhetorike.glot.global.security.JwtAuthenticationFilter;
 import rhetorike.glot.global.security.SecurityConfig;
-import rhetorike.glot.global.util.dto.SingleParamDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,13 +29,13 @@ import static hansol.restdocsdsl.docs.RestDocsHeader.requestHeaders;
 import static hansol.restdocsdsl.docs.RestDocsRequest.requestFields;
 import static hansol.restdocsdsl.docs.RestDocsResponse.responseFields;
 import static hansol.restdocsdsl.element.FieldElement.field;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -103,6 +98,35 @@ class SubscriptionControllerTest {
                                 field("[].name").description("이름").optional(),
                                 field("[].lastLog").description("마지막 접속 기록").optional(),
                                 field("[].active").type(JsonFieldType.BOOLEAN).description("활성화 여부")
+                        )));
+
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("[구독 계정 수정]")
+    void updateSubscriptionMembers() throws Exception {
+        //given
+        SubscriptionDto.MemberUpdateRequest requestDto = new SubscriptionDto.MemberUpdateRequest("abc1234", "password12", null,  null);
+
+        //when
+        ResultActions actions = mockMvc.perform(patch(SubscriptionController.UPDATE_SUBS_MEMBER_URI)
+                .header(Header.AUTH, "access-token")
+                .content(objectMapper.writeValueAsString(requestDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf()));
+
+        //then
+        actions.andExpect(status().isNoContent())
+                .andDo(docs("subscription-members-update",
+                        requestHeaders(
+                                HeaderElement.header(Header.AUTH).description("액세스 토큰")
+                        ),
+                        requestFields(
+                                field("accountId").description("수정할 계정의 아이디"),
+                                field("name").description("수정할 이름").optional(),
+                                field("password").description("수정할 비밀번호").optional(),
+                                field("active").type(JsonFieldType.BOOLEAN).description("변경할 활성화 상태").optional()
                         )));
 
     }

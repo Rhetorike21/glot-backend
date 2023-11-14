@@ -98,7 +98,7 @@ public class IntegrationTest {
         final String password = str + num;
         final String mobile = "010" + "1234" + num;
         final String email = str + num + "@personal.com";
-        final String orgName = "test org";
+        final String orgName = "test_org_" + RandomStringUtils.randomAlphabetic(4);
 
 
         given(certCodeRepository.doesExists(CODE)).willReturn(true);

@@ -6,11 +6,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import rhetorike.glot.domain._2user.dto.UserDto;
 import rhetorike.glot.domain._2user.dto.UserProfileDto;
+import rhetorike.glot.domain._2user.entity.Organization;
 import rhetorike.glot.domain._2user.entity.OrganizationMember;
 import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
+import rhetorike.glot.domain._4order.entity.Subscription;
+import rhetorike.glot.domain._4order.repository.SubscriptionRepository;
 import rhetorike.glot.global.error.exception.UserNotFoundException;
 import rhetorike.glot.setup.ServiceTest;
 
@@ -25,16 +29,17 @@ class UserServiceTest {
 
     @InjectMocks
     UserService userService;
-
     @Mock
     UserRepository userRepository;
-
     @Mock
     PasswordEncoder passwordEncoder;
+    @Mock
+    SubscriptionRepository subscriptionRepository;
+
 
     @Test
     @DisplayName("회원의 정보를 조회한다.")
-    void getUserProfile(){
+    void getUserProfile() {
         //given
         Long userId = 1L;
         User user = new Personal();
@@ -50,7 +55,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("회원이 존재하지 않는 경우, 예외를 던진다.")
-    void getUserProfileFailed(){
+    void getUserProfileFailed() {
         //given
         Long userId = 1L;
         given(userRepository.findById(userId)).willReturn(Optional.empty());
@@ -63,11 +68,11 @@ class UserServiceTest {
 
     @Test
     @DisplayName("[프로필 수정] ")
-    void updateUserProfile(){
+    void updateUserProfile() {
         //given
         Long userId = 1L;
         User user = Personal.builder().name("가나다").email("test@naver.com").build();
-        UserProfileDto.UpdateRequest requestBody = new UserProfileDto.UpdateRequest("홍길동", "01012345678", null, "abcd1234");
+        UserProfileDto.UpdateParam requestBody = new UserProfileDto.UpdateParam("홍길동", "01012345678", null, "abcd1234");
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(passwordEncoder.encode("abcd1234")).willReturn("encodedPassword");
 
@@ -81,7 +86,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("[프로필 수정] - OrganizationMember의 경우, 이름과 비밀번호만 수정할 수 있다.")
-    void updateOrganizationMemberProfile(){
+    void updateOrganizationMemberProfile() {
         //given
         Long userId = 1L;
         User user = OrganizationMember.builder()
@@ -90,7 +95,7 @@ class UserServiceTest {
                 .mobile(null)
                 .password("password")
                 .build();
-        UserProfileDto.UpdateRequest requestBody = new UserProfileDto.UpdateRequest("홍길동", "01098765432", "update@naver.com", "updatePassword");
+        UserProfileDto.UpdateParam requestBody = new UserProfileDto.UpdateParam("홍길동", "01098765432", "update@naver.com", "updatePassword");
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(passwordEncoder.encode("updatePassword")).willReturn("encodedPassword");
 

@@ -2,7 +2,9 @@ package rhetorike.glot.domain._4order.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import rhetorike.glot.domain._2user.entity.Organization;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._2user.service.UserService;
@@ -16,7 +18,6 @@ import rhetorike.glot.global.error.exception.UserNotFoundException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
     public void makeSubscribe(Order order) {
         Subscription subscription = subscriptionRepository.save(Subscription.newSubscription(order));
@@ -92,5 +94,23 @@ public class SubscriptionService {
         return subscription.getMembers().stream()
                 .map(SubscriptionDto.MemberResponse::new)
                 .toList();
+    }
+
+    @Transactional
+    public void updateSubscriptionMembers(Long managerId, SubscriptionDto.MemberUpdateRequest requestDto) {
+        User manager = userRepository.findById(managerId).orElseThrow(UserNotFoundException::new);
+        validateOrganization(manager);
+        Subscription subscription = subscriptionRepository.findByOrderer(manager).orElseThrow(ResourceNotFoundException::new);
+        User member = userRepository.findByAccountId(requestDto.getAccountId()).orElseThrow(UserNotFoundException::new);
+        if (subscription.equals(member.getSubscription())) {
+            member.update(requestDto.toUpdateParam(), passwordEncoder);
+            member.updateActive(requestDto.getActive());
+        }
+    }
+    private void validateOrganization(User manager)  {
+        if (manager instanceof Organization) {
+            return;
+        }
+        throw new AccessDeniedException();
     }
 }
