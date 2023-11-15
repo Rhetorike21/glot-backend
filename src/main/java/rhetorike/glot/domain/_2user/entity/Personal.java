@@ -44,7 +44,7 @@ public class Personal extends User {
         if (requestDto.getEmail() != null) {
             this.email = requestDto.getEmail();
         }
-        if (requestDto.getPassword() != null) {
+        if (!requestDto.getPassword().isBlank()) {
             this.password = passwordEncoder.encode(requestDto.getPassword());
         }
     }

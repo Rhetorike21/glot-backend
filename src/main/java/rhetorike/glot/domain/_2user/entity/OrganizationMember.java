@@ -39,7 +39,7 @@ public class OrganizationMember extends User {
         if (requestDto.getName() != null) {
             this.name = requestDto.getName();
         }
-        if (requestDto.getPassword() != null) {
+        if (!requestDto.getPassword().isBlank()) {
             this.password = passwordEncoder.encode(requestDto.getPassword());
         }
     }

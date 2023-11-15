@@ -51,6 +51,7 @@ public class SignUpDto {
                     .phone(this.phone)
                     .mobile(this.mobile)
                     .email(this.email)
+                    .active(true)
                     .marketingAgreement(this.marketingAgreement)
                     .roles(List.of(USER.value(), PERSONAL.value()))
                     .build();
@@ -77,6 +78,7 @@ public class SignUpDto {
                     .phone(this.phone)
                     .mobile(this.mobile)
                     .email(this.email)
+                    .active(true)
                     .marketingAgreement(this.marketingAgreement)
                     .roles(List.of(USER.value(), ORGANIZATION.value()))
                     .build();

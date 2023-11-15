@@ -27,4 +27,5 @@ INSERT INTO plan (plan_period, id, price, type, name)
 VALUES ('MONTH', 1, 100, 'basic', '베이직 요금제 월간 결제'),
        ('YEAR', 2, 100, 'basic', '베이직 요금제 연간 결제'),
        ('MONTH', 3, 100, 'enterprise', '엔터프라이즈 요금제 월간 결제'),
-       ('YEAR', 4, 100, 'enterprise', '엔터프라이즈 요금제 연간 결제');
+       ('YEAR', 4, 100, 'enterprise', '엔터프라이즈 요금제 연간 결제'),
+       ('DAY', 5, 100, 'basic', '베이직 요금제 분당 결제 (테스트)');

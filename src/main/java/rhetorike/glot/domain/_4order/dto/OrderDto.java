@@ -46,8 +46,8 @@ public class OrderDto {
 
         public static GetResponse from(Order order, PortOneResponse.PayHistory history) {
             OrderStatus status = order.getStatus();
-            LocalDate startDate = order.getSubscription().getStartDate();
-            LocalDate endDate = order.getSubscription().getEndDate();
+            LocalDate startDate = order.getCreatedTime().toLocalDate();
+            LocalDate endDate = order.getPlan().endDateFrom(order.getCreatedTime().toLocalDate());
             LocalDate payDate = order.getCreatedTime().toLocalDate();
             String cardNumber = history.getCardNumber();
             return GetResponse.builder()

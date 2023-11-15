@@ -4,14 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import rhetorike.glot.global.error.exception.AccessDeniedException;
 
+import java.time.Duration;
 import java.time.Period;
+import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 
 @Getter
 @AllArgsConstructor
 public enum PlanPeriod {
-    MONTH("1m", Period.ofMonths(1)),
-    YEAR("1y", Period.ofYears(1));
+    DAY("perDay", Period.ofDays(1)),
+    MONTH("perMonth", Period.ofMonths(1)),
+    YEAR("perYear", Period.ofYears(1));
 
     public final String name;
     private final Period period;

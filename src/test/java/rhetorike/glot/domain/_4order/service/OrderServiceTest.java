@@ -105,8 +105,9 @@ class OrderServiceTest {
         //given
         Long userId = 1L;
         User user = Personal.builder().build();
+        Plan plan = BasicPlan.builder().expiryPeriod(PlanPeriod.MONTH).build();
         Subscription subscription = Subscription.builder().startDate(LocalDate.now()).endDate(LocalDate.now()).build();
-        Order order = Order.builder().status(OrderStatus.PAID).subscription(subscription).build();
+        Order order = Order.builder().status(OrderStatus.PAID).plan(plan).subscription(subscription).build();
         order.setCreatedTime(LocalDateTime.now());
 
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
