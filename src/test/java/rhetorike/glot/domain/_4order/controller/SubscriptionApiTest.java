@@ -212,7 +212,7 @@ public class SubscriptionApiTest extends IntegrationTest {
         String memberAccountId1 = subscription.getMembers().get(0).getAccountId();
 
         //when
-        LoginDto requestDto = new LoginDto(memberAccountId1, memberAccountId1);
+        LoginDto.Request requestDto = new LoginDto.Request(memberAccountId1, memberAccountId1);
         RestAssured.given().log().all()
                 .body(requestDto)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

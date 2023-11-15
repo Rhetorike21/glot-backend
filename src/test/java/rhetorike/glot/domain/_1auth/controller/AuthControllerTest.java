@@ -118,8 +118,8 @@ class AuthControllerTest {
     @DisplayName("로그인")
     void login() throws Exception {
         //given
-        LoginDto requestDto = new LoginDto("abcd1234", "efgh1234");
-        TokenDto.FullResponse responseDto = new TokenDto.FullResponse(AccessToken.from("access-token"), RefreshToken.from("refresh-token"));
+        LoginDto.Request requestDto = new LoginDto.Request("accountId", "password");
+        LoginDto.Response responseDto = new LoginDto.Response(true, new TokenDto.FullResponse(AccessToken.from("access-token"), RefreshToken.from("refresh-token")));
         given(authService.login(requestDto)).willReturn(responseDto);
 
         //when
@@ -136,8 +136,9 @@ class AuthControllerTest {
                                 field("password").description("비밀번호")
                         ),
                         responseFields(
-                                field("accessToken").description("액세스 토큰"),
-                                field("refreshToken").description("리프레시 토큰")
+                                field("subscribed").type(JsonFieldType.BOOLEAN).description("플랜 구독 여부"),
+                                field("token.accessToken").description("액세스 토큰"),
+                                field("token.refreshToken").description("리프레시 토큰")
                         )));
     }
 

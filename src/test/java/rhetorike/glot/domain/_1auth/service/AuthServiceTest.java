@@ -112,7 +112,7 @@ class AuthServiceTest {
                 .id(1L)
                 .password(encodedPassword)
                 .build();
-        LoginDto requestDto = new LoginDto(id, password);
+        LoginDto.Request requestDto = new LoginDto.Request(id, password);
         given(userRepository.findByAccountId(id)).willReturn(Optional.of(user));
         given(passwordEncoder.matches(password, encodedPassword)).willReturn(true);
 
@@ -135,7 +135,7 @@ class AuthServiceTest {
                 .id(1L)
                 .password(encodedPassword)
                 .build();
-        LoginDto requestDto = new LoginDto(id, password);
+        LoginDto.Request requestDto = new LoginDto.Request(id, password);
         given(userRepository.findByAccountId(id)).willReturn(Optional.of(user));
         given(passwordEncoder.matches(password, encodedPassword)).willReturn(true);
 
@@ -157,7 +157,7 @@ class AuthServiceTest {
                 .id(1L)
                 .password(encodedPassword)
                 .build();
-        LoginDto requestDto = new LoginDto(id, password);
+        LoginDto.Request requestDto = new LoginDto.Request(id, password);
         given(userRepository.findByAccountId(id)).willReturn(Optional.of(user));
         given(passwordEncoder.matches(password, encodedPassword)).willReturn(false);
 

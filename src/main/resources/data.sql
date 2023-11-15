@@ -1,5 +1,6 @@
 -- <User> -- (password : abcd1234)
-insert into user (id, type, account_id, name, email, mobile, phone, password, marketing_agreement, subscription_id, active, last_logged_in_at,
+insert into user (id, type, account_id, name, email, mobile, phone, password, marketing_agreement, subscription_id,
+                  active, last_logged_in_at,
                   created_time,
                   modified_time)
 values (1, 'personal', 'test01personal', '테스트용 개인 사용자', 'test@personal.com', '01012345678', '05312345678',
@@ -11,7 +12,9 @@ values (1, 'personal', 'test01personal', '테스트용 개인 사용자', 'test@
 
 insert into user_roles (user_id, roles)
 values (1, 'ROLE_USER'),
-       (2, 'ROLE_USER');
+       (1, 'ROLE_PERSONAL'),
+       (2, 'ROLE_USER'),
+       (2, 'ROLE_ORG');
 
 insert into personal (id)
 values (1);

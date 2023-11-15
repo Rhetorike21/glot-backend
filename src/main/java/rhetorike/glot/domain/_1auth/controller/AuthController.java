@@ -46,8 +46,8 @@ public class AuthController {
 
     @PermitAll
     @PostMapping(LOGIN_URI)
-    public ResponseEntity<TokenDto.FullResponse> login(@RequestBody LoginDto requestDto) {
-        TokenDto.FullResponse responseBody = authService.login(requestDto);
+    public ResponseEntity<LoginDto.Response> login(@RequestBody LoginDto.Request requestDto) {
+        LoginDto.Response responseBody = authService.login(requestDto);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 

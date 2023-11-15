@@ -168,4 +168,8 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
     public abstract String generateEnterpriseName();
 
     public abstract void update(UserProfileDto.UpdateParam requestDto, PasswordEncoder passwordEncoder);
+
+    public boolean hasSubscribed() {
+        return this.subscription != null;
+    }
 }

@@ -72,7 +72,7 @@ public class AuthApiTest extends IntegrationTest {
     @DisplayName("[로그인]")
     void login() {
         //given
-        LoginDto requestDto = new LoginDto(USER_1_ACCOUNT_ID, USER_1_PASSWORD_RAW);
+        LoginDto.Request requestDto = new LoginDto.Request(USER_1_ACCOUNT_ID, USER_1_PASSWORD_RAW);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -86,8 +86,9 @@ public class AuthApiTest extends IntegrationTest {
         JsonPath jsonPath = response.jsonPath();
         assertAll(
                 () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
-                () -> assertThat(jsonPath.getString("accessToken")).isNotEmpty(),
-                () -> assertThat(jsonPath.getString("refreshToken")).isNotEmpty()
+                () -> assertThat(jsonPath.getBoolean("subscribed")).isFalse(),
+                () -> assertThat(jsonPath.getString("token.accessToken")).isNotEmpty(),
+                () -> assertThat(jsonPath.getString("token.refreshToken")).isNotEmpty()
         );
     }
 
@@ -117,31 +118,12 @@ public class AuthApiTest extends IntegrationTest {
     @DisplayName("[회원탈퇴]")
     void withdraw() {
         //given
-        final String TEMP_USER_ACCOUNT_ID = "withdrawaltest1";
-        final String TEMP_USER_PASSWORD = "abcd1234";
-        final String CODE = "123456";
-        given(certCodeRepository.doesExists(CODE)).willReturn(true);
-        SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest(TEMP_USER_ACCOUNT_ID, TEMP_USER_PASSWORD, "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, CODE, "한국고등학교");
-        RestAssured.given().log().all()
-                .body(requestDto)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when().post(AuthController.SIGN_UP_ORGANIZATION_URI)
-                .then().log().all()
-                .extract();
-
-        JsonPath jsonPath = RestAssured.given().log().all()
-                .body(new LoginDto(TEMP_USER_ACCOUNT_ID, TEMP_USER_PASSWORD))
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when().post(AuthController.LOGIN_URI)
-                .then().log().all()
-                .extract().jsonPath();
-        String accessToken = jsonPath.getString("accessToken");
-        String refreshToken = jsonPath.getString("refreshToken");
+        TokenDto.FullResponse token = getTokenFromNewUser();
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header(Header.AUTH, accessToken)
-                .header(Header.REFRESH, refreshToken)
+                .header(Header.AUTH, token.getAccessToken())
+                .header(Header.REFRESH, token.getRefreshToken())
                 .when().post(AuthController.WITHDRAW_URI)
                 .then().log().all()
                 .extract();

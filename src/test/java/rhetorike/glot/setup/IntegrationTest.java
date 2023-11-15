@@ -42,20 +42,6 @@ public class IntegrationTest {
         RestAssured.port = port;
     }
 
-//    protected TokenDto.FullResponse getTokenFromUser1() {
-//        LoginDto requestDto = new LoginDto(USER_1_ACCOUNT_ID, USER_1_PASSWORD_RAW);
-//        ExtractableResponse<Response> response = RestAssured.given().log().all()
-//                .body(requestDto)
-//                .contentType(MediaType.APPLICATION_JSON_VALUE)
-//                .when().post(AuthController.LOGIN_URI)
-//                .then().log().all()
-//                .extract();
-//
-//        JsonPath jsonPath = response.jsonPath();
-//        AccessToken accessToken = AccessToken.from(jsonPath.getString("accessToken"));
-//        RefreshToken refreshToken = RefreshToken.from(jsonPath.getString("refreshToken"));
-//        return new TokenDto.FullResponse(accessToken, refreshToken);
-//    }
 
     protected TokenDto.FullResponse getTokenFromNewUser() {
         final String CODE = "1234";
@@ -76,7 +62,7 @@ public class IntegrationTest {
                 .then().log().all()
                 .extract();
 
-        LoginDto loginRequestDto = new LoginDto(accountId, password);
+        LoginDto.Request loginRequestDto = new LoginDto.Request(accountId, password);
         ExtractableResponse<Response> response = RestAssured.given().log().all()
                 .body(loginRequestDto)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -85,8 +71,8 @@ public class IntegrationTest {
                 .extract();
 
         JsonPath jsonPath = response.jsonPath();
-        AccessToken accessToken = AccessToken.from(jsonPath.getString("accessToken"));
-        RefreshToken refreshToken = RefreshToken.from(jsonPath.getString("refreshToken"));
+        AccessToken accessToken = AccessToken.from(jsonPath.getString("token.accessToken"));
+        RefreshToken refreshToken = RefreshToken.from(jsonPath.getString("token.refreshToken"));
         return new TokenDto.FullResponse(accessToken, refreshToken);
     }
 
@@ -110,7 +96,7 @@ public class IntegrationTest {
                 .then().log().all()
                 .extract();
 
-        LoginDto loginRequestDto = new LoginDto(accountId, password);
+        LoginDto.Request loginRequestDto = new LoginDto.Request(accountId, password);
         ExtractableResponse<Response> response = RestAssured.given().log().all()
                 .body(loginRequestDto)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -120,8 +106,8 @@ public class IntegrationTest {
 
 
         JsonPath jsonPath = response.jsonPath();
-        AccessToken accessToken = AccessToken.from(jsonPath.getString("accessToken"));
-        RefreshToken refreshToken = RefreshToken.from(jsonPath.getString("refreshToken"));
+        AccessToken accessToken = AccessToken.from(jsonPath.getString("token.accessToken"));
+        RefreshToken refreshToken = RefreshToken.from(jsonPath.getString("token.refreshToken"));
         return new TokenDto.FullResponse(accessToken, refreshToken);
     }
 }

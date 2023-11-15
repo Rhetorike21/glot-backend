@@ -60,13 +60,13 @@ public class AuthService {
      * @return 액세스 토큰, 리프레시 토큰
      */
     @Transactional
-    public TokenDto.FullResponse login(LoginDto requestDto) {
+    public LoginDto.Response login(LoginDto.Request requestDto) {
         User user = userRepository.findByAccountId(requestDto.getAccountId()).orElseThrow(UserNotFoundException::new);
         if (passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
             user.updateLoginLog(LocalDateTime.now());
             AccessToken accessToken = AccessToken.generatedFrom(user);
             RefreshToken refreshToken = RefreshToken.generatedFrom(user);
-            return new TokenDto.FullResponse(accessToken, refreshToken);
+            return new LoginDto.Response(user.hasSubscribed(), new TokenDto.FullResponse(accessToken, refreshToken));
         }
         throw new LoginFailedException();
     }
