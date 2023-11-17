@@ -60,7 +60,7 @@ public class CommonTest extends IntegrationTest {
         Payment payment = new Payment("1234-1234-1234-1234", "2028-07", "990311", "11");
         User user = Personal.builder().build();
         if (planRepository.findBasicByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
-            planRepository.save(new BasicPlan(null, "베이직 요금제 월간 결제", 100L, PlanPeriod.MONTH));
+            planRepository.save(new BasicPlan(null, "베이직 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
         }
         given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "failed", "", ""));
         Long userId = userRepository.save(user).getId();

@@ -6,8 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
+import rhetorike.glot.domain._4order.entity.Subscription;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface WritingBoardRepository extends JpaRepository<WritingBoard, Long> {
     @Modifying
@@ -16,4 +18,11 @@ public interface WritingBoardRepository extends JpaRepository<WritingBoard, Long
 
     @Query(" select w from WritingBoard w where w.user = :user order by w.sequence desc ")
     List<WritingBoard > findByUserOrderBySequenceDesc(@Param("user") User user);
+
+    @Query(" select w from WritingBoard w ")
+    Optional<WritingBoard> findByUserRecent(@Param("user") User user);
+
+    @Query(" select w from WritingBoard  w join User u on w.user = u join Subscription s on u.subscription = s where s = :subscription ")
+    List<WritingBoard> findAllByMembers(@Param("subscription") Subscription subscription);
+
 }

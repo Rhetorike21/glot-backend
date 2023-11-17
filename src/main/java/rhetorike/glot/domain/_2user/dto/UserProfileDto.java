@@ -29,6 +29,7 @@ public class UserProfileDto {
             this.mobile = user.getMobile();
             this.email = user.getEmail();
             this.accountId = user.getAccountId();
+            this.subscription = "없음";
             if (user.getSubscription() != null) {
                 this.subscription = user.getSubscription().getName();
             }

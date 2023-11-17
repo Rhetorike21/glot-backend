@@ -16,7 +16,9 @@ import rhetorike.glot.domain._4order.entity.*;
 import rhetorike.glot.domain._4order.repository.SubscriptionRepository;
 import rhetorike.glot.setup.ServiceTest;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +46,7 @@ class SubscriptionServiceTest {
     void subscribeBasic() {
         //given
         User user = Personal.builder().id(1L).build();
-        Plan plan = new BasicPlan(null, "test", 100, PlanPeriod.MONTH);
+        Plan plan = new BasicPlan(null, "test", 100, 100L,  PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 1);
         order.setCreatedTime(LocalDateTime.now());
 
@@ -58,7 +60,7 @@ class SubscriptionServiceTest {
     void subscribeEnterprise() {
         //given
         User user = Organization.builder().id(1L).build();
-        Plan plan = new EnterprisePlan(null, "test", 100, PlanPeriod.MONTH);
+        Plan plan = new EnterprisePlan(null, "test", 100, 100L, PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 5);
         order.setCreatedTime(LocalDateTime.now());
         given(userService.findOrCreateMember(any())).willReturn(new OrganizationMember());
@@ -134,5 +136,21 @@ class SubscriptionServiceTest {
         verify(subscriptionRepository).findByOrderer(manager);
         assertThat(member.getName()).isNull();
         assertThat(member.isActive()).isTrue();
+    }
+
+
+    @Test
+    @DisplayName("")
+    void test(){
+        //given
+        LocalDate today = LocalDate.of(2023, 11, 16);
+        LocalDate future = LocalDate.of(2023, 11, 23);
+
+        //when
+        Period period = Period.between(today, future);
+        int days = period.getDays();
+
+        //then
+        assertThat(days).isEqualTo(7);
     }
 }

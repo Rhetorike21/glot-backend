@@ -12,6 +12,7 @@ import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._3writing.dto.WritingBoardDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
+import rhetorike.glot.domain._4order.entity.Subscription;
 import rhetorike.glot.global.error.exception.AccessDeniedException;
 import rhetorike.glot.setup.ServiceTest;
 
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -243,5 +245,23 @@ class WritingBoardServiceTest {
         verify(writingBoardRepository).findById(targetId);
         verify(writingBoardRepository).findById(destinationId);
     }
+
+
+    @Test
+    @DisplayName("작문 기능을 이용한 적이 있는지 확인한다. ")
+    void hasUsedBoard(){
+        //given
+        Subscription subscription = new Subscription();
+        given(writingBoardRepository.findAllByMembers(subscription)).willReturn(List.of(new WritingBoard()));
+
+       //when
+        boolean result = writingBoardService.hasUsedBoard(subscription);
+
+        //then
+        verify(writingBoardRepository).findAllByMembers(subscription);
+        assertThat(result).isTrue();
+    }
+
+
 
 }

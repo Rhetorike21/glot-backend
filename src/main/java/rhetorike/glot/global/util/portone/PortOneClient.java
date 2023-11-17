@@ -70,7 +70,7 @@ public class PortOneClient {
         param.add("merchant_uid", String.valueOf(order.getId()));
         param.add("customer_uid", String.valueOf(order.getUser().getId()));
         param.add("name", order.getPlan().getName());
-        param.add("amount", String.valueOf(order.totalAmount()));
+        param.add("amount", String.valueOf(order.getTotalPrice()));
         param.add("card_number", payment.getCardNumber()); //테스트 시 카드 정보 상관 없음
         param.add("expiry", payment.getExpiry());
         param.add("birth", payment.getBirthDate());
@@ -137,7 +137,7 @@ public class PortOneClient {
         param.add("merchant_uid", order.getId());
         param.add("customer_uid", String.valueOf(order.getUser().getId()));
         param.add("name", order.getPlan().getName());
-        param.add("amount", String.valueOf(order.totalAmount()));
+        param.add("amount", String.valueOf(order.getTotalPrice()));
 
         WebClient wc = createWebClient();
         String result = wc.method(HttpMethod.POST)
@@ -157,9 +157,9 @@ public class PortOneClient {
         return (PortOneResponse.AgainPay) response;
     }
 
-    public PortOneResponse.Cancel cancel(String impUid, String amount) {
+    public PortOneResponse.Cancel cancel(String orderId, String amount) {
         LinkedMultiValueMap<String, String> param = new LinkedMultiValueMap<>();
-        param.add("imp_uid", impUid);
+        param.add("merchant_uid", orderId);
         param.add("amount", amount);
 
         WebClient wc = createWebClient();

@@ -25,7 +25,8 @@ public enum ErrorCode {
     ILLEGAL_ARGUMENT("0016", "잘못된 파라미터입니다.", HttpStatus.BAD_REQUEST),
     ACCESS_DENIED("0017", "접근 권한이 없습니다.", HttpStatus.BAD_REQUEST),
     ORDER_NOT_COMPLETED("0018", "주문이 완료되지 않았습니다.", HttpStatus.BAD_REQUEST),
-    PAYMENT_FAILED("0019", "결제에 실패했습니다. ", HttpStatus.BAD_REQUEST);
+    PAYMENT_FAILED("0019", "결제에 실패했습니다. ", HttpStatus.BAD_REQUEST),
+    REFUND_DENIED("0020", "환불이 불가능합니다.", HttpStatus.BAD_REQUEST);
 
     private final String code;
     private final String message;

@@ -8,6 +8,8 @@ import rhetorike.glot.domain._2user.entity.Organization;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._2user.service.UserService;
+import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
+import rhetorike.glot.domain._3writing.service.WritingBoardService;
 import rhetorike.glot.domain._4order.dto.SubscriptionDto;
 import rhetorike.glot.domain._4order.entity.*;
 import rhetorike.glot.domain._4order.repository.SubscriptionRepository;
@@ -16,6 +18,7 @@ import rhetorike.glot.global.error.exception.ResourceNotFoundException;
 import rhetorike.glot.global.error.exception.UserNotFoundException;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +29,7 @@ public class SubscriptionService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final WritingBoardService writingBoardService;
 
     public void makeSubscribe(Order order) {
         Subscription subscription = subscriptionRepository.save(Subscription.newSubscription(order));
@@ -63,7 +67,7 @@ public class SubscriptionService {
         }
     }
 
-    private void deleteSubscription(Subscription subscription) {
+    public void deleteSubscription(Subscription subscription) {
         freeMember(subscription);
         freeOrder(subscription.getOrder());
         subscriptionRepository.delete(subscription);
@@ -107,7 +111,8 @@ public class SubscriptionService {
             member.updateActive(requestDto.getActive());
         }
     }
-    private void validateOrganization(User manager)  {
+
+    private void validateOrganization(User manager) {
         if (manager instanceof Organization) {
             return;
         }

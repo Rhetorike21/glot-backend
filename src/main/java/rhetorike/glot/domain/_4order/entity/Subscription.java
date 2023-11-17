@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import rhetorike.glot.domain._2user.entity.User;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @Getter
@@ -59,5 +59,9 @@ public class Subscription {
 
     public void unsubscribe() {
         this.continued = false;
+    }
+
+    public int getRemainDays() {
+        return Period.between(LocalDate.now(), endDate).getDays();
     }
 }

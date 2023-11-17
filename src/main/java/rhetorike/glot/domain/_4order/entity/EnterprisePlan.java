@@ -20,7 +20,12 @@ import java.util.List;
 public class EnterprisePlan extends Plan{
 
     @Builder
-    public EnterprisePlan(Long id, String name, long price, PlanPeriod planPeriod) {
-        super(id, name, price, planPeriod);
+    public EnterprisePlan(Long id, String name, long price, long discountedPrice, PlanPeriod planPeriod) {
+        super(id, name, price, discountedPrice, planPeriod);
+    }
+
+    @Override
+    public int past(Period period) {
+        return period.getMonths();
     }
 }

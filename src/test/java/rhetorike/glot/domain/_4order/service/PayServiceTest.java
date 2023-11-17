@@ -34,7 +34,7 @@ class PayServiceTest {
     void pay(){
         //given
         User user = Personal.builder().id(1L).build();
-        Plan plan = new BasicPlan(null, "test", 100, PlanPeriod.MONTH);
+        Plan plan = new BasicPlan(null, "test", 100, 100L, PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 1);
         Payment payment = new Payment("", "", "", "");
         given(portOneClient.payAndSaveBillingKey(order, payment)).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));

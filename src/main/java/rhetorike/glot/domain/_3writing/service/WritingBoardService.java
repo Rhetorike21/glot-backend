@@ -9,6 +9,7 @@ import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._3writing.dto.WritingBoardDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
+import rhetorike.glot.domain._4order.entity.Subscription;
 import rhetorike.glot.global.error.exception.AccessDeniedException;
 import rhetorike.glot.global.error.exception.ResourceNotFoundException;
 import rhetorike.glot.global.error.exception.UserNotFoundException;
@@ -119,5 +120,10 @@ public class WritingBoardService {
             return writingBoard.getId();
         }
         throw new AccessDeniedException();
+    }
+
+    public boolean hasUsedBoard(Subscription subscription) {
+        List<WritingBoard> boards = writingBoardRepository.findAllByMembers(subscription);
+        return !boards.isEmpty();
     }
 }

@@ -25,7 +25,7 @@ class PlanRepositoryTest {
     @DisplayName("요금제 저장 및 조회")
     void saveAndFind(){
         //given
-        Plan plan = planRepository.save(new BasicPlan(null, "월 베이직 요금제", 1000L, PlanPeriod.MONTH));
+        Plan plan = planRepository.save(new BasicPlan(null, "월 베이직 요금제", 1000L,100L,  PlanPeriod.MONTH));
 
         //when
         Optional<Plan> found = planRepository.findById(plan.getId());
@@ -40,8 +40,8 @@ class PlanRepositoryTest {
     @DisplayName("타입으로 요금제 조회")
     void test(){
         //given
-        BasicPlan basicPlan = planRepository.save(new BasicPlan(null, null, 0, PlanPeriod.MONTH));
-        EnterprisePlan enterprisePlan = planRepository.save(new EnterprisePlan(null, null, 0, PlanPeriod.MONTH));
+        BasicPlan basicPlan = planRepository.save(new BasicPlan(null, null, 0,0,  PlanPeriod.MONTH));
+        EnterprisePlan enterprisePlan = planRepository.save(new EnterprisePlan(null, null, 0, 0, PlanPeriod.MONTH));
 
         //when
         Optional<BasicPlan> foundBasicPlan = planRepository.findBasicByPlanPeriod(PlanPeriod.MONTH);

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Objects;
 
 @Entity
@@ -20,6 +21,7 @@ public abstract class Plan {
     Long id;
     private String name;
     private long price;
+    private long discountedPrice;
     @Enumerated(EnumType.STRING)
     PlanPeriod planPeriod;
 
@@ -39,4 +41,6 @@ public abstract class Plan {
     public LocalDate endDateFrom(LocalDate time) {
         return time.plus(this.planPeriod.getPeriod()).minusDays(1);
     }
+
+    public abstract int past(Period period);
 }

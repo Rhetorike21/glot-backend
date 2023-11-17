@@ -65,7 +65,7 @@ public class SubscriptionApiTest extends IntegrationTest {
         //given
         String accessToken = getTokenFromNewUser().getAccessToken();
         if (planRepository.findBasicByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
-            planRepository.save(new BasicPlan(null, "베이직 요금제 월간 결제", 100L, PlanPeriod.MONTH));
+            planRepository.save(new BasicPlan(null, "베이직 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
         }
         given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
         String orderId = orderBasicPlan(accessToken, PlanPeriod.MONTH);
@@ -91,7 +91,7 @@ public class SubscriptionApiTest extends IntegrationTest {
         //given
         String accessToken = getTokenFromNewOrganization().getAccessToken();
         if (planRepository.findEnterpriseByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
-            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, PlanPeriod.MONTH));
+            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
         }
 
         given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
@@ -118,7 +118,7 @@ public class SubscriptionApiTest extends IntegrationTest {
         //given
         String accessToken = getTokenFromNewOrganization().getAccessToken();
         if (planRepository.findEnterpriseByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
-            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, PlanPeriod.MONTH));
+            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L,100L,  PlanPeriod.MONTH));
         }
 
         given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
@@ -151,7 +151,7 @@ public class SubscriptionApiTest extends IntegrationTest {
         //given
         String accessToken = getTokenFromNewOrganization().getAccessToken();
         if (planRepository.findEnterpriseByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
-            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, PlanPeriod.MONTH));
+            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L,100L,  PlanPeriod.MONTH));
         }
         given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
         String orderId = orderEnterprisePlan(accessToken, PlanPeriod.MONTH, 10);
@@ -203,7 +203,7 @@ public class SubscriptionApiTest extends IntegrationTest {
         //given
         String accessToken = getTokenFromNewOrganization().getAccessToken();
         if (planRepository.findEnterpriseByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
-            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, PlanPeriod.MONTH));
+            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
         }
         given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
         String orderId = orderEnterprisePlan(accessToken, PlanPeriod.MONTH, 10);
@@ -241,7 +241,7 @@ public class SubscriptionApiTest extends IntegrationTest {
         //given
         String accessToken = getTokenFromNewOrganization().getAccessToken();
         if (planRepository.findEnterpriseByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
-            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, PlanPeriod.MONTH));
+            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
         }
         given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
         String orderId = orderEnterprisePlan(accessToken, PlanPeriod.MONTH, 3);

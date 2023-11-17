@@ -12,12 +12,13 @@ import java.util.Arrays;
 @Getter
 @AllArgsConstructor
 public enum PlanPeriod {
-    DAY("perDay", Period.ofDays(1)),
-    MONTH("perMonth", Period.ofMonths(1)),
-    YEAR("perYear", Period.ofYears(1));
+    DAY("perDay", Period.ofDays(1), 1),
+    MONTH("perMonth", Period.ofMonths(1), 31),
+    YEAR("perYear", Period.ofYears(1), 12);
 
     public final String name;
     private final Period period;
+    private final int unit;
 
     public static PlanPeriod findByName(String name){
         return Arrays.stream(values())

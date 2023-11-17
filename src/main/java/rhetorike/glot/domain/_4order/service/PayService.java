@@ -41,4 +41,8 @@ public class PayService {
     public void changePayMethod(User user, Payment payment) {
         portOneClient.issueBillingKey(user.getId(), payment);
     }
+
+    public void refund(Order order, long amount) {
+        portOneClient.cancel(order.getId(), String.valueOf(amount));
+    }
 }

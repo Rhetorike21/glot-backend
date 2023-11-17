@@ -72,11 +72,20 @@ public class AuthApiTest extends IntegrationTest {
     @DisplayName("[로그인]")
     void login() {
         //given
-        LoginDto.Request requestDto = new LoginDto.Request(USER_1_ACCOUNT_ID, USER_1_PASSWORD_RAW);
+        LoginDto.Request loginRequestDto = new LoginDto.Request("asdf1234", "abcd1234");
+        final String CODE = "123564";
+        given(certCodeRepository.doesExists(CODE)).willReturn(true);
+        SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest("asdf1234", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, CODE, "한국고등학교");
+        RestAssured.given().log().all()
+                .body(requestDto)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post(AuthController.SIGN_UP_ORGANIZATION_URI)
+                .then().log().all()
+                .extract();
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .body(requestDto)
+                .body(loginRequestDto)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when().post(AuthController.LOGIN_URI)
                 .then().log().all()

@@ -60,4 +60,15 @@ public class OrderDto {
                     .build();
         }
     }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class RefundResponse{
+        String accountId;
+        int numOfMembers;
+        int remainDays;
+        long refundAmount;
+    }
 }

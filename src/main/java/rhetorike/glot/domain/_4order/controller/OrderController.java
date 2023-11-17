@@ -8,6 +8,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import rhetorike.glot.domain._4order.dto.OrderDto;
 import rhetorike.glot.domain._4order.service.OrderService;
+import rhetorike.glot.domain._4order.service.RefundService;
 import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.global.util.dto.SingleParamDto;
 
@@ -20,7 +21,9 @@ public class OrderController {
     public final static String MAKE_BASIC_ORDER_URI = "/api/orders/basic";
     public final static String MAKE_ENTERPRISE_ORDER_URI = "/api/orders/enterprise";
     public final static String GET_ORDER_URI = "/api/orders";
-    public final static String CHANGE_PAY_METHOD_URI = "/api/payments";
+    public final static String CHANGE_PAY_METHOD_URI = "/api/orders/payments";
+    public final static String REFUND_URI = "/api/orders/refund";
+    public final static String REFUND_INFO_URI = "/api/orders/refund";
     private final OrderService orderService;
 
     @PreAuthorize("hasAnyRole('PERSONAL', 'ORG')")
@@ -49,5 +52,19 @@ public class OrderController {
     public ResponseEntity<List<OrderDto.GetResponse>> changePayMethod(@RequestBody Payment payment, @AuthenticationPrincipal Long userId) {
         orderService.changePayMethod(payment, userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PreAuthorize("hasAnyRole('PERSONAL', 'ORG')")
+    @PostMapping(REFUND_URI)
+    public ResponseEntity<List<OrderDto.GetResponse>> refund(@AuthenticationPrincipal Long userId) {
+        orderService.refund(userId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PreAuthorize("hasAnyRole('PERSONAL', 'ORG')")
+    @GetMapping(REFUND_INFO_URI)
+    public ResponseEntity<OrderDto.RefundResponse> getRefundInfo(@AuthenticationPrincipal Long userId) {
+        OrderDto.RefundResponse responseBody = orderService.getRefundInfo(userId);
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 }

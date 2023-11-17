@@ -9,8 +9,11 @@ import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._3writing.dto.WritingBoardDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
+import rhetorike.glot.domain._4order.entity.*;
+import rhetorike.glot.domain._4order.repository.SubscriptionRepository;
 import rhetorike.glot.setup.RepositoryTest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +29,9 @@ class WritingBoardRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    SubscriptionRepository subscriptionRepository;
 
     @Test
     @DisplayName("WritingBoard를 저장하고, 조회한다.")
@@ -143,4 +149,27 @@ class WritingBoardRepositoryTest {
         assertThat(result).containsExactly(writingBoard4, writingBoard3, writingBoard2, writingBoard1);
         assertThat(result.stream().mapToLong(WritingBoard::getSequence).toArray()).containsExactly(4L, 3L, 2L, 1L);
     }
+
+
+    @Test
+    @DisplayName("구독 멤버가 작성한 작문 보드를 모두 조회한다.")
+    void findByMembers(){
+        //given
+        Subscription subscription = subscriptionRepository.save(Subscription.builder().build());
+        User member1 = userRepository.save(Personal.builder().subscription(subscription).build());
+        User member2 = userRepository.save(Personal.builder().subscription(subscription).build());
+        User member3 = userRepository.save(Personal.builder().subscription(subscription).build());
+        User member4 = userRepository.save(Personal.builder().subscription(subscription).build());
+        WritingBoard wb1 = writingBoardRepository.save(WritingBoard.builder().user(member1).build());
+        WritingBoard wb2 = writingBoardRepository.save(WritingBoard.builder().user(member2).build());
+        WritingBoard wb3 = writingBoardRepository.save(WritingBoard.builder().user(member3).build());
+
+        //when
+        List<WritingBoard> writingBoards = writingBoardRepository.findAllByMembers(subscription);
+
+        //then
+        assertThat(writingBoards).containsExactlyInAnyOrder(wb1, wb2, wb3);
+    }
+
+
 }

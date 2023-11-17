@@ -11,10 +11,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import rhetorike.glot.domain._1auth.controller.CertificationController;
 import rhetorike.glot.domain._1auth.controller.FindController;
 import rhetorike.glot.domain._1auth.dto.AccountIdFindDto;
 import rhetorike.glot.domain._1auth.dto.CertificationDto;
+import rhetorike.glot.domain._1auth.dto.LoginDto;
+import rhetorike.glot.domain._1auth.dto.SignUpDto;
 import rhetorike.glot.domain._1auth.service.CertificationService;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.setup.IntegrationTest;
@@ -36,7 +39,16 @@ public class FindApiTest extends IntegrationTest {
     @DisplayName("[이메일로 아이디 찾기]")
     void findAccountIdByEmail() {
         //given
-        AccountIdFindDto.EmailRequest requestDto = new AccountIdFindDto.EmailRequest(USER_1_NAME, USER_1_EMAIL);
+        final String CODE = "123564";
+        given(certCodeRepository.doesExists(CODE)).willReturn(true);
+        RestAssured.given().log().all()
+                .body(new SignUpDto.OrgRequest("asdf1234", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, CODE, "한국고등학교"))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post(AuthController.SIGN_UP_ORGANIZATION_URI)
+                .then().log().all()
+                .extract();
+
+        AccountIdFindDto.EmailRequest requestDto = new AccountIdFindDto.EmailRequest("김철수", "test@personal.com");
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -55,9 +67,16 @@ public class FindApiTest extends IntegrationTest {
     void findAccountIdByMobile() {
         //given
         final String CODE = "123456";
-        CertificationDto.CodeRequest requestBody = new CertificationDto.CodeRequest(USER_1_MOBILE);
-        AccountIdFindDto.MobileRequest requestDto = new AccountIdFindDto.MobileRequest(USER_1_NAME, USER_1_MOBILE, CODE);
+        CertificationDto.CodeRequest requestBody = new CertificationDto.CodeRequest("010-5678-1234");
+        AccountIdFindDto.MobileRequest requestDto = new AccountIdFindDto.MobileRequest("김철수", "010-5678-1234", CODE);
         given(certificationService.isValidNumber(CODE)).willReturn(true);
+        given(certCodeRepository.doesExists(CODE)).willReturn(true);
+        RestAssured.given().log().all()
+                .body(new SignUpDto.OrgRequest("asdf1234", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, CODE, "한국고등학교"))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post(AuthController.SIGN_UP_ORGANIZATION_URI)
+                .then().log().all()
+                .extract();
 
         /* 인증코드 전송 */
         RestAssured
@@ -87,7 +106,7 @@ public class FindApiTest extends IntegrationTest {
         JsonPath jsonPath = response.jsonPath();
         assertAll(
                 () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
-                () -> assertThat(jsonPath.getList("accountIds")).containsExactly(USER_1_ACCOUNT_ID)
+                () -> assertThat(jsonPath.getList("accountIds")).containsExactly("asdf1234")
         );
     }
 }

@@ -34,12 +34,8 @@ public class Order extends BaseTimeEntity {
     @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
     private Subscription subscription;
 
-    public long totalAmount() {
-        return plan.getPrice() * quantity;
-    }
-
     public static Order newOrder(User user, Plan plan, int quantity) {
-        long supplyPrice = Math.round(plan.getPrice() * quantity);
+        long supplyPrice = Math.round(plan.getDiscountedPrice() * quantity);
         long vat = Math.round(supplyPrice * 0.1);
         return Order.builder()
                 .id(UUID.randomUUID().toString())
@@ -79,5 +75,11 @@ public class Order extends BaseTimeEntity {
 
     public void setSubscription(Subscription subscription) {
         this.subscription = subscription;
+    }
+
+    public long calcTotalPriceWithoutDiscount(){
+        long supplyPrice = Math.round(plan.getPrice() * quantity);
+        long vat = Math.round(supplyPrice * 0.1);
+        return supplyPrice + vat;
     }
 }

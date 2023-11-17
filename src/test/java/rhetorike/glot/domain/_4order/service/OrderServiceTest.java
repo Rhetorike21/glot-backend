@@ -13,11 +13,13 @@ import rhetorike.glot.domain._4order.dto.OrderDto;
 import rhetorike.glot.domain._4order.entity.*;
 import rhetorike.glot.domain._4order.repository.PlanRepository;
 import rhetorike.glot.domain._4order.repository.OrderRepository;
+import rhetorike.glot.domain._4order.repository.SubscriptionRepository;
 import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.global.error.exception.AccessDeniedException;
 import rhetorike.glot.global.util.portone.PortOneResponse;
 import rhetorike.glot.setup.ServiceTest;
 
+import java.sql.Ref;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,6 +43,10 @@ class OrderServiceTest {
     PayService payService;
     @Mock
     SubscriptionService subscriptionService;
+    @Mock
+    RefundService refundService;
+    @Mock
+    SubscriptionRepository subscriptionRepository;
 
     @Test
     @DisplayName("[베이직 요금제 주문]")
@@ -136,6 +142,49 @@ class OrderServiceTest {
 
         //then
         verify(userRepository).findById(userId);
+    }
+
+    @Test
+    @DisplayName("[환불]")
+    void refund() {
+        //given
+        Long userId = 1L;
+        User user = Personal.builder().build();
+        Subscription subscription = Subscription.builder().order(new Order()).build();
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(subscriptionRepository.findByOrderer(user)).willReturn(Optional.of(subscription));
+        given(refundService.calcRefundAmount(subscription)).willReturn(100L);
+
+        //when
+        orderService.refund(userId);
+
+        //then
+        verify(userRepository).findById(userId);
+        verify(subscriptionRepository).findByOrderer(user);
+        verify(refundService).calcRefundAmount(subscription);
+    }
+
+    @Test
+    @DisplayName("[환불 정보 조회]")
+    void getRefundInfo() {
+        //given
+        Long userId = 1L;
+        User user = Personal.builder().build();
+        Plan plan = BasicPlan.builder().price(30000L).discountedPrice(18000L).expiryPeriod(PlanPeriod.MONTH).build();
+        Order order = Order.newOrder(user, plan, 1);
+        order.setCreatedTime(LocalDateTime.now());
+        Subscription subscription = Subscription.newSubscription(order);
+        user.setSubscription(subscription);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(subscriptionRepository.findByOrderer(user)).willReturn(Optional.of(subscription));
+        given(refundService.calcRefundAmount(subscription)).willReturn(100L);
+
+        //when
+        orderService.getRefundInfo(userId);
+
+        //then
+        verify(userRepository).findById(userId);
+        verify(refundService).calcRefundAmount(subscription);
     }
 
 }

@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import rhetorike.glot.domain._4order.dto.OrderDto;
 import rhetorike.glot.domain._4order.entity.PlanPeriod;
 import rhetorike.glot.domain._4order.service.OrderService;
+import rhetorike.glot.domain._4order.service.RefundService;
 import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.global.constant.Header;
 import rhetorike.glot.global.security.JwtAuthenticationFilter;
@@ -54,7 +55,6 @@ class OrderControllerTest {
 
     @MockBean
     OrderService orderService;
-
 
 
     @Test
@@ -180,6 +180,51 @@ class OrderControllerTest {
                                 field("expiry").description("카드 유효기간(YYYY-MM)"),
                                 field("birthDate").description("생년월일(YYMMDD)"),
                                 field("password").description("비밀번호 앞 두자리(XX)")
+                        )));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("[환불]")
+    void refund() throws Exception {
+        //given
+
+        //when
+        ResultActions actions = mockMvc.perform(post(OrderController.REFUND_URI)
+                .header(Header.AUTH, "access-token")
+                .with(csrf()));
+
+        //then
+        actions.andExpect(status().isNoContent())
+                .andDo(docs("order-refund",
+                        requestHeaders(
+                                HeaderElement.header(Header.AUTH).description("액세스 토큰")
+                        )));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("[환불 정보 조회]")
+    void getRefundInfo() throws Exception {
+        //given
+        given(orderService.getRefundInfo(any())).willReturn(new OrderDto.RefundResponse("abcd1234", 25, 13, 9205));
+
+        //when
+        ResultActions actions = mockMvc.perform(get(OrderController.REFUND_INFO_URI)
+                .header(Header.AUTH, "access-token")
+                .with(csrf()));
+
+        //then
+        actions.andExpect(status().isOk())
+                .andDo(docs("order-refund-info",
+                        requestHeaders(
+                                HeaderElement.header(Header.AUTH).description("액세스 토큰")
+                        ),
+                        responseFields(
+                                field("accountId").description("내 계정"),
+                                field("numOfMembers").description("구매 계정 수").type(JsonFieldType.NUMBER),
+                                field("remainDays").description("잔여 구독일 수").type(JsonFieldType.NUMBER),
+                                field("refundAmount").description("환불 예정 금액").type(JsonFieldType.NUMBER)
                         )));
     }
 }
