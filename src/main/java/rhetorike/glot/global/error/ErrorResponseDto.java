@@ -22,6 +22,6 @@ public class ErrorResponseDto {
         this.status = errorCode.getHttpStatus().value();
         this.code = errorCode.getCode();
         this.name = errorCode.name();
-        this.message = errorCode.getMessage() + " " + detailMessage;
+        this.message = errorCode.getMessage() + " [" + detailMessage + "] ";
     }
 }

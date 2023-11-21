@@ -7,6 +7,7 @@ import rhetorike.glot.domain._1auth.entity.MobileCertCode;
 import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
 import rhetorike.glot.domain._1auth.service.codesender.emailsender.EmailCodeSender;
 import rhetorike.glot.domain._1auth.service.codesender.smssender.MobileCodeSender;
+import rhetorike.glot.global.error.exception.CertificationFailedException;
 import rhetorike.glot.global.util.RandomTextGenerator;
 
 @Service
@@ -57,5 +58,13 @@ public class CertificationService {
      */
     public boolean isValidNumber(String number) {
         return certCodeRepository.doesExists(number);
+    }
+
+    public void deleteCodeIfValid(String codeNumber) {
+        if (certCodeRepository.doesExists(codeNumber)) {
+            certCodeRepository.delete(codeNumber);
+            return;
+        }
+        throw new CertificationFailedException();
     }
 }

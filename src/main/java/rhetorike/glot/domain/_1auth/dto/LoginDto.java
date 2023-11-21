@@ -1,10 +1,10 @@
 package rhetorike.glot.domain._1auth.dto;
 
 import jakarta.servlet.annotation.HandlesTypes;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import rhetorike.glot.domain._4order.service.SubscriptionService;
+
+import static rhetorike.glot.domain._4order.service.SubscriptionService.*;
 
 
 public class LoginDto {
@@ -21,8 +21,9 @@ public class LoginDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
+    @Builder
     public static class Response{
-        private boolean subscribed;
+        private SubStatus subStatus;
         private TokenDto.FullResponse token;
     }
 

@@ -21,11 +21,13 @@ import rhetorike.glot.domain._1auth.service.AuthService;
 import rhetorike.glot.domain._1auth.service.ReissueService;
 import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
+import rhetorike.glot.domain._4order.service.SubscriptionService;
 import rhetorike.glot.global.constant.Header;
 import rhetorike.glot.global.security.JwtAuthenticationFilter;
 import rhetorike.glot.global.security.SecurityConfig;
 import rhetorike.glot.global.security.jwt.AccessToken;
 import rhetorike.glot.global.security.jwt.RefreshToken;
+import rhetorike.glot.global.util.dto.SingleParamDto;
 
 import static hansol.restdocsdsl.docs.RestDocsAdapter.docs;
 import static hansol.restdocsdsl.docs.RestDocsHeader.requestHeaders;
@@ -37,6 +39,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static rhetorike.glot.domain._4order.service.SubscriptionService.*;
 
 @AutoConfigureRestDocs
 @WebMvcTest(value = AuthController.class, excludeFilters = {
@@ -119,7 +122,7 @@ class AuthControllerTest {
     void login() throws Exception {
         //given
         LoginDto.Request requestDto = new LoginDto.Request("accountId", "password");
-        LoginDto.Response responseDto = new LoginDto.Response(true, new TokenDto.FullResponse(AccessToken.from("access-token"), RefreshToken.from("refresh-token")));
+        LoginDto.Response responseDto = new LoginDto.Response(SubStatus.SUBSCRIBED, new TokenDto.FullResponse(AccessToken.from("access-token"), RefreshToken.from("refresh-token")));
         given(authService.login(requestDto)).willReturn(responseDto);
 
         //when
@@ -136,7 +139,7 @@ class AuthControllerTest {
                                 field("password").description("비밀번호")
                         ),
                         responseFields(
-                                field("subscribed").type(JsonFieldType.BOOLEAN).description("플랜 구독 여부"),
+                                field("subStatus").description("구독 상태 (FREE | PAUSED | SUBSCRIBED)"),
                                 field("token.accessToken").description("액세스 토큰"),
                                 field("token.refreshToken").description("리프레시 토큰")
                         )));
@@ -213,6 +216,31 @@ class AuthControllerTest {
                         ),
                         responseFields(
                                 field("accessToken").description("갱신된 액세스 토큰")
+                        )));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("[아이디 중복 확인]")
+    void confirmAccountId() throws Exception {
+        //given
+        SingleParamDto<String> requestDto = new SingleParamDto<>("accountId");
+        given(authService.confirmAccountId(requestDto)).willReturn(new SingleParamDto<>(true));
+
+        //when
+        ResultActions actions = mockMvc.perform(post(AuthController.CONFIRM_ACCOUNT_ID_URI)
+                .with(csrf())
+                .content(objectMapper.writeValueAsString(requestDto))
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //then
+        actions.andExpect(status().isOk())
+                .andDo(docs("auth-confirm-account-id",
+                        requestFields(
+                                field("data").description("계정 아이디")
+                        ),
+                        responseFields(
+                                field("data").description("사용 가능 여부").type(JsonFieldType.BOOLEAN)
                         )));
     }
 

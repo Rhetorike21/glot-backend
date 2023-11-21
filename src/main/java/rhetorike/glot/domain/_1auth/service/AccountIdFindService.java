@@ -45,12 +45,10 @@ public class AccountIdFindService {
      * @return 사용자의 아이디 목록
      */
     public AccountIdFindDto.MobileResponse findAccountIdByMobile(AccountIdFindDto.MobileRequest requestDto) {
+        certificationService.deleteCodeIfValid(requestDto.getCode());
         List<User> users = findUserByMobileAndName(requestDto);
-        if (certificationService.isValidNumber(requestDto.getCode())) {
-            List<String> accountIds = getAllAccountId(users);
-            return new AccountIdFindDto.MobileResponse(accountIds);
-        }
-        throw new CertificationFailedException();
+        List<String> accountIds = getAllAccountId(users);
+        return new AccountIdFindDto.MobileResponse(accountIds);
     }
 
     @NotNull
@@ -63,7 +61,7 @@ public class AccountIdFindService {
     }
 
     @NotNull
-    private static List<String> getAllAccountId(List<User> users) {
+    private List<String> getAllAccountId(List<User> users) {
         return users.stream()
                 .map(User::getAccountId)
                 .toList();

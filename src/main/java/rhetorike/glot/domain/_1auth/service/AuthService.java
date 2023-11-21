@@ -10,14 +10,14 @@ import rhetorike.glot.domain._1auth.dto.SignUpDto;
 import rhetorike.glot.domain._1auth.dto.TokenDto;
 import rhetorike.glot.domain._1auth.repository.blockedtoken.BlockedTokenRepository;
 import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
+import rhetorike.glot.domain._2user.entity.OrganizationMember;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
-import rhetorike.glot.global.error.exception.CertificationFailedException;
-import rhetorike.glot.global.error.exception.LoginFailedException;
-import rhetorike.glot.global.error.exception.UserExistException;
-import rhetorike.glot.global.error.exception.UserNotFoundException;
+import rhetorike.glot.domain._4order.service.SubscriptionService;
+import rhetorike.glot.global.error.exception.*;
 import rhetorike.glot.global.security.jwt.AccessToken;
 import rhetorike.glot.global.security.jwt.RefreshToken;
+import rhetorike.glot.global.util.dto.SingleParamDto;
 
 import java.time.LocalDateTime;
 
@@ -29,6 +29,7 @@ public class AuthService {
     private final CertCodeRepository certCodeRepository;
     private final PasswordEncoder passwordEncoder;
     private final BlockedTokenRepository blockedTokenRepository;
+    private final SubscriptionService subscriptionService;
 
     /**
      * 서비스에 회원가입합니다.
@@ -45,6 +46,7 @@ public class AuthService {
         User user = requestDto.toUser(encodedPassword);
         userRepository.save(user);
     }
+
     private void validateCode(String codeNumber) {
         if (certCodeRepository.doesExists(codeNumber)) {
             certCodeRepository.delete(codeNumber);
@@ -62,13 +64,19 @@ public class AuthService {
     @Transactional
     public LoginDto.Response login(LoginDto.Request requestDto) {
         User user = userRepository.findByAccountId(requestDto.getAccountId()).orElseThrow(UserNotFoundException::new);
-        if (passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-            user.updateLoginLog(LocalDateTime.now());
-            AccessToken accessToken = AccessToken.generatedFrom(user);
-            RefreshToken refreshToken = RefreshToken.generatedFrom(user);
-            return new LoginDto.Response(user.hasSubscribed(), new TokenDto.FullResponse(accessToken, refreshToken));
+        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
+            throw new WrongPasswordException();
         }
-        throw new LoginFailedException();
+        if (user instanceof OrganizationMember && user.getSubscription() == null) {
+            throw new SubscriptionRequiredException();
+        }
+        user.updateLoginLog(LocalDateTime.now());
+        AccessToken accessToken = AccessToken.generatedFrom(user);
+        RefreshToken refreshToken = RefreshToken.generatedFrom(user);
+        return LoginDto.Response.builder()
+                .subStatus(subscriptionService.getSubStatus(user))
+                .token(new TokenDto.FullResponse(accessToken, refreshToken))
+                .build();
     }
 
 
@@ -101,5 +109,9 @@ public class AuthService {
     private void blockTokens(AccessToken accessToken, RefreshToken refreshToken) {
         blockedTokenRepository.save(accessToken);
         blockedTokenRepository.save(refreshToken);
+    }
+
+    public SingleParamDto<Boolean> confirmAccountId(SingleParamDto<String> requestDto) {
+        return new SingleParamDto<>(userRepository.findByAccountId(requestDto.getData()).isEmpty());
     }
 }

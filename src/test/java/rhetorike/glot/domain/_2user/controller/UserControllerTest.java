@@ -56,7 +56,7 @@ class UserControllerTest {
     void getUserProfile() throws Exception {
         //given
         String accessToken = "access-token";
-        UserProfileDto.GetRequest userInfo = new UserProfileDto.GetRequest("개인", "홍길동", "054-1234-5678", "010-1234-5678", "hong@naver.com", "hello123", "베이직 요금제", null);
+        UserProfileDto.GetRequest userInfo = new UserProfileDto.GetRequest("개인", "홍길동", "054-1234-5678", "010-1234-5678", "hong@naver.com", "hello123", "베이직 요금제", null, "kr");
         given(userService.getUserProfile(any())).willReturn(userInfo);
 
         //when
@@ -78,7 +78,8 @@ class UserControllerTest {
                                 field("email").description("이메일"),
                                 field("accountId").description("아이디"),
                                 field("subscription").description("이용 중인 플랜").optional(),
-                                field("orgName").description("기관명").optional()
+                                field("orgName").description("기관명").optional(),
+                                field("language").description("언어").optional()
                         )));
     }
 
@@ -88,7 +89,7 @@ class UserControllerTest {
     void updateUserProfile() throws Exception {
         //given
         String accessToken = "access-token";
-        UserProfileDto.UpdateParam requestBody = new UserProfileDto.UpdateParam("홍길동", "01012345678", null, "aaa1123");
+        UserProfileDto.UpdateParam requestBody = new UserProfileDto.UpdateParam("홍길동", "01012345678", null, "aaa1123", null);
 
         //when
         ResultActions actions = mockMvc.perform(patch(UserController.USER_PROFILE_UPDATE_URI)
@@ -107,7 +108,8 @@ class UserControllerTest {
                                 field("name").description("이름").optional(),
                                 field("mobile").description("휴대 전화 번호").optional(),
                                 field("email").description("이메일").optional(),
-                                field("password").description("비밀번호").optional()
+                                field("password").description("비밀번호").optional(),
+                                field("language").description("언어 (kr)").optional()
                         )));
     }
 }

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.global.config.jpa.BaseTimeEntity;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
@@ -33,6 +34,7 @@ public class Order extends BaseTimeEntity {
     private OrderStatus status;
     @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
     private Subscription subscription;
+    private LocalDate firstOrderedDate;
 
     public static Order newOrder(User user, Plan plan, int quantity) {
         long supplyPrice = Math.round(plan.getDiscountedPrice() * quantity);
@@ -46,6 +48,7 @@ public class Order extends BaseTimeEntity {
                 .supplyPrice(supplyPrice)
                 .vat(vat)
                 .status(OrderStatus.READY)
+                .firstOrderedDate(LocalDate.now())
                 .build();
     }
 
@@ -61,6 +64,7 @@ public class Order extends BaseTimeEntity {
                 .vat(vat)
                 .totalPrice(supplyPrice + vat)
                 .status(OrderStatus.READY)
+                .firstOrderedDate(order.getFirstOrderedDate())
                 .build();
     }
 

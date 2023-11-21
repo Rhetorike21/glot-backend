@@ -16,6 +16,7 @@ import rhetorike.glot.domain._1auth.dto.TokenDto;
 import rhetorike.glot.domain._1auth.service.AuthService;
 import rhetorike.glot.domain._1auth.service.ReissueService;
 import rhetorike.glot.global.constant.Header;
+import rhetorike.glot.global.util.dto.SingleParamDto;
 
 @Slf4j
 @RestController
@@ -27,6 +28,7 @@ public class AuthController {
     public final static String LOGOUT_URI = "/api/auth/logout";
     public final static String WITHDRAW_URI = "/api/auth/withdraw";
     public final static String REISSUE_URI = "/api/auth/reissue";
+    public final static String CONFIRM_ACCOUNT_ID_URI = "/api/auth/accountId";
     private final AuthService authService;
     private final ReissueService reissueService;
 
@@ -69,6 +71,13 @@ public class AuthController {
     @PostMapping(REISSUE_URI)
     public ResponseEntity<TokenDto.AccessResponse> reissue(@RequestHeader(Header.AUTH) String accessToken, @RequestHeader(Header.REFRESH) String refreshToken) {
         TokenDto.AccessResponse responseBody = reissueService.reissue(accessToken, refreshToken);
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
+    }
+
+    @PermitAll
+    @PostMapping(CONFIRM_ACCOUNT_ID_URI)
+    public ResponseEntity<SingleParamDto<Boolean>> confirmAccountId(@RequestBody SingleParamDto<String> requestDto) {
+        SingleParamDto<Boolean> responseBody = authService.confirmAccountId(requestDto);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 }

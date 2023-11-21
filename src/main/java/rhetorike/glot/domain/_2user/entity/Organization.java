@@ -23,8 +23,8 @@ public class Organization extends User {
     private String organizationName;
 
     @Builder
-    public Organization(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles, String organizationName, List<WritingBoard> writingBoards, Subscription subscription, boolean active, LocalDateTime lastLoggedInAt) {
-        super(id, accountId, password, name, phone, mobile, email, marketingAgreement, roles, writingBoards, subscription, active, lastLoggedInAt);
+    public Organization(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles, String organizationName, List<WritingBoard> writingBoards, Subscription subscription, boolean active, LocalDateTime lastLoggedInAt, Language language) {
+        super(id, accountId, password, name, phone, mobile, email, marketingAgreement, roles, writingBoards, subscription, active, lastLoggedInAt, language);
         this.organizationName = organizationName;
     }
 
@@ -51,6 +51,9 @@ public class Organization extends User {
         }
         if (requestDto.getPassword() != null) {
             this.password = passwordEncoder.encode(requestDto.getPassword());
+        }
+        if (requestDto.getLanguage() != null){
+            this.language = Language.findByName(requestDto.getLanguage());
         }
     }
 }

@@ -40,7 +40,7 @@ public class SubscriptionDto {
         private Boolean active;
 
         public UserProfileDto.UpdateParam toUpdateParam(){
-            return new UserProfileDto.UpdateParam(name, null, null, password);
+            return new UserProfileDto.UpdateParam(name, null, null, password, null);
         }
     }
 }

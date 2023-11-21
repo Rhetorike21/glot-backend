@@ -64,7 +64,7 @@ public class UserApiTest extends IntegrationTest {
     void updatePersonalProfile() {
         //given
         String ACCESS_TOKEN = getTokenFromNewUser().getAccessToken();
-        UserProfileDto.UpdateParam requestBody = new UserProfileDto.UpdateParam("홍길동", "01014828574", null, "sdjflj1234");
+        UserProfileDto.UpdateParam requestBody = new UserProfileDto.UpdateParam("홍길동", "01014828574", null, "sdjflj1234", null);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -90,7 +90,7 @@ public class UserApiTest extends IntegrationTest {
     void updateOrganizationProfile() {
         //given
         String ACCESS_TOKEN = getTokenFromNewOrganization().getAccessToken();
-        UserProfileDto.UpdateParam requestBody = new UserProfileDto.UpdateParam("김우주", "01023482729", null, "sdjflj1234");
+        UserProfileDto.UpdateParam requestBody = new UserProfileDto.UpdateParam("김우주", "01023482729", null, "sdjflj1234", null);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -109,13 +109,6 @@ public class UserApiTest extends IntegrationTest {
                 () -> assertThat(users).hasSize(1),
                 () -> assertThat(passwordEncoder.matches("sdjflj1234", users.get(0).getPassword())).isTrue()
         );
-    }
-
-
-    @Test
-    @DisplayName("[사용자 프로필 수정] - 기관 직원 계정")
-    void updateOrganizationMemberProfile() {
-
     }
 
     private String orderEnterprisePlan(String accessToken, PlanPeriod planPeriod, int quantity) {

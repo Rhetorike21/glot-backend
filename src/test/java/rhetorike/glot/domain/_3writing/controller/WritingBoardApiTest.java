@@ -9,12 +9,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import rhetorike.glot.domain._3writing.controller.WritingBoardController;
 import rhetorike.glot.domain._3writing.dto.WritingBoardDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
+import rhetorike.glot.domain._4order.controller.OrderController;
+import rhetorike.glot.domain._4order.dto.OrderDto;
+import rhetorike.glot.domain._4order.entity.BasicPlan;
+import rhetorike.glot.domain._4order.entity.EnterprisePlan;
+import rhetorike.glot.domain._4order.entity.PlanPeriod;
+import rhetorike.glot.domain._4order.entity.Subscription;
+import rhetorike.glot.domain._4order.repository.PlanRepository;
+import rhetorike.glot.domain._4order.service.PayService;
+import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.global.constant.Header;
+import rhetorike.glot.global.util.portone.PortOneResponse;
 import rhetorike.glot.setup.IntegrationTest;
 
 import java.util.ArrayList;
@@ -23,12 +34,18 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 @Slf4j
 public class WritingBoardApiTest extends IntegrationTest {
 
     @Autowired
     WritingBoardRepository writingBoardRepository;
+    @Autowired
+    PlanRepository planRepository;
+    @MockBean
+    PayService payService;
 
     @Test
     @DisplayName("[작문 보드 저장] - 비회원: 신규 보드 저장 불가")
@@ -55,11 +72,12 @@ public class WritingBoardApiTest extends IntegrationTest {
     void createBoardByUser() {
         //given
         WritingBoardDto.SaveRequest requestDto = new WritingBoardDto.SaveRequest(null, "제목", "내용");
-        final String ACCESS_TOKEN = getTokenFromNewUser().getAccessToken();
+        final String accessToken = getTokenFromNewUser().getAccessToken();
+        subscribe(accessToken);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header(Header.AUTH, ACCESS_TOKEN)
+                .header(Header.AUTH, accessToken)
                 .body(requestDto)
                 .contentType(ContentType.JSON)
                 .when().post(WritingBoardController.SAVE_BOARD_URI)
@@ -77,7 +95,9 @@ public class WritingBoardApiTest extends IntegrationTest {
     void updateBoard() {
         //given
         final String accessToken = getTokenFromNewUser().getAccessToken();
+        subscribe(accessToken);
         long writingBoardId = create(accessToken, "작문 보드 수정 테스트");
+
         String content = "내용 추가";
         WritingBoardDto.SaveRequest requestDto = new WritingBoardDto.SaveRequest(writingBoardId, null, content);
 
@@ -104,11 +124,12 @@ public class WritingBoardApiTest extends IntegrationTest {
     @DisplayName("[작문 보드 전체 조회] - 회원")
     void getAllBoards() {
         //given
-        final String ACCESS_TOKEN = getTokenFromNewUser().getAccessToken();
+        final String accessToken = getTokenFromNewUser().getAccessToken();
+        subscribe(accessToken);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header(Header.AUTH, ACCESS_TOKEN)
+                .header(Header.AUTH, accessToken)
                 .when().get(WritingBoardController.GET_ALL_WRITING_BOARD_URI)
                 .then().log().all()
                 .extract();
@@ -123,14 +144,15 @@ public class WritingBoardApiTest extends IntegrationTest {
     @DisplayName("[작문 보드 전체 조회] - 회원, 3개 생성 후 조회")
     void getAllBoardsThree() {
         //given
-        final String ACCESS_TOKEN = getTokenFromNewUser().getAccessToken();
-        create(ACCESS_TOKEN, "제목1");
-        create(ACCESS_TOKEN, "제목2");
-        create(ACCESS_TOKEN, "제목3");
+        final String accessToken = getTokenFromNewUser().getAccessToken();
+        subscribe(accessToken);
+        create(accessToken, "제목1");
+        create(accessToken, "제목2");
+        create(accessToken, "제목3");
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .header(Header.AUTH, ACCESS_TOKEN)
+                .header(Header.AUTH, accessToken)
                 .when().get(WritingBoardController.GET_ALL_WRITING_BOARD_URI)
                 .then().log().all()
                 .extract();
@@ -152,6 +174,7 @@ public class WritingBoardApiTest extends IntegrationTest {
         //given
         final String accessToken = getTokenFromNewUser().getAccessToken();
         final String title = "부자되는 법";
+        subscribe(accessToken);
         WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest(title);
         long writingId = create(accessToken, title);
 
@@ -178,6 +201,8 @@ public class WritingBoardApiTest extends IntegrationTest {
     void deleteBoard() {
         //given
         final String accessToken = getTokenFromNewUser().getAccessToken();
+        subscribe(accessToken);
+
         final String title = "부자되는 법";
         WritingBoardDto.CreationRequest requestDto = new WritingBoardDto.CreationRequest(title);
         long writingId = create(accessToken, title);
@@ -202,6 +227,8 @@ public class WritingBoardApiTest extends IntegrationTest {
     void moveBoard() {
         //given
         final String accessToken = getTokenFromNewUser().getAccessToken();
+        subscribe(accessToken);
+
         final String title = "작문 보드 이동 테스트";
         List<Long> idList = new ArrayList<>();
         for (int i = 1; i <= 5; i++) {
@@ -242,5 +269,20 @@ public class WritingBoardApiTest extends IntegrationTest {
                 .extract();
         JsonPath jsonPath = response.jsonPath();
         return jsonPath.getLong("data");
+    }
+
+    private void subscribe(String accessToken){
+        if (planRepository.findBasicByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
+            planRepository.save(new BasicPlan(null, "베이직 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
+        }
+        given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
+        OrderDto.BasicOrderRequest subsDto = new OrderDto.BasicOrderRequest(PlanPeriod.MONTH.getName(), new Payment("cardNumber", "expiry", "birth", "password"));
+        RestAssured.given().log().all()
+                .body(subsDto)
+                .header(Header.AUTH, accessToken)
+                .contentType(ContentType.JSON)
+                .when().post(OrderController.MAKE_BASIC_ORDER_URI)
+                .then().log().all()
+                .extract().jsonPath().get("data");
     }
 }

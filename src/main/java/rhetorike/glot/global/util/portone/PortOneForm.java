@@ -53,4 +53,10 @@ public abstract class PortOneForm {
     public static class IssueBillingKey extends PortOneForm {
         private PortOneResponse.IssueBillingKey response;
     }
+
+    @ToString
+    @Getter
+    public static class PayMethod extends PortOneForm{
+        PortOneResponse.PayMethod response;
+    }
 }

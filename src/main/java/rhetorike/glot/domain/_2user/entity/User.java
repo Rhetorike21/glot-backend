@@ -45,6 +45,8 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
 
     @Column(length = 50)
     protected String email;
+    @Enumerated(value = EnumType.STRING)
+    protected Language language;
 
     protected boolean marketingAgreement;
     protected boolean active;
@@ -60,7 +62,7 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
     @JoinColumn
     protected Subscription subscription;
 
-    public User(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles, List<WritingBoard> writingBoards, Subscription subscription, boolean active, LocalDateTime lastLoggedInAt) {
+    public User(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles, List<WritingBoard> writingBoards, Subscription subscription, boolean active, LocalDateTime lastLoggedInAt, Language language) {
         this.id = id;
         this.accountId = accountId;
         this.password = password;
@@ -74,6 +76,7 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
         this.subscription = subscription;
         this.active = active;
         this.lastLoggedInAt = lastLoggedInAt;
+        this.language = language;
         if (writingBoards != null) {
             this.writingBoards.addAll(writingBoards);
         }
@@ -168,8 +171,4 @@ public abstract class User extends BaseTimeEntity implements UserDetails {
     public abstract String generateEnterpriseName();
 
     public abstract void update(UserProfileDto.UpdateParam requestDto, PasswordEncoder passwordEncoder);
-
-    public boolean hasSubscribed() {
-        return this.subscription != null;
-    }
 }

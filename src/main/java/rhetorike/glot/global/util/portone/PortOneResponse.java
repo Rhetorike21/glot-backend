@@ -80,4 +80,16 @@ public class PortOneResponse {
     @Getter
     public static class DeleteBillingKey extends PortOneResponse{
     }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @ToString
+    @Getter
+    public static class PayMethod extends PortOneResponse{
+
+        @JsonProperty("card_name")
+        private String cardName;
+
+    }
 }

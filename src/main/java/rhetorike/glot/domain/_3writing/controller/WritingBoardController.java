@@ -32,28 +32,28 @@ public class WritingBoardController {
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
-    @PermitAll
+    @PreAuthorize("hasRole('USER')")
     @GetMapping(GET_ALL_WRITING_BOARD_URI)
     public ResponseEntity<List<WritingBoardDto.Response>> getAllBoards(@AuthenticationPrincipal Long userId) {
         List<WritingBoardDto.Response> responseBody = writingBoardService.getAllBoards(userId);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
-    @PermitAll
+    @PreAuthorize("hasRole('USER')")
     @GetMapping(GET_WRITING_BOARD_URI)
     public ResponseEntity<WritingBoardDto.DetailResponse> getBoard(@PathVariable Long writingId, @AuthenticationPrincipal Long userId) {
         WritingBoardDto.DetailResponse responseBody = writingBoardService.getBoard(userId, writingId);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
-    @PermitAll
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping(DELETE_WRITING_BOARD_URI)
     public ResponseEntity<Void> deleteBoard(@PathVariable Long writingId, @AuthenticationPrincipal Long userId) {
         writingBoardService.deleteBoard(userId, writingId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PermitAll
+    @PreAuthorize("hasRole('USER')")
     @PostMapping(MOVE_BOARD_URI)
     public ResponseEntity<Void> moveBoard(@RequestBody WritingBoardDto.MoveRequest requestDto, @AuthenticationPrincipal Long userId) {
         writingBoardService.moveBoard(requestDto, userId);

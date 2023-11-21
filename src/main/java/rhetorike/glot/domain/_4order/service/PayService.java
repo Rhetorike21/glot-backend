@@ -1,23 +1,14 @@
 package rhetorike.glot.domain._4order.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import rhetorike.glot.domain._2user.entity.User;
-import rhetorike.glot.domain._4order.dto.OrderDto;
 import rhetorike.glot.domain._4order.entity.Order;
-import rhetorike.glot.domain._4order.entity.OrderStatus;
-import rhetorike.glot.domain._4order.repository.OrderRepository;
 import rhetorike.glot.domain._4order.vo.Payment;
-import rhetorike.glot.global.error.exception.PaymentFailedException;
 import rhetorike.glot.global.util.portone.PortOneClient;
 import rhetorike.glot.global.util.portone.PortOneResponse;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static rhetorike.glot.domain._4order.entity.OrderStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -44,5 +35,9 @@ public class PayService {
 
     public void refund(Order order, long amount) {
         portOneClient.cancel(order.getId(), String.valueOf(amount));
+    }
+
+    public PortOneResponse.PayMethod getPayMethod(User user) {
+        return portOneClient.getBillingKey(user.getId());
     }
 }

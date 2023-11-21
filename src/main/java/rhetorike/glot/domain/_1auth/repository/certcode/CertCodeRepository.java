@@ -15,6 +15,7 @@ import java.time.Duration;
 public class CertCodeRepository {
     private final static String BLANK = "";
     private final static String PREFIX = "CERT_CODE:";
+    private final static Duration EXPIRATION = Duration.ofMinutes(4);
     private final RedisTemplate<String, Object> redisTemplate;
 
 
@@ -22,7 +23,7 @@ public class CertCodeRepository {
         ValueOperations<String, Object> operations = redisTemplate.opsForValue();
         String key = PREFIX + certCode.getNumber();
         operations.set(key, BLANK);
-        redisTemplate.expire(key, Duration.ofMinutes(10));
+        redisTemplate.expire(key, EXPIRATION);
     }
 
     public boolean doesExists(String number) {

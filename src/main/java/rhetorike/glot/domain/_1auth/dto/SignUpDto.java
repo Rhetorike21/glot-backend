@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import rhetorike.glot.domain._2user.entity.Language;
 import rhetorike.glot.domain._2user.entity.Organization;
 import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
@@ -53,6 +54,7 @@ public class SignUpDto {
                     .email(this.email)
                     .active(true)
                     .marketingAgreement(this.marketingAgreement)
+                    .language(Language.KOREAN)
                     .roles(List.of(USER.value(), PERSONAL.value()))
                     .build();
         }
@@ -80,6 +82,7 @@ public class SignUpDto {
                     .email(this.email)
                     .active(true)
                     .marketingAgreement(this.marketingAgreement)
+                    .language(Language.KOREAN)
                     .roles(List.of(USER.value(), ORGANIZATION.value()))
                     .build();
         }

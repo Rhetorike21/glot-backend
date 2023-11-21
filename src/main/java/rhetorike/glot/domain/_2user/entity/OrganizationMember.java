@@ -20,8 +20,8 @@ import static rhetorike.glot.global.constant.Role.*;
 public class OrganizationMember extends User {
 
     @Builder
-    public OrganizationMember(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles, List<WritingBoard> writingBoards, Subscription subscription, boolean active, LocalDateTime lastLoggedInAt) {
-        super(id, accountId, password, name, phone, mobile, email, marketingAgreement, roles, writingBoards, subscription, active, lastLoggedInAt);
+    public OrganizationMember(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles, List<WritingBoard> writingBoards, Subscription subscription, boolean active, LocalDateTime lastLoggedInAt, Language language) {
+        super(id, accountId, password, name, phone, mobile, email, marketingAgreement, roles, writingBoards, subscription, active, lastLoggedInAt, language);
     }
 
     @Override
@@ -42,6 +42,9 @@ public class OrganizationMember extends User {
         if (requestDto.getPassword() != null) {
             this.password = passwordEncoder.encode(requestDto.getPassword());
         }
+        if (requestDto.getLanguage() != null){
+            this.language = Language.findByName(requestDto.getLanguage());
+        }
     }
 
     public static OrganizationMember newOrganizationMember(String accountId, String password) {
@@ -49,6 +52,7 @@ public class OrganizationMember extends User {
                 .accountId(accountId)
                 .password(password)
                 .active(true)
+                .language(Language.KOREAN)
                 .roles(List.of(USER.value(), MEMBER.value()))
                 .build();
     }

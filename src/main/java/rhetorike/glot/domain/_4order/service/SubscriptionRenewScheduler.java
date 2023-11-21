@@ -4,11 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import rhetorike.glot.domain._4order.entity.Subscription;
-import rhetorike.glot.domain._4order.repository.SubscriptionRepository;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Slf4j
 @Component
@@ -28,7 +25,7 @@ public class SubscriptionRenewScheduler {
     public void renew() {
         log.info("시작");
         orderService.reorder(LocalDate.now());
-        subscriptionService.deleteOverdue(LocalDate.now());
+        subscriptionService.pauseOverdueSubscriptions(LocalDate.now());
         log.info("종료");
     }
 }

@@ -49,28 +49,8 @@ class RefundServiceTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"0"})
-    @DisplayName("[월간 요금제] 결제일로부터 0일 경과한 시점에서 작문 기록이 있는 경우, 전액 환불")
-    void refundMonthlyPartial0(int minusDay) {
-        //given
-        User user = new Personal();
-        Plan plan = BasicPlan.builder().price(30000L).discountedPrice(18000L).expiryPeriod(PlanPeriod.MONTH).build();
-        Order order = Order.newOrder(user, plan, 1);
-        order.setCreatedTime(LocalDateTime.now().minusDays(minusDay));
-        Subscription subscription = Subscription.newSubscription(order);
-        given(writingBoardService.hasUsedBoard(subscription)).willReturn(true);
-
-        //when
-        long amount = refundService.calcRefundAmount(subscription);
-        log.info("{}", amount);
-
-        //then
-        assertThat(amount).isEqualTo(order.getTotalPrice());
-    }
-
-    @ParameterizedTest
-    @CsvSource({"1", "2", "3", "4", "5", "6"})
-    @DisplayName("[월간 요금제] 결제일로부터 1~6일 경과한 시점에서 작문 기록이 있는 경우, 차감")
+    @CsvSource({"0", "1", "2", "3", "4", "5", "6"})
+    @DisplayName("[월간 요금제] 결제일로부터 0~6일 경과한 시점에서 작문 기록이 있는 경우, 차감")
     void refundMonthlyPartial1to6(int minusDay) {
         //given
         User user = new Personal();
@@ -147,28 +127,8 @@ class RefundServiceTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"0"})
-    @DisplayName("[연간 요금제] 결제일로부터 0일 경과한 시점에서 작문 기록이 있는 경우, 전액 환불")
-    void refundYearlyPartial0(int minusDay) {
-        //given
-        User user = new Personal();
-        Plan plan = BasicPlan.builder().price(20000L).discountedPrice(14400L).expiryPeriod(PlanPeriod.YEAR).build();
-        Order order = Order.newOrder(user, plan, 1);
-        order.setCreatedTime(LocalDateTime.now().minusDays(minusDay));
-        Subscription subscription = Subscription.newSubscription(order);
-        given(writingBoardService.hasUsedBoard(subscription)).willReturn(true);
-
-        //when
-        long amount = refundService.calcRefundAmount(subscription);
-        log.info("{}", amount);
-
-        //then
-        assertThat(amount).isEqualTo(order.getTotalPrice());
-    }
-
-    @ParameterizedTest
-    @CsvSource({"1", "2", "3", "4", "5", "6"})
-    @DisplayName("[연간 요금제] 결제일로부터 1~6일 경과한 시점에서 작문 기록이 있는 경우, 차감")
+    @CsvSource({"0", "1", "2", "3", "4", "5", "6"})
+    @DisplayName("[연간 요금제] 결제일로부터 0~6일 경과한 시점에서 작문 기록이 있는 경우, 차감")
     void refundYearlyPartial1to6(int minusDay) {
         //given
         User user = new Personal();
@@ -227,7 +187,7 @@ class RefundServiceTest {
 
     @Test
     @DisplayName("두 LocalDate 사이의 시간을 구한다.")
-    void betweenLocalDate(){
+    void betweenLocalDate() {
         //given
         LocalDate date1 = LocalDate.of(2023, 11, 15);
         LocalDate date2 = LocalDate.of(2023, 11, 23);
@@ -240,5 +200,20 @@ class RefundServiceTest {
         assertThat(period1).isEqualTo(Period.ofDays(8));
         assertThat(period2).isEqualTo(Period.ofDays(-8));
     }
+
+
+    @Test
+    @DisplayName("일의 자리에서 반올림")
+    void round() {
+        //given
+        long num = 12345;
+
+        //when
+        long result = Math.round(num * 0.1) * 10;
+
+        //then
+        assertThat(result).isEqualTo(12350);
+    }
+
 
 }

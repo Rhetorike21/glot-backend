@@ -18,7 +18,7 @@ public enum ErrorCode {
     MOUNTAIN_NOT_FOUND("0009", "해당 산을 조회할 수 없습니다.", HttpStatus.NOT_FOUND),
     REISSUE_FAILED("0010", "토큰 재발급에 실패했습니다.", HttpStatus.BAD_REQUEST),
     CERTIFICATION_FAILED("0011", "본인인증에 실패했습니다.", HttpStatus.UNAUTHORIZED),
-    LOGIN_FAILED("0012", "로그인에 실패했습니다.", HttpStatus.UNAUTHORIZED),
+    WRONG_PASSWORD("0012", "잘못된 비밀번호입니다..", HttpStatus.UNAUTHORIZED),
     JWT_BLOCKED("0013", "사용이 중지된 토큰입니다.", HttpStatus.BAD_REQUEST),
     USER_EXIST("0014", "이미 해당 회원이 존재합니다.", HttpStatus.BAD_REQUEST),
     MAILING_FAILED("0015", "이메일 전송에 실패했습니다.", HttpStatus.BAD_REQUEST),
@@ -26,7 +26,10 @@ public enum ErrorCode {
     ACCESS_DENIED("0017", "접근 권한이 없습니다.", HttpStatus.BAD_REQUEST),
     ORDER_NOT_COMPLETED("0018", "주문이 완료되지 않았습니다.", HttpStatus.BAD_REQUEST),
     PAYMENT_FAILED("0019", "결제에 실패했습니다. ", HttpStatus.BAD_REQUEST),
-    REFUND_DENIED("0020", "환불이 불가능합니다.", HttpStatus.BAD_REQUEST);
+    REFUND_DENIED("0020", "환불이 불가능합니다.", HttpStatus.BAD_REQUEST),
+    SUBSCRIPTION_REQUIRED("0021", "구독하지 않았거나, 만료되어 이용이 제한되었습니다.", HttpStatus.BAD_REQUEST),
+    SUBSCRIPTION_ONGOING("0022", "이미 구독 중인 요금제가 존재합니다.", HttpStatus.BAD_REQUEST),
+    ;
 
     private final String code;
     private final String message;

@@ -33,6 +33,7 @@ public class PortOneClient {
     private final static String AGAIN_URI = "/subscribe/payments/again";
     private final static String CANCEL_URI = "/payments/cancel";
     private final static String DELETE_BILLING_KEY = "/subscribe/customers/{customer_uid}";
+    private final static String GET_PAY_METHOD = "/subscribe/customers/{customer_uid}";
     @Value("${api.port-one.imp-key}")
     private String IMP_KEY;
     @Value("${api.port-one.imp-secret}")
@@ -222,6 +223,25 @@ public class PortOneClient {
         return (PortOneResponse.DeleteBillingKey) response;
     }
 
+    public PortOneResponse.PayMethod getBillingKey(Long userId) {
+        WebClient wc = createWebClient();
+        String result = wc.method(HttpMethod.GET)
+                .uri(uriBuilder -> uriBuilder
+                        .scheme(HTTPS)
+                        .host(HOST)
+                        .path(GET_PAY_METHOD)
+                        .build(userId)
+                )
+                .header("Authorization", "Bearer " + issueToken().getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        PortOneResponse response = getData(result, PortOneForm.PayMethod.class);
+        return (PortOneResponse.PayMethod) response;
+    }
+
+
     private <T extends PortOneForm> PortOneResponse getData(String result, Class<T> form) {
         T responseForm;
         try {
@@ -259,6 +279,8 @@ public class PortOneClient {
                 .baseUrl("localhost:8080")
                 .build();
     }
+
+
 
     @ToString
     @Getter

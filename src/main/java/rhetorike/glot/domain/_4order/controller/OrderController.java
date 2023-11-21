@@ -8,7 +8,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import rhetorike.glot.domain._4order.dto.OrderDto;
 import rhetorike.glot.domain._4order.service.OrderService;
-import rhetorike.glot.domain._4order.service.RefundService;
 import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.global.util.dto.SingleParamDto;
 
@@ -42,21 +41,21 @@ public class OrderController {
 
     @PreAuthorize("hasAnyRole('PERSONAL', 'ORG')")
     @GetMapping(GET_ORDER_URI)
-    public ResponseEntity<List<OrderDto.GetResponse>> getOrders(@AuthenticationPrincipal Long userId) {
-        List<OrderDto.GetResponse> responseBody = orderService.getOrders(userId);
+    public ResponseEntity<OrderDto.GetResponse> getOrders(@AuthenticationPrincipal Long userId) {
+        OrderDto.GetResponse responseBody = orderService.getPayInfo(userId);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('PERSONAL', 'ORG')")
     @PatchMapping(CHANGE_PAY_METHOD_URI)
-    public ResponseEntity<List<OrderDto.GetResponse>> changePayMethod(@RequestBody Payment payment, @AuthenticationPrincipal Long userId) {
+    public ResponseEntity<List<OrderDto.History>> changePayMethod(@RequestBody Payment payment, @AuthenticationPrincipal Long userId) {
         orderService.changePayMethod(payment, userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PreAuthorize("hasAnyRole('PERSONAL', 'ORG')")
     @PostMapping(REFUND_URI)
-    public ResponseEntity<List<OrderDto.GetResponse>> refund(@AuthenticationPrincipal Long userId) {
+    public ResponseEntity<List<OrderDto.History>> refund(@AuthenticationPrincipal Long userId) {
         orderService.refund(userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

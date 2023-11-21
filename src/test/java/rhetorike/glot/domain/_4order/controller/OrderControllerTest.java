@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import rhetorike.glot.domain._4order.dto.OrderDto;
 import rhetorike.glot.domain._4order.entity.PlanPeriod;
 import rhetorike.glot.domain._4order.service.OrderService;
-import rhetorike.glot.domain._4order.service.RefundService;
 import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.global.constant.Header;
 import rhetorike.glot.global.security.JwtAuthenticationFilter;
@@ -131,8 +130,9 @@ class OrderControllerTest {
     @DisplayName("[주문 내역 조회]")
     void getOrders() throws Exception {
         //given
-        List<OrderDto.GetResponse> responseBody = List.of(new OrderDto.GetResponse(LocalDate.now(), "2023년 11월 1일 ~ 2023년 12월 1일", "****-****-****-1234", 1000L, 100L, "paid"));
-        given(orderService.getOrders(any())).willReturn(responseBody);
+        List<OrderDto.History> histories = List.of(new OrderDto.History(LocalDate.now(), "2023년 11월 1일 ~ 2023년 12월 1일", "****-****-****-1234", 1000L, 100L, "paid"));
+        OrderDto.GetResponse responseBody = new OrderDto.GetResponse("GLOT 베이직", "구독 중", "KB국민카드", "매월 13일", LocalDate.of(2023, 11, 14), LocalDate.of(2023, 9, 14), histories);
+        given(orderService.getPayInfo(any())).willReturn(responseBody);
 
         //when
         ResultActions actions = mockMvc.perform(get(OrderController.GET_ORDER_URI)
@@ -146,12 +146,18 @@ class OrderControllerTest {
                                 HeaderElement.header(Header.AUTH).description("액세스 토큰")
                         ),
                         responseFields(
-                                field("[].payDate").description("결제 일자"),
-                                field("[].duration").description("이용 가능 기간"),
-                                field("[].cardNumber").description("카드 번호"),
-                                field("[].amount").type(JsonFieldType.NUMBER).description("결제 금액"),
-                                field("[].surtax").type(JsonFieldType.NUMBER).description("부가세"),
-                                field("[].status").description("주문 상태(주문 완료 | 주문 취소 | 결제 실패 | 미결제)")
+                                field("plan").description("이용 중인 요금제 명"),
+                                field("status").description("구독 상태 (구독 중 | 구독 정지 | null)"),
+                                field("payMethod").description("구독 중인 요금제 명"),
+                                field("payPeriod").description("구독 중인 요금제 명"),
+                                field("nextPayDate").description("구독 중인 요금제 명"),
+                                field("firstPaidDate").description("구독 중인 요금제 명"),
+                                field("history[].paidDate").description("결제 일자"),
+                                field("history[].duration").description("이용 가능 기간"),
+                                field("history[].cardNumber").description("카드 번호"),
+                                field("history[].amount").type(JsonFieldType.NUMBER).description("결제 금액"),
+                                field("history[].surtax").type(JsonFieldType.NUMBER).description("부가세"),
+                                field("history[].status").description("주문 상태(주문 완료 | 주문 취소 | 결제 실패 | 미결제)")
                         )));
     }
 

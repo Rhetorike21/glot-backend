@@ -5,22 +5,23 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import rhetorike.glot.domain._2user.entity.Organization;
+import rhetorike.glot.domain._2user.entity.OrganizationMember;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._2user.service.UserService;
-import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
 import rhetorike.glot.domain._3writing.service.WritingBoardService;
 import rhetorike.glot.domain._4order.dto.SubscriptionDto;
 import rhetorike.glot.domain._4order.entity.*;
+import rhetorike.glot.domain._4order.repository.OrderRepository;
 import rhetorike.glot.domain._4order.repository.SubscriptionRepository;
 import rhetorike.glot.global.error.exception.AccessDeniedException;
 import rhetorike.glot.global.error.exception.ResourceNotFoundException;
 import rhetorike.glot.global.error.exception.UserNotFoundException;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +30,24 @@ public class SubscriptionService {
     private final UserRepository userRepository;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-    private final WritingBoardService writingBoardService;
+    private final OrderRepository orderRepository;
+    public enum SubStatus{
+        SUBSCRIBED,
+        PAUSED,
+        FREE
+    }
+
+    public SubStatus getSubStatus(User user){
+        Optional<Order> orderOptional = orderRepository.findTop1ByStatusAndUserOrderByCreatedTimeDesc(OrderStatus.PAID, user);
+        if (orderOptional.isEmpty()) {
+            return SubStatus.FREE;
+        }
+        Order order = orderOptional.get();
+        if (order.getSubscription() == null) {
+            return SubStatus.PAUSED;
+        }
+        return SubStatus.SUBSCRIBED;
+    }
 
     public void makeSubscribe(Order order) {
         Subscription subscription = subscriptionRepository.save(Subscription.newSubscription(order));
@@ -60,25 +78,33 @@ public class SubscriptionService {
     }
 
     @Transactional
-    public void deleteOverdue(LocalDate endDate) {
+    public void pauseOverdueSubscriptions(LocalDate endDate) {
         List<Subscription> subscriptions = subscriptionRepository.findAllByEndDate(endDate);
         for (Subscription subscription : subscriptions) {
-            deleteSubscription(subscription);
+            deleteSubscriptionOnly(subscription);
         }
     }
-
-    public void deleteSubscription(Subscription subscription) {
-        freeMember(subscription);
-        freeOrder(subscription.getOrder());
-        subscriptionRepository.delete(subscription);
-    }
-
-    private void freeMember(Subscription subscription) {
+    private void deleteSubscriptionOnly(Subscription subscription) {
         List<User> members = userRepository.findBySubscription(subscription);
         for (int i = 0; i < members.size(); i++) {
             members.get(i).setSubscription(null);
         }
+        freeOrder(subscription.getOrder());
+        subscriptionRepository.delete(subscription);
     }
+
+    public void deleteSubscriptionAndMembers(Subscription subscription) {
+        deleteAllMembers(subscription);
+        freeOrder(subscription.getOrder());
+        subscriptionRepository.delete(subscription);
+    }
+    private void deleteAllMembers(Subscription subscription){
+        List<OrganizationMember> members = userRepository.findMemberBySubscription(subscription);
+        userRepository.deleteAll(members);
+    }
+
+
+
 
     private void freeOrder(Order order) {
         order.setSubscription(null);

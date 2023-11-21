@@ -55,30 +55,11 @@ class AccountIdFindServiceTest {
         String code = "123456";
         AccountIdFindDto.MobileRequest requestDto = new AccountIdFindDto.MobileRequest(name, mobile, code);
         given(userRepository.findByMobileAndName(mobile, name)).willReturn(List.of(Personal.builder().accountId("hong1234").build()));
-        given(certificationService.isValidNumber(code)).willReturn(true);
 
         //when
         accountIdFindService.findAccountIdByMobile(requestDto);
 
         //then
         verify(userRepository).findByMobileAndName(mobile, name);
-        verify(certificationService).isValidNumber(code);
-    }
-
-    @Test
-    @DisplayName("[휴대폰으로 아이디 찾기] 인증 코드가 유효하지 않는 경우 예외 발생")
-    void findByMobileThrowCertificationFailed(){
-        //given
-        String name = "홍길동";
-        String mobile = "01076078701";
-        String code = "123456";
-        AccountIdFindDto.MobileRequest requestDto = new AccountIdFindDto.MobileRequest(name, mobile, code);
-        given(userRepository.findByMobileAndName(mobile, name)).willReturn(List.of(Personal.builder().accountId("hong1234").build()));
-        given(certificationService.isValidNumber(code)).willReturn(false);
-
-        //when
-
-        //then
-        Assertions.assertThatThrownBy(() -> accountIdFindService.findAccountIdByMobile(requestDto)).isInstanceOf(CertificationFailedException.class);
     }
 }

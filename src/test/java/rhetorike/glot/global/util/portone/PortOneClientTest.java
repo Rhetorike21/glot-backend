@@ -16,7 +16,6 @@ import rhetorike.glot.domain._4order.entity.PlanPeriod;
 import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.setup.IntegrationTest;
 
-import java.time.Period;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -199,5 +198,23 @@ class PortOneClientTest extends IntegrationTest {
 
         //then
         assertThat(response.getImpUid()).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("[빌링키 조회]")
+    void getPayMethod() {
+        //given
+        User user = Personal.builder().id(1L).build();
+        Plan plan = new BasicPlan(null, "test", 100, 100L, PlanPeriod.MONTH);
+        Order order = Order.newOrder(user, plan, 1);
+        Payment payment = new Payment(cardNumber, expiry, birth, password);
+        PortOneResponse.OneTimePay oneTimePayResponse = portOneClient.payAndSaveBillingKey(order, payment);
+
+        //when
+        PortOneResponse.PayMethod response = portOneClient.getBillingKey(user.getId());
+        log.info("{}", response);
+
+        //then
+        assertThat(response.getCardName()).isNotEmpty();
     }
 }

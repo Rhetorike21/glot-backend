@@ -9,12 +9,15 @@ import org.mockito.Mock;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import rhetorike.glot.domain._1auth.dto.LoginDto;
 import rhetorike.glot.domain._1auth.dto.SignUpDto;
-import rhetorike.glot.domain._1auth.repository.blockedtoken.BlockedTokenRepository;
+import rhetorike.glot.domain._1auth.repository.blockedtoken.BlockedTokenRedisRepository;
 import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
+import rhetorike.glot.domain._2user.entity.OrganizationMember;
 import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
-import rhetorike.glot.global.error.exception.LoginFailedException;
+import rhetorike.glot.domain._4order.service.SubscriptionService;
+import rhetorike.glot.global.error.exception.SubscriptionRequiredException;
+import rhetorike.glot.global.error.exception.WrongPasswordException;
 import rhetorike.glot.global.error.exception.UserExistException;
 import rhetorike.glot.global.security.jwt.AccessToken;
 import rhetorike.glot.global.security.jwt.RefreshToken;
@@ -41,7 +44,9 @@ class AuthServiceTest {
     @Mock
     PasswordEncoder passwordEncoder;
     @Mock
-    BlockedTokenRepository blockedTokenRepository;
+    SubscriptionService subscriptionService;
+    @Mock
+    BlockedTokenRedisRepository blockedTokenRedisRepository;
 
     @Test
     @DisplayName("개인 사용자로 서비스에 회원가입한다.")
@@ -115,6 +120,7 @@ class AuthServiceTest {
         LoginDto.Request requestDto = new LoginDto.Request(id, password);
         given(userRepository.findByAccountId(id)).willReturn(Optional.of(user));
         given(passwordEncoder.matches(password, encodedPassword)).willReturn(true);
+        given(subscriptionService.getSubStatus(user)).willReturn(SubscriptionService.SubStatus.FREE);
 
         //when
         authService.login(requestDto);
@@ -122,6 +128,7 @@ class AuthServiceTest {
         //then
         verify(userRepository).findByAccountId(id);
         verify(passwordEncoder).matches(password, encodedPassword);
+        verify(subscriptionService).getSubStatus(user);
     }
 
     @Test
@@ -138,6 +145,7 @@ class AuthServiceTest {
         LoginDto.Request requestDto = new LoginDto.Request(id, password);
         given(userRepository.findByAccountId(id)).willReturn(Optional.of(user));
         given(passwordEncoder.matches(password, encodedPassword)).willReturn(true);
+        given(subscriptionService.getSubStatus(user)).willReturn(SubscriptionService.SubStatus.FREE);
 
         //when
         authService.login(requestDto);
@@ -162,10 +170,34 @@ class AuthServiceTest {
         given(passwordEncoder.matches(password, encodedPassword)).willReturn(false);
 
         //when
-        Assertions.assertThatThrownBy(() -> authService.login(requestDto)).isInstanceOf(LoginFailedException.class);
+        Assertions.assertThatThrownBy(() -> authService.login(requestDto)).isInstanceOf(WrongPasswordException.class);
 
         //then
         verify(userRepository).findByAccountId(id);
+        verify(passwordEncoder).matches(password, encodedPassword);
+    }
+
+    @Test
+    @DisplayName("구독이 만료된 경우, 채번 계정은 로그인에 실패한다.")
+    void loginFailedOrganizationMember() {
+        //given
+        String accountId = "abcd1234";
+        String password = "efgh5678";
+        String encodedPassword = "(encoded)password";
+        User user = OrganizationMember.builder()
+                .id(1L)
+                .accountId(accountId)
+                .password(encodedPassword)
+                .build();
+        LoginDto.Request requestDto = new LoginDto.Request(accountId, password);
+        given(userRepository.findByAccountId(accountId)).willReturn(Optional.of(user));
+        given(passwordEncoder.matches(password, encodedPassword)).willReturn(true);
+
+        //when
+        Assertions.assertThatThrownBy(() -> authService.login(requestDto)).isInstanceOf(SubscriptionRequiredException.class);
+
+        //then
+        verify(userRepository).findByAccountId(accountId);
         verify(passwordEncoder).matches(password, encodedPassword);
     }
 

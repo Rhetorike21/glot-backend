@@ -21,6 +21,7 @@ public class UserProfileDto {
         private String accountId;
         private String subscription;
         private String orgName;
+        private String language;
 
         public GetRequest(User user) {
             this.userType = user.getUserType();
@@ -30,6 +31,7 @@ public class UserProfileDto {
             this.email = user.getEmail();
             this.accountId = user.getAccountId();
             this.subscription = "없음";
+            this.language = user.getLanguage().getName();
             if (user.getSubscription() != null) {
                 this.subscription = user.getSubscription().getName();
             }
@@ -47,6 +49,7 @@ public class UserProfileDto {
         private String mobile;
         private String email;
         private String password;
+        private String language;
     }
 }
 

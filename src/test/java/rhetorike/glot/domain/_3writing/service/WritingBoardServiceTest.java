@@ -14,6 +14,7 @@ import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
 import rhetorike.glot.domain._4order.entity.Subscription;
 import rhetorike.glot.global.error.exception.AccessDeniedException;
+import rhetorike.glot.global.error.exception.ResourceNotFoundException;
 import rhetorike.glot.setup.ServiceTest;
 
 import java.time.LocalDateTime;
@@ -47,7 +48,7 @@ class WritingBoardServiceTest {
     void createBoardByUser() {
         //given
         final Long USER_ID = 1L;
-        User user = Personal.builder().id(USER_ID).writingBoards(List.of()).build();
+        User user = Personal.builder().id(USER_ID).writingBoards(List.of()).subscription(new Subscription()).build();
         WritingBoardDto.SaveRequest requestDto = new WritingBoardDto.SaveRequest(null, "제목", "내용");
         WritingBoard writingBoard = WritingBoard.builder().id(1L).user(user).build();
         given(userRepository.findById(USER_ID)).willReturn(Optional.of(user));
@@ -66,7 +67,7 @@ class WritingBoardServiceTest {
         //given
         final Long USER_ID = 1L;
         List<WritingBoard> writingBoards = new ArrayList<>();
-        User user = Personal.builder().id(USER_ID).writingBoards(writingBoards).build();
+        User user = Personal.builder().id(USER_ID).writingBoards(writingBoards).subscription(new Subscription()).build();
         for (int i = 0; i < 100; i++) {
             writingBoards.add(WritingBoard.builder().user(user).build());
         }
@@ -92,17 +93,17 @@ class WritingBoardServiceTest {
         final long writingBoardId = 1L;
         WritingBoardDto.SaveRequest requestDto = new WritingBoardDto.SaveRequest(writingBoardId, "수정할 제목", "수정할 내용");
 
-        User user = Personal.builder().id(userId).build();
+        User user = Personal.builder().id(userId).subscription(new Subscription()).build();
         WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
+        given(writingBoardRepository.findByIdAndUser(writingBoardId, user)).willReturn(Optional.of(writingBoard));
 
         //when
         writingBoardService.saveBoard(userId, requestDto);
 
         //then
         verify(userRepository).findById(userId);
-        verify(writingBoardRepository).findById(writingBoardId);
+        verify(writingBoardRepository).findByIdAndUser(writingBoardId, user);
     }
 
     @Test
@@ -113,17 +114,17 @@ class WritingBoardServiceTest {
         final long writingBoardId = 1L;
         WritingBoardDto.SaveRequest requestDto = new WritingBoardDto.SaveRequest(writingBoardId, "수정할 제목", null);
 
-        User user = Personal.builder().id(userId).build();
+        User user = Personal.builder().id(userId).subscription(new Subscription()).build();
         WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
+        given(writingBoardRepository.findByIdAndUser(writingBoardId, user)).willReturn(Optional.of(writingBoard));
 
         //when
         writingBoardService.saveBoard(userId, requestDto);
 
         //then
         verify(userRepository).findById(userId);
-        verify(writingBoardRepository).findById(writingBoardId);
+        verify(writingBoardRepository).findByIdAndUser(writingBoardId, user);
     }
 
     @Test
@@ -134,17 +135,17 @@ class WritingBoardServiceTest {
         final long writingBoardId = 1L;
         WritingBoardDto.SaveRequest requestDto = new WritingBoardDto.SaveRequest(writingBoardId, null, "수정할 내용");
 
-        User user = Personal.builder().id(userId).build();
+        User user = Personal.builder().id(userId).subscription(new Subscription()).build();
         WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
+        given(writingBoardRepository.findByIdAndUser(writingBoardId, user)).willReturn(Optional.of(writingBoard));
 
         //when
         writingBoardService.saveBoard(userId, requestDto);
 
         //then
         verify(userRepository).findById(userId);
-        verify(writingBoardRepository).findById(writingBoardId);
+        verify(writingBoardRepository).findByIdAndUser(writingBoardId, user);
     }
 
     @Test
@@ -152,7 +153,7 @@ class WritingBoardServiceTest {
     void getAllBoards(){
         //given
         final long userId = 1L;
-        User user = Personal.builder().build();
+        User user = Personal.builder().id(userId).subscription(new Subscription()).build();
         WritingBoard writingBoard = WritingBoard.builder().id(1L).title("제목").modifiedTime(LocalDateTime.now()).user(user).build();
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(writingBoardRepository.findByUserOrderBySequenceDesc(user)).willReturn(List.of(writingBoard));
@@ -171,17 +172,17 @@ class WritingBoardServiceTest {
         //given
         final long userId = 1L;
         final long writingBoardId = 1L;
-        User user = Personal.builder().id(userId).build();
+        User user = Personal.builder().id(userId).subscription(new Subscription()).build();
         WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
+        given(writingBoardRepository.findByIdAndUser(writingBoardId, user)).willReturn(Optional.of(writingBoard));
 
         //when
         writingBoardService.getBoard(userId, writingBoardId);
 
         //then
         verify(userRepository).findById(userId);
-        verify(writingBoardRepository).findById(writingBoardId);
+        verify(writingBoardRepository).findByIdAndUser(writingBoardId, user);
     }
 
     @Test
@@ -190,16 +191,14 @@ class WritingBoardServiceTest {
         //given
         final long userId = 1L;
         final long writingBoardId = 1L;
-        User user = Personal.builder().id(userId).build();
-        User other = Personal.builder().id(2L).build();
-        WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(other).build();
+        User user = Personal.builder().id(userId).subscription(new Subscription()).build();
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
+        given(writingBoardRepository.findByIdAndUser(writingBoardId, user)).willReturn(Optional.empty());
 
         //when
 
         //then
-        Assertions.assertThatThrownBy(() -> writingBoardService.getBoard(userId, writingBoardId)).isInstanceOf(AccessDeniedException.class);
+        Assertions.assertThatThrownBy(() -> writingBoardService.getBoard(userId, writingBoardId)).isInstanceOf(ResourceNotFoundException.class);
     }
 
 
@@ -209,17 +208,17 @@ class WritingBoardServiceTest {
         //given
         final long userId = 1L;
         final long writingBoardId = 1L;
-        User user = Personal.builder().id(userId).build();
+        User user = Personal.builder().id(userId).subscription(new Subscription()).build();
         WritingBoard writingBoard = WritingBoard.builder().id(writingBoardId).user(user).build();
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(writingBoardRepository.findById(writingBoardId)).willReturn(Optional.of(writingBoard));
+        given(writingBoardRepository.findByIdAndUser(writingBoardId, user)).willReturn(Optional.of(writingBoard));
 
         //when
         writingBoardService.deleteBoard(userId, writingBoardId);
 
         //then
         verify(userRepository).findById(userId);
-        verify(writingBoardRepository).findById(writingBoardId);
+        verify(writingBoardRepository).findByIdAndUser(writingBoardId, user);
     }
 
     @Test
@@ -229,12 +228,12 @@ class WritingBoardServiceTest {
         final long userId = 1L;
         final long targetId = 1L;
         final long destinationId = 2L;
-        User user = Personal.builder().id(userId).build();
+        User user = Personal.builder().id(userId).subscription(new Subscription()).build();
         WritingBoard targetBoard = WritingBoard.builder().id(targetId).user(user).build();
         WritingBoard destinationBoard = WritingBoard.builder().id(destinationId).user(user).build();
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(writingBoardRepository.findById(targetId)).willReturn(Optional.of(targetBoard));
-        given(writingBoardRepository.findById(destinationId)).willReturn(Optional.of(destinationBoard));
+        given(writingBoardRepository.findByIdAndUser(targetId, user)).willReturn(Optional.of(targetBoard));
+        given(writingBoardRepository.findByIdAndUser(destinationId, user)).willReturn(Optional.of(destinationBoard));
         WritingBoardDto.MoveRequest moveRequest = new WritingBoardDto.MoveRequest(1L, 2L);
 
         //when
@@ -242,8 +241,9 @@ class WritingBoardServiceTest {
 
         //then
         verify(userRepository).findById(userId);
-        verify(writingBoardRepository).findById(targetId);
-        verify(writingBoardRepository).findById(destinationId);
+        verify(writingBoardRepository).findByIdAndUser(targetId, user);
+        verify(writingBoardRepository).findByIdAndUser(destinationId, user);
+
     }
 
 

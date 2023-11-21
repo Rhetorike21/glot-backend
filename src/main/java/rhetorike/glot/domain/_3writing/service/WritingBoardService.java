@@ -12,6 +12,7 @@ import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
 import rhetorike.glot.domain._4order.entity.Subscription;
 import rhetorike.glot.global.error.exception.AccessDeniedException;
 import rhetorike.glot.global.error.exception.ResourceNotFoundException;
+import rhetorike.glot.global.error.exception.SubscriptionRequiredException;
 import rhetorike.glot.global.error.exception.UserNotFoundException;
 import rhetorike.glot.global.util.dto.SingleParamDto;
 
@@ -33,6 +34,8 @@ public class WritingBoardService {
      */
     public List<WritingBoardDto.Response> getAllBoards(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        validateSubscription(user);
+
         List<WritingBoard> writingBoards = writingBoardRepository.findByUserOrderBySequenceDesc(user);
         return writingBoards.stream()
                 .map(WritingBoardDto.Response::new)
@@ -48,12 +51,11 @@ public class WritingBoardService {
      * @return 보드 정보
      */
     public WritingBoardDto.DetailResponse getBoard(Long userId, Long writingBoardId) {
-        User found = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        WritingBoard writingBoard = writingBoardRepository.findById(writingBoardId).orElseThrow(ResourceNotFoundException::new);
-        if (writingBoard.getUser().equals(found)) {
-            return new WritingBoardDto.DetailResponse(writingBoard);
-        }
-        throw new AccessDeniedException();
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        validateSubscription(user);
+
+        WritingBoard writingBoard = writingBoardRepository.findByIdAndUser(writingBoardId, user).orElseThrow(ResourceNotFoundException::new);
+        return new WritingBoardDto.DetailResponse(writingBoard);
     }
 
     /**
@@ -63,32 +65,25 @@ public class WritingBoardService {
      * @param writingBoardId 작문 보드 아이디넘버
      */
     public void deleteBoard(Long userId, Long writingBoardId) {
-        User found = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        WritingBoard writingBoard = writingBoardRepository.findById(writingBoardId).orElseThrow(ResourceNotFoundException::new);
-        if (writingBoard.getUser().equals(found)) {
-            writingBoard.deleteUser();
-            writingBoardRepository.delete(writingBoard);
-            return;
-        }
-        throw new AccessDeniedException();
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        validateSubscription(user);
+
+        WritingBoard writingBoard = writingBoardRepository.findByIdAndUser(writingBoardId, user).orElseThrow(ResourceNotFoundException::new);
+        writingBoard.deleteUser();
+        writingBoardRepository.delete(writingBoard);
     }
 
     @Transactional
     public void moveBoard(WritingBoardDto.MoveRequest requestDto, Long userId) {
-        WritingBoard targetBoard = writingBoardRepository.findById(requestDto.getTargetId()).orElseThrow(ResourceNotFoundException::new);
-        WritingBoard destinationBoard = writingBoardRepository.findById(requestDto.getDestinationId()).orElseThrow(ResourceNotFoundException::new);
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        if (validate(targetBoard, destinationBoard, user)) {
-            List<WritingBoard> writingBoards = writingBoardRepository.findByUserOrderBySequenceDesc(user);
-            writeBoardMover.move(targetBoard, destinationBoard, writingBoards);
-            return;
-        }
-        throw new AccessDeniedException();
+        validateSubscription(user);
+
+        WritingBoard targetBoard = writingBoardRepository.findByIdAndUser(requestDto.getTargetId(), user).orElseThrow(ResourceNotFoundException::new);
+        WritingBoard destinationBoard = writingBoardRepository.findByIdAndUser(requestDto.getDestinationId(), user).orElseThrow(ResourceNotFoundException::new);
+        List<WritingBoard> writingBoards = writingBoardRepository.findByUserOrderBySequenceDesc(user);
+        writeBoardMover.move(targetBoard, destinationBoard, writingBoards);
     }
 
-    private boolean validate(WritingBoard targetBoard, WritingBoard destinationBoard, User user) {
-        return user.equals(targetBoard.getUser()) && user.equals(destinationBoard.getUser());
-    }
 
     /**
      * 보드를 저장합니다.null이 아닌 항목만 변경됩니다. id를 찾을 수 없는 경우, 새로 생성합니다.
@@ -99,11 +94,14 @@ public class WritingBoardService {
     @Transactional
     public SingleParamDto<Long> saveBoard(Long userId, WritingBoardDto.SaveRequest requestDto) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        validateSubscription(user);
+
         if (requestDto.getWritingBoardId() == null){
             return new SingleParamDto<>(createNewBoard(user, requestDto).getId());
         }
-        WritingBoard writingBoard = writingBoardRepository.findById(requestDto.getWritingBoardId()).orElseThrow(ResourceNotFoundException::new);
-        return new SingleParamDto<>(updateBoard(user, writingBoard, requestDto));
+        WritingBoard writingBoard = writingBoardRepository.findByIdAndUser(requestDto.getWritingBoardId(), user).orElseThrow(ResourceNotFoundException::new);
+        writingBoard.update(requestDto);
+        return new SingleParamDto<>(writingBoard.getId());
     }
 
     private WritingBoard createNewBoard(User user, WritingBoardDto.SaveRequest requestDto) {
@@ -114,16 +112,14 @@ public class WritingBoardService {
         return writingBoardRepository.save(writingBoard);
     }
 
-    private Long updateBoard(User user, WritingBoard writingBoard, WritingBoardDto.SaveRequest requestDto) {
-        if (user.equals(writingBoard.getUser())) {
-            writingBoard.update(requestDto);
-            return writingBoard.getId();
-        }
-        throw new AccessDeniedException();
-    }
-
     public boolean hasUsedBoard(Subscription subscription) {
         List<WritingBoard> boards = writingBoardRepository.findAllByMembers(subscription);
         return !boards.isEmpty();
+    }
+
+    private void validateSubscription(User user){
+        if (user.getSubscription() == null){
+            throw new SubscriptionRequiredException();
+        }
     }
 }

@@ -19,8 +19,8 @@ import java.util.List;
 public class Personal extends User {
 
     @Builder
-    public Personal(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles, List<WritingBoard> writingBoards, Subscription subscription, boolean active, LocalDateTime lastLoggedInAt) {
-        super(id, accountId, password, name, phone, mobile, email, marketingAgreement, roles, writingBoards, subscription, active, lastLoggedInAt);
+    public Personal(Long id, String accountId, String password, String name, String phone, String mobile, String email, boolean marketingAgreement, List<String> roles, List<WritingBoard> writingBoards, Subscription subscription, boolean active, LocalDateTime lastLoggedInAt, Language language) {
+        super(id, accountId, password, name, phone, mobile, email, marketingAgreement, roles, writingBoards, subscription, active, lastLoggedInAt, language);
     }
 
     @Override
@@ -46,6 +46,9 @@ public class Personal extends User {
         }
         if (requestDto.getPassword() != null) {
             this.password = passwordEncoder.encode(requestDto.getPassword());
+        }
+        if (requestDto.getLanguage() != null){
+            this.language = Language.findByName(requestDto.getLanguage());
         }
     }
 }

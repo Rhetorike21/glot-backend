@@ -12,11 +12,12 @@ import java.util.Arrays;
 @Getter
 @AllArgsConstructor
 public enum PlanPeriod {
-    DAY("perDay", Period.ofDays(1), 1),
-    MONTH("perMonth", Period.ofMonths(1), 31),
-    YEAR("perYear", Period.ofYears(1), 12);
+    DAY("perDay", "매일",Period.ofDays(1), 1),
+    MONTH("perMonth", "매월",Period.ofMonths(1), 31),
+    YEAR("perYear","매년", Period.ofYears(1), 365);
 
     public final String name;
+    public final String description;
     private final Period period;
     private final int unit;
 

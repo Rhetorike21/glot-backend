@@ -41,6 +41,13 @@ operation::sign-up-with-personal[]
 ----
 operation::sign-up-with-organization[]
 
+=== 🟢 아이디 중복 확인
+----
+아이디가 중복인지 확인합니다.
+true인 경우 사용가능한 아이디입니다.
+----
+operation::auth-confirm-account-id[]
+
 === 🟢 기관 검색
 ----
 학교와 학원을 검색합니다.

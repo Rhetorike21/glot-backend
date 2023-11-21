@@ -34,10 +34,7 @@ public class PasswordResetService {
     @Transactional
     public void resetPassword(PasswordResetDto.Request requestDto) {
         User user = userRepository.findByAccountId(requestDto.getAccountId()).orElseThrow(UserNotFoundException::new);
-        if (certificationService.isValidNumber(requestDto.getCode())){
-            user.changePassword(passwordEncoder.encode(requestDto.getPassword()));
-            return;
-        }
-        throw new IllegalArgumentException();
+        certificationService.deleteCodeIfValid(requestDto.getCode());
+        user.changePassword(passwordEncoder.encode(requestDto.getPassword()));
     }
 }

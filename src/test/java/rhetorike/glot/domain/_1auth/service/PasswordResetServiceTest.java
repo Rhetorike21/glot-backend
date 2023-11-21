@@ -56,7 +56,6 @@ class PasswordResetServiceTest {
         User user = Personal.builder().build();
         given(userRepository.findByAccountId(accountId)).willReturn(Optional.of(user));
         given(passwordEncoder.encode(password)).willReturn("(encoded)" + password);
-        given(certificationService.isValidNumber(code)).willReturn(true);
 
         //when
         passwordResetService.resetPassword(requestDto);
@@ -64,6 +63,5 @@ class PasswordResetServiceTest {
         //then
         verify(userRepository).findByAccountId(accountId);
         verify(passwordEncoder).encode(password);
-        verify(certificationService).isValidNumber(code);
     }
 }

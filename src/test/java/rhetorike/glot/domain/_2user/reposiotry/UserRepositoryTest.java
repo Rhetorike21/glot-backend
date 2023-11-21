@@ -1,12 +1,16 @@
 package rhetorike.glot.domain._2user.reposiotry;
 
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import rhetorike.glot.domain._2user.entity.Organization;
+import rhetorike.glot.domain._2user.entity.OrganizationMember;
 import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
+import rhetorike.glot.domain._4order.entity.Subscription;
+import rhetorike.glot.domain._4order.repository.SubscriptionRepository;
 import rhetorike.glot.setup.RepositoryTest;
 
 import java.util.List;
@@ -20,6 +24,8 @@ class UserRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    SubscriptionRepository subscriptionRepository;
 
     @Test
     @DisplayName("개인 사용자를 저장하고 조회한다.")
@@ -98,4 +104,24 @@ class UserRepositoryTest {
         assertThat(found).isNotEmpty();
         assertThat(found.get().getPassword()).isEqualTo("new");
     }
+
+
+    @Test
+    @DisplayName("OrganizationMember만 조회한다.")
+    void findOrganizationMember(){
+        //given
+        Subscription subscription = subscriptionRepository.save(new Subscription());
+        Personal user1 = userRepository.save(Personal.builder().subscription(subscription).build());
+        OrganizationMember user2 = userRepository.save(OrganizationMember.builder().subscription(subscription).build());
+        OrganizationMember user3 = userRepository.save(OrganizationMember.builder().subscription(subscription).build());
+        Organization user4 = userRepository.save(Organization.builder().subscription(subscription).build());
+
+        //when
+        List<OrganizationMember> members = userRepository.findMemberBySubscription(subscription);
+
+        //then
+        Assertions.assertThat(members).containsExactlyInAnyOrder(user2, user3);
+    }
+
+
 }

@@ -25,4 +25,5 @@ public interface WritingBoardRepository extends JpaRepository<WritingBoard, Long
     @Query(" select w from WritingBoard  w join User u on w.user = u join Subscription s on u.subscription = s where s = :subscription ")
     List<WritingBoard> findAllByMembers(@Param("subscription") Subscription subscription);
 
+    Optional<WritingBoard> findByIdAndUser(Long id, User user);
 }

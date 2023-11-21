@@ -8,10 +8,7 @@ import org.mockito.Mock;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import rhetorike.glot.domain._2user.dto.UserDto;
 import rhetorike.glot.domain._2user.dto.UserProfileDto;
-import rhetorike.glot.domain._2user.entity.Organization;
-import rhetorike.glot.domain._2user.entity.OrganizationMember;
-import rhetorike.glot.domain._2user.entity.Personal;
-import rhetorike.glot.domain._2user.entity.User;
+import rhetorike.glot.domain._2user.entity.*;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._4order.entity.Subscription;
 import rhetorike.glot.domain._4order.repository.SubscriptionRepository;
@@ -42,7 +39,7 @@ class UserServiceTest {
     void getUserProfile() {
         //given
         Long userId = 1L;
-        User user = new Personal();
+        User user = Personal.builder().language(Language.KOREAN).build();
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         //when
@@ -72,7 +69,7 @@ class UserServiceTest {
         //given
         Long userId = 1L;
         User user = Personal.builder().name("가나다").email("test@naver.com").build();
-        UserProfileDto.UpdateParam requestBody = new UserProfileDto.UpdateParam("홍길동", "01012345678", null, "abcd1234");
+        UserProfileDto.UpdateParam requestBody = new UserProfileDto.UpdateParam("홍길동", "01012345678", null, "abcd1234", null);
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(passwordEncoder.encode("abcd1234")).willReturn("encodedPassword");
 
@@ -95,7 +92,7 @@ class UserServiceTest {
                 .mobile(null)
                 .password("password")
                 .build();
-        UserProfileDto.UpdateParam requestBody = new UserProfileDto.UpdateParam("홍길동", "01098765432", "update@naver.com", "updatePassword");
+        UserProfileDto.UpdateParam requestBody = new UserProfileDto.UpdateParam("홍길동", "01098765432", "update@naver.com", "updatePassword", null);
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(passwordEncoder.encode("updatePassword")).willReturn("encodedPassword");
 

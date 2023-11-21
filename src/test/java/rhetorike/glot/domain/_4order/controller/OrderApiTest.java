@@ -12,7 +12,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import rhetorike.glot.domain._2user.entity.User;
@@ -21,24 +20,18 @@ import rhetorike.glot.domain._4order.dto.OrderDto;
 import rhetorike.glot.domain._4order.entity.*;
 import rhetorike.glot.domain._4order.repository.OrderRepository;
 import rhetorike.glot.domain._4order.repository.PlanRepository;
-import rhetorike.glot.domain._4order.repository.SubscriptionRepository;
 import rhetorike.glot.domain._4order.service.OrderService;
-import rhetorike.glot.domain._4order.service.PayService;
-import rhetorike.glot.domain._4order.service.SubscriptionRenewScheduler;
 import rhetorike.glot.domain._4order.service.SubscriptionService;
 import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.global.constant.Header;
-import rhetorike.glot.global.util.portone.PortOneResponse;
 import rhetorike.glot.setup.IntegrationTest;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 
 @Slf4j
 @ActiveProfiles("secret")
@@ -118,9 +111,8 @@ public class OrderApiTest extends IntegrationTest {
     }
 
 
-
     @Test
-    @DisplayName("[베이직 요금제 주문 내역 조회]")
+    @DisplayName("[베이직 요금제 주문 내역 조회] - 구독 중인 경우")
     void getHistoryFromBasic() {
         //given
         String accessToken = getTokenFromNewUser().getAccessToken();
@@ -138,14 +130,39 @@ public class OrderApiTest extends IntegrationTest {
                 .extract();
 
         //then
-        List<OrderDto.GetResponse> list = response.jsonPath().getList("", OrderDto.GetResponse.class);
+        OrderDto.GetResponse getResponse = response.jsonPath().getObject("",OrderDto.GetResponse.class);
+        List<OrderDto.History> history = getResponse.getHistory();
         Subscription subscription = orderRepository.findById(orderId).get().getSubscription();
 
         assertAll(
                 () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
-                () -> assertThat(list).hasSize(1),
-                () -> assertThat(list.get(0).getStatus()).isEqualTo(OrderStatus.PAID.getDescription()),
+                () -> assertThat(history).hasSize(1),
+                () -> assertThat(history.get(0).getStatus()).isEqualTo(OrderStatus.PAID.getDescription()),
                 () -> assertThat(subscription.getMembers()).hasSize(1)
+        );
+    }
+
+    @Test
+    @DisplayName("[베이직 요금제 주문 내역 조회] - 구독 안하는 경우")
+    void getHistoryFromFree() {
+        //given
+        String accessToken = getTokenFromNewUser().getAccessToken();
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .header(Header.AUTH, accessToken)
+                .contentType(ContentType.JSON)
+                .when().get(OrderController.GET_ORDER_URI)
+                .then().log().all()
+                .extract();
+
+        //then
+        OrderDto.GetResponse getResponse = response.jsonPath().getObject("",OrderDto.GetResponse.class);
+        List<OrderDto.History> history = getResponse.getHistory();
+
+        assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
+                () -> assertThat(history).isNull()
         );
     }
 
@@ -154,7 +171,7 @@ public class OrderApiTest extends IntegrationTest {
     void getHistoryFromEnterPrise() {
         //given
         String accessToken = getTokenFromNewOrganization().getAccessToken();
-        if (planRepository.findBasicByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
+        if (planRepository.findEnterpriseByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
             planRepository.save(new EnterprisePlan(null, "월 엔터프라이즈 요금제", 100L, 100L, PlanPeriod.MONTH));
         }
         String orderId = orderEnterprisePlan(accessToken, PlanPeriod.MONTH, 3);
@@ -168,12 +185,13 @@ public class OrderApiTest extends IntegrationTest {
                 .extract();
 
         //then
-        List<OrderDto.GetResponse> list = response.jsonPath().getList("", OrderDto.GetResponse.class);
+        OrderDto.GetResponse getResponse = response.jsonPath().getObject("",OrderDto.GetResponse.class);
+        List<OrderDto.History> history = getResponse.getHistory();
         Subscription subscription = orderRepository.findById(orderId).get().getSubscription();
         assertAll(
                 () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
-                () -> assertThat(list).hasSize(1),
-                () -> assertThat(list.get(0).getStatus()).isEqualTo(OrderStatus.PAID.getDescription()),
+                () -> assertThat(history).hasSize(1),
+                () -> assertThat(history.get(0).getStatus()).isEqualTo(OrderStatus.PAID.getDescription()),
                 () -> assertThat(subscription.getMembers()).hasSize(3)
         );
     }
@@ -214,7 +232,7 @@ public class OrderApiTest extends IntegrationTest {
 
         //when
         orderService.reorder(LocalDate.now().plusMonths(1).minusDays(1));
-        subscriptionService.deleteOverdue(LocalDate.now().plusMonths(1).minusDays(1));
+        subscriptionService.pauseOverdueSubscriptions(LocalDate.now().plusMonths(1).minusDays(1));
 
         //then
         Order orderBefore = orderRepository.findById(orderId).get();
@@ -236,7 +254,7 @@ public class OrderApiTest extends IntegrationTest {
 
         //when
         orderService.reorder(LocalDate.now().plusMonths(1).minusDays(1));
-        subscriptionService.deleteOverdue(LocalDate.now().plusMonths(1).minusDays(1));
+        subscriptionService.pauseOverdueSubscriptions(LocalDate.now().plusMonths(1).minusDays(1));
 
         //then
         Order orderBefore = orderRepository.findById(orderId).get();
@@ -255,7 +273,7 @@ public class OrderApiTest extends IntegrationTest {
             planRepository.save(new BasicPlan(null, "베이직 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
         }
         String orderId = orderBasicPlan(accessToken, PlanPeriod.MONTH);
-        log.info(orderId);
+        User user = orderRepository.findById(orderId).get().getSubscription().getMembers().get(0);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -269,7 +287,9 @@ public class OrderApiTest extends IntegrationTest {
         assertAll(
                 () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value()),
                 () -> assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED),
-                () -> assertThat(order.getSubscription()).isNull()
+                () -> assertThat(order.getSubscription()).isNull(),
+                () -> assertThat(userRepository.findById(user.getId())).isPresent()
+
         );
     }
 
@@ -337,6 +357,7 @@ public class OrderApiTest extends IntegrationTest {
         }
         String orderId = orderEnterprisePlan(accessToken, PlanPeriod.YEAR, 3);
         log.info(orderId);
+        User user = orderRepository.findById(orderId).get().getSubscription().getMembers().get(0);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -350,7 +371,8 @@ public class OrderApiTest extends IntegrationTest {
         assertAll(
                 () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value()),
                 () -> assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED),
-                () -> assertThat(order.getSubscription()).isNull()
+                () -> assertThat(order.getSubscription()).isNull(),
+                () -> assertThat(userRepository.findById(user.getId())).isEmpty()
         );
     }
 
