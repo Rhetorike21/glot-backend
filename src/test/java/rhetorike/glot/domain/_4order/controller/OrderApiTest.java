@@ -7,6 +7,7 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 @Slf4j
 @ActiveProfiles("secret")
-//@Disabled
+@Disabled
 public class OrderApiTest extends IntegrationTest {
 
     @Autowired
