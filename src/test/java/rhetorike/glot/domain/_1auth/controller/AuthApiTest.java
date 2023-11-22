@@ -39,9 +39,16 @@ public class AuthApiTest extends IntegrationTest {
     @DisplayName("[개인 사용자 회원가입]")
     void signUpWithPersonal() {
         //given
-        final String CODE = "1234";
+        String str = RandomStringUtils.randomAlphabetic(4);
+        String num = RandomStringUtils.randomNumeric(4);
+        final String name = "test";
+        final String accountId = str + num;
+        final String password = str + num;
+        final String mobile = "010" + "1234" + num;
+        final String email = str + num + "@personal.com";
+        final String CODE = "123564";
         given(certCodeRepository.doesExists(CODE)).willReturn(true);
-        SignUpDto.PersonalRequest requestDto = new SignUpDto.PersonalRequest("test1234", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, CODE);
+        SignUpDto.PersonalRequest requestDto = new SignUpDto.PersonalRequest(accountId, password, name, mobile, mobile, email, true, CODE);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -61,9 +68,16 @@ public class AuthApiTest extends IntegrationTest {
     @DisplayName("[기관 사용자 회원가입]")
     void signUpWithOrganization() {
         //given
+        String str = RandomStringUtils.randomAlphabetic(4);
+        String num = RandomStringUtils.randomNumeric(4);
+        final String name = "test";
+        final String accountId = str + num;
+        final String password = str + num;
+        final String mobile = "010" + "1234" + num;
+        final String email = str + num + "@personal.com";
         final String CODE = "123564";
         given(certCodeRepository.doesExists(CODE)).willReturn(true);
-        SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest("asdf1234", "abcd1234", "김철수", "010-1234-5678", "010-5678-1234", "test@personal.com", true, CODE, "한국고등학교");
+        SignUpDto.OrgRequest requestDto = new SignUpDto.OrgRequest(accountId, password, name, mobile, mobile, email, true, CODE, name + "org");
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -86,7 +100,7 @@ public class AuthApiTest extends IntegrationTest {
         final String CODE = "1234";
         String str = RandomStringUtils.randomAlphabetic(4);
         String num = RandomStringUtils.randomNumeric(4);
-        final String name = USER_1_NAME;
+        final String name = "test";
         final String accountId = str + num;
         final String password = str + num;
         final String mobile = "010" + "1234" + num;

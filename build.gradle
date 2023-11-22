@@ -28,6 +28,9 @@ ext {
 }
 
 dependencies {
+
+	//flyway
+	implementation 'org.flywaydb:flyway-mysql'
 	//email
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 

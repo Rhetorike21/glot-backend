@@ -25,12 +25,6 @@ import static org.mockito.BDDMockito.given;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class IntegrationTest {
 
-    protected final static String USER_1_ACCOUNT_ID = "test01personal";
-    protected final static String USER_1_PASSWORD_RAW = "abcd1234";
-    protected final static String USER_1_MOBILE = "01012345678";
-    protected final static String USER_1_EMAIL = "test@personal.com";
-    protected final static String USER_1_NAME = "테스트용 개인 사용자";
-
     @LocalServerPort
     int port;
 
@@ -47,7 +41,7 @@ public class IntegrationTest {
         final String CODE = "1234";
         String str = RandomStringUtils.randomAlphabetic(4);
         String num = RandomStringUtils.randomNumeric(4);
-        final String name = USER_1_NAME;
+        final String name = "test";
         final String accountId = str + num;
         final String password = str + num;
         final String mobile = "010" + "1234" + num;

@@ -19,7 +19,7 @@ public class CertificationApiTest extends IntegrationTest {
     @DisplayName("[인증번호 전송]")
     void sendCodeBySms(){
         //given
-        CertificationDto.CodeRequest requestBody = new CertificationDto.CodeRequest(USER_1_MOBILE);
+        CertificationDto.CodeRequest requestBody = new CertificationDto.CodeRequest("01012345678");
 
         //when
         ExtractableResponse<Response> response = RestAssured
