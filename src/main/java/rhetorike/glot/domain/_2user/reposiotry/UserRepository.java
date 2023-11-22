@@ -22,4 +22,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findBySubscription(Subscription subscription);
     List<OrganizationMember> findMemberBySubscription(Subscription subscription);
 
+    List<OrganizationMember> findMemberBySubscriptionAndActive(Subscription subscription, boolean active);
 }

@@ -64,4 +64,8 @@ public class Subscription {
     public int getRemainDays() {
         return Period.between(LocalDate.now(), endDate).getDays();
     }
+
+    public void changeOrder(Order order){
+        this.order = order;
+    }
 }

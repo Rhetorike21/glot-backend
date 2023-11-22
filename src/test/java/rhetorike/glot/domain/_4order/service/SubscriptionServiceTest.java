@@ -51,7 +51,7 @@ class SubscriptionServiceTest {
         order.setCreatedTime(LocalDateTime.now());
 
         //when
-        subscriptionService.makeSubscribe(order);
+        subscriptionService.makeSubscription(order);
 
     }
 
@@ -66,7 +66,7 @@ class SubscriptionServiceTest {
         given(userService.findOrCreateMember(any())).willReturn(new OrganizationMember());
 
         //when
-        subscriptionService.makeSubscribe(order);
+        subscriptionService.makeSubscription(order);
     }
 
 

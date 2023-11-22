@@ -9,7 +9,6 @@ import rhetorike.glot.domain._2user.entity.OrganizationMember;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._2user.service.UserService;
-import rhetorike.glot.domain._3writing.service.WritingBoardService;
 import rhetorike.glot.domain._4order.dto.SubscriptionDto;
 import rhetorike.glot.domain._4order.entity.*;
 import rhetorike.glot.domain._4order.repository.OrderRepository;
@@ -19,9 +18,9 @@ import rhetorike.glot.global.error.exception.ResourceNotFoundException;
 import rhetorike.glot.global.error.exception.UserNotFoundException;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,13 +30,31 @@ public class SubscriptionService {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final OrderRepository orderRepository;
-    public enum SubStatus{
+
+    public void renewSubscription(Order newOrder, Subscription oldSubscription) {
+        Subscription newSubscription = subscriptionRepository.save(Subscription.newSubscription(newOrder));
+        User[] members = oldSubscription.getMembers().toArray(User[]::new);
+        for (int i = 0; i < members.length; i++) {
+            User member = members[i];
+            if (member.isActive()) {
+                member.setSubscription(newSubscription);
+            } else {
+                userRepository.delete(member);
+            }
+        }
+        List<User> notActiveMembers = oldSubscription.getMembers().stream()
+                .filter(Predicate.not(User::isActive))
+                .toList();
+        userRepository.deleteAll(notActiveMembers);
+    }
+
+    public enum SubStatus {
         SUBSCRIBED,
         PAUSED,
         FREE
     }
 
-    public SubStatus getSubStatus(User user){
+    public SubStatus getSubStatus(User user) {
         Optional<Order> orderOptional = orderRepository.findTop1ByStatusAndUserOrderByCreatedTimeDesc(OrderStatus.PAID, user);
         if (orderOptional.isEmpty()) {
             return SubStatus.FREE;
@@ -49,7 +66,7 @@ public class SubscriptionService {
         return SubStatus.SUBSCRIBED;
     }
 
-    public void makeSubscribe(Order order) {
+    public void makeSubscription(Order order) {
         Subscription subscription = subscriptionRepository.save(Subscription.newSubscription(order));
         List<User> members = initMembers(order);
         for (User member : members) {
@@ -84,6 +101,7 @@ public class SubscriptionService {
             deleteSubscriptionOnly(subscription);
         }
     }
+
     private void deleteSubscriptionOnly(Subscription subscription) {
         List<User> members = userRepository.findBySubscription(subscription);
         for (int i = 0; i < members.size(); i++) {
@@ -98,12 +116,11 @@ public class SubscriptionService {
         freeOrder(subscription.getOrder());
         subscriptionRepository.delete(subscription);
     }
-    private void deleteAllMembers(Subscription subscription){
+
+    private void deleteAllMembers(Subscription subscription) {
         List<OrganizationMember> members = userRepository.findMemberBySubscription(subscription);
         userRepository.deleteAll(members);
     }
-
-
 
 
     private void freeOrder(Order order) {

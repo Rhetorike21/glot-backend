@@ -59,22 +59,19 @@ public class CommonTest extends IntegrationTest {
         //given
         Payment payment = new Payment("1234-1234-1234-1234", "2028-07", "990311", "11");
         User user = Personal.builder().build();
-        if (planRepository.findBasicByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
-            planRepository.save(new BasicPlan(null, "베이직 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
-        }
+        BasicPlan plan = planRepository.save(new BasicPlan(null, "베이직 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
+
         given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "failed", "", ""));
         Long userId = userRepository.save(user).getId();
 
         //when
-        Assertions.assertThatThrownBy(() -> orderService.makeBasicOrder(new OrderDto.BasicOrderRequest(PlanPeriod.MONTH.getName(), payment), userId)).isInstanceOf(PaymentFailedException.class);
+        Assertions.assertThatThrownBy(() -> orderService.makeOrder(new OrderDto.MakeRequest(plan.getId(), 1, payment), userId)).isInstanceOf(PaymentFailedException.class);
 
         //then
         List<Order> orders = orderRepository.findByUserOrderByCreatedTimeDesc(user);
         log.info("{}", orders);
         assertThat(orders).isNotEmpty();
     }
-
-
 
 
 }

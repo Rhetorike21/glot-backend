@@ -55,17 +55,16 @@ class OrderControllerTest {
     @MockBean
     OrderService orderService;
 
-
     @Test
     @WithMockUser
-    @DisplayName("[베이직 요금제 주문]")
+    @DisplayName("[요금제 주문]")
     void makeOrder() throws Exception {
         //given
-        OrderDto.BasicOrderRequest orderDto = new OrderDto.BasicOrderRequest(PlanPeriod.MONTH.getName(), new Payment("1234-1234-1234-1234", "2028-04", "990101", "01"));
-        given(orderService.makeBasicOrder(any(), any())).willReturn(new SingleParamDto<>("abcdefghi"));
+        OrderDto.MakeRequest orderDto = new OrderDto.MakeRequest(1L, 1, new Payment("1234-1234-1234-1234", "2028-04", "990101", "01"));
+        given(orderService.makeOrder(any(), any())).willReturn(new SingleParamDto<>("abcdefghi"));
 
         //when
-        ResultActions actions = mockMvc.perform(post(OrderController.MAKE_BASIC_ORDER_URI)
+        ResultActions actions = mockMvc.perform(post(OrderController.MAKE_ORDER_URI)
                 .header(Header.AUTH, "access-token")
                 .content(objectMapper.writeValueAsString(orderDto))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -73,47 +72,13 @@ class OrderControllerTest {
 
         //then
         actions.andExpect(status().isOk())
-                .andDo(docs("order-basic",
+                .andDo(docs("order-make",
                         requestHeaders(
                                 HeaderElement.header(Header.AUTH).description("액세스 토큰")
                         ),
                         requestFields(
-                                field("planPeriod").description("기간 (1m | 1y)"),
-                                field("payment").type(JsonFieldType.OBJECT).description("결제 정보"),
-                                field("payment.cardNumber").description("카드 번호(NNNN-NNNN-NNNN-NNNN)"),
-                                field("payment.expiry").description("카드 유효기간(YYYY-MM)"),
-                                field("payment.birthDate").description("생년월일(YYMMDD)"),
-                                field("payment.password").description("비밀번호 앞 두자리(XX)")
-                        ),
-                        responseFields(
-                                field("data").description("주문 번호")
-                        )));
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("[엔터프라이즈 요금제 주문]")
-    void makeEnterpriseOrder() throws Exception {
-        //given
-        OrderDto.EnterpriseOrderRequest orderDto = new OrderDto.EnterpriseOrderRequest(PlanPeriod.MONTH.getName(), 3, new Payment("1234-1234-1234-1234", "2028-04", "990101", "01"));
-        given(orderService.makeEnterpriseOrder(any(), any())).willReturn(new SingleParamDto<>("abcdefghi"));
-
-        //when
-        ResultActions actions = mockMvc.perform(post(OrderController.MAKE_ENTERPRISE_ORDER_URI)
-                .header(Header.AUTH, "access-token")
-                .content(objectMapper.writeValueAsString(orderDto))
-                .contentType(MediaType.APPLICATION_JSON)
-                .with(csrf()));
-
-        //then
-        actions.andExpect(status().isOk())
-                .andDo(docs("order-enterprise",
-                        requestHeaders(
-                                HeaderElement.header(Header.AUTH).description("액세스 토큰")
-                        ),
-                        requestFields(
-                                field("planPeriod").description("기간 (1m | 1y)"),
-                                field("quantity").type(JsonFieldType.NUMBER).description("주문 수량"),
+                                field("planId").description("플랜 아이디넘버").type(JsonFieldType.NUMBER),
+                                field("quantity").description("수량").type(JsonFieldType.NUMBER),
                                 field("payment").type(JsonFieldType.OBJECT).description("결제 정보"),
                                 field("payment.cardNumber").description("카드 번호(NNNN-NNNN-NNNN-NNNN)"),
                                 field("payment.expiry").description("카드 유효기간(YYYY-MM)"),
@@ -131,7 +96,7 @@ class OrderControllerTest {
     void getOrders() throws Exception {
         //given
         List<OrderDto.History> histories = List.of(new OrderDto.History(LocalDate.now(), "2023년 11월 1일 ~ 2023년 12월 1일", "****-****-****-1234", 1000L, 100L, "paid"));
-        OrderDto.GetResponse responseBody = new OrderDto.GetResponse("GLOT 베이직", "구독 중", "KB국민카드", "매월 13일", LocalDate.of(2023, 11, 14), LocalDate.of(2023, 9, 14), histories);
+        OrderDto.GetResponse responseBody = new OrderDto.GetResponse("GLOT 베이직", "구독 중", "KB국민카드", "13", "2023년 11월 13일 (토)", "2023.11월", histories);
         given(orderService.getPayInfo(any())).willReturn(responseBody);
 
         //when

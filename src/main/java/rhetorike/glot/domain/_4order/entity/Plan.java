@@ -14,7 +14,6 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @DiscriminatorColumn(name = "type")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"type", "planPeriod"}))
 public abstract class Plan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -20,16 +20,8 @@ public class OrderDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class BasicOrderRequest {
-        private String planPeriod;
-        private Payment payment;
-    }
-
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class EnterpriseOrderRequest {
-        private String planPeriod;
+    public static class MakeRequest {
+        private long planId;
         private int quantity;
         private Payment payment;
     }
@@ -70,10 +62,9 @@ public class OrderDto {
         private String plan;
         private String status;
         private String payMethod;
-        @JsonFormat(pattern = "yyyy-MM-dd-HH:mm:ss")
         private String payPeriod;
-        private LocalDate nextPayDate;
-        private LocalDate firstPaidDate;
+        private String nextPayDate;
+        private String firstPaidDate;
         private List<History> history;
     }
 

@@ -1,5 +1,6 @@
 package rhetorike.glot.domain._4order.service;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +21,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.function.Predicate;
 
 import static rhetorike.glot.domain._4order.service.SubscriptionService.*;
 
@@ -36,49 +37,34 @@ public class OrderService {
     private final SubscriptionRepository subscriptionRepository;
 
     @Transactional(dontRollbackOn = PaymentFailedException.class)
-    public SingleParamDto<String> makeBasicOrder(OrderDto.BasicOrderRequest requestDto, Long userId) {
+    public SingleParamDto<String> makeOrder(OrderDto.MakeRequest requestDto, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         if (subscriptionService.getSubStatus(user) == SubStatus.SUBSCRIBED){
             throw new SubscriptionOngoingException();
         }
-        PlanPeriod planPeriod = PlanPeriod.findByName(requestDto.getPlanPeriod());
-        Plan plan = planRepository.findBasicByPlanPeriod(planPeriod).orElseThrow(ResourceNotFoundException::new);
-        Order order = orderRepository.save(Order.newOrder(user, plan, 1));
-        return new SingleParamDto<>(payOrder(order, requestDto.getPayment()));
-    }
-
-    @Transactional(dontRollbackOn = PaymentFailedException.class)
-    public SingleParamDto<String> makeEnterpriseOrder(OrderDto.EnterpriseOrderRequest requestDto, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        if (subscriptionService.getSubStatus(user) == SubStatus.SUBSCRIBED){
-            throw new SubscriptionOngoingException();
-        }
-        PlanPeriod planPeriod = PlanPeriod.findByName(requestDto.getPlanPeriod());
-        Plan plan = planRepository.findEnterpriseByPlanPeriod(planPeriod).orElseThrow(ResourceNotFoundException::new);
+        Plan plan = planRepository.findById(requestDto.getPlanId()).orElseThrow(ResourceNotFoundException::new);
         Order order = orderRepository.save(Order.newOrder(user, plan, requestDto.getQuantity()));
-        return new SingleParamDto<>(payOrder(order, requestDto.getPayment()));
+        subscriptionService.makeSubscription(order);
+        payOrder(order, requestDto.getPayment());
+        return new SingleParamDto<>(order.getId());
     }
 
     @Transactional(dontRollbackOn = PaymentFailedException.class)
-    public String payOrder(Order order, Payment payment) {
-        subscriptionService.makeSubscribe(order);
+    public void payOrder(Order order, Payment payment) {
         PortOneResponse.OneTimePay payResponse = payService.pay(order, payment);
         order.setStatus(OrderStatus.findByName(payResponse.getStatus()));
         if (order.getStatus() != OrderStatus.PAID) {
             throw new PaymentFailedException(payResponse.getFailReason());
         }
-        return order.getId();
     }
 
     @Transactional(dontRollbackOn = PaymentFailedException.class)
-    public String payOrder(Order order) {
-        subscriptionService.makeSubscribe(order);
+    public void payOrder(Order order) {
         PortOneResponse.AgainPay payResponse = payService.payAgain(order);
         order.setStatus(OrderStatus.findByName(payResponse.getStatus()));
         if (order.getStatus() != OrderStatus.PAID) {
             throw new PaymentFailedException(payResponse.getFailReason());
         }
-        return order.getId();
     }
 
     private List<OrderDto.History> getOrderHistory(User user) {
@@ -114,30 +100,32 @@ public class OrderService {
 
     @NotNull
     private OrderDto.GetResponse makePausedResponse(User user, Order recentOrder) {
-        LocalDate firstOrderedDate = recentOrder.getFirstOrderedDate();
-        String payPeriod = recentOrder.getPlan().getPlanPeriod().getDescription() + firstOrderedDate.format(DateTimeFormatter.ofPattern("dd일"));
+        String payPeriod = recentOrder.getFirstOrderedDate().format(DateTimeFormatter.ofPattern("dd"));
+        String firstPaidDate = recentOrder.getFirstOrderedDate().format(DateTimeFormatter.ofPattern("yyyy.MM월"));
         return OrderDto.GetResponse.builder()
                 .plan(recentOrder.getPlan().getName())
                 .status("구독 정지")
                 .payPeriod(payPeriod)
                 .payMethod(payService.getPayMethod(user).getCardName())
                 .nextPayDate(null)
-                .firstPaidDate(recentOrder.getFirstOrderedDate())
+                .firstPaidDate(firstPaidDate)
                 .history(getOrderHistory(user))
                 .build();
     }
 
     @NotNull
     private OrderDto.GetResponse makeSubsResponse(User user, Order recentOrder) {
-        LocalDate firstOrderedDate = recentOrder.getFirstOrderedDate();
-        String payPeriod = recentOrder.getPlan().getPlanPeriod().getDescription() + firstOrderedDate.format(DateTimeFormatter.ofPattern("dd일"));
+        String payPeriod = recentOrder.getFirstOrderedDate().format(DateTimeFormatter.ofPattern("dd"));
+        String firstPaidDate = recentOrder.getFirstOrderedDate().format(DateTimeFormatter.ofPattern("yyyy.MM월"));
+        String nextPayDate = recentOrder.getFirstOrderedDate().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 (EEE)"));
+
         return OrderDto.GetResponse.builder()
                 .plan(recentOrder.getPlan().getName())
                 .status("구독 중")
                 .payPeriod(payPeriod)
                 .payMethod(payService.getPayMethod(user).getCardName())
-                .nextPayDate(recentOrder.getSubscription().getEndDate().plusDays(1L))
-                .firstPaidDate(recentOrder.getFirstOrderedDate())
+                .nextPayDate(nextPayDate)
+                .firstPaidDate(firstPaidDate)
                 .history(getOrderHistory(user))
                 .build();
     }
@@ -151,8 +139,13 @@ public class OrderService {
     public void reorder(LocalDate endDate) {
         List<Subscription> closedSubscriptions = subscriptionRepository.findByContinuedIsTrueAndEndDate(endDate);
         for (Subscription subscription : closedSubscriptions) {
-            Order reorder = orderRepository.save(Order.newReorder(subscription.getOrder()));
-            payOrder(reorder);
+            List<User> members = subscription.getMembers();
+            long numOfInvalid = members.stream().filter(Predicate.not(User::isActive)).count();
+            if (members.size() != numOfInvalid) {
+                Order reorder = orderRepository.save(Order.newReorder(subscription.getOrder(), numOfInvalid));
+                subscriptionService.renewSubscription(reorder, subscription);
+                payOrder(reorder);
+            }
         }
     }
 

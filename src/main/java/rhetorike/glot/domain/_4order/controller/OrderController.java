@@ -17,8 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
 
-    public final static String MAKE_BASIC_ORDER_URI = "/api/orders/basic";
-    public final static String MAKE_ENTERPRISE_ORDER_URI = "/api/orders/enterprise";
+    public final static String MAKE_ORDER_URI = "/api/orders";
     public final static String GET_ORDER_URI = "/api/orders";
     public final static String CHANGE_PAY_METHOD_URI = "/api/orders/payments";
     public final static String REFUND_URI = "/api/orders/refund";
@@ -26,16 +25,9 @@ public class OrderController {
     private final OrderService orderService;
 
     @PreAuthorize("hasAnyRole('PERSONAL', 'ORG')")
-    @PostMapping(MAKE_BASIC_ORDER_URI)
-    public ResponseEntity<SingleParamDto<String>> makeBasicOrder(@RequestBody OrderDto.BasicOrderRequest requestDto, @AuthenticationPrincipal Long userId) {
-        SingleParamDto<String> responseBody = orderService.makeBasicOrder(requestDto, userId);
-        return new ResponseEntity<>(responseBody, HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasAnyRole('PERSONAL', 'ORG')")
-    @PostMapping(MAKE_ENTERPRISE_ORDER_URI)
-    public ResponseEntity<SingleParamDto<String>> makeEnterpriseOrder(@RequestBody OrderDto.EnterpriseOrderRequest requestDto, @AuthenticationPrincipal Long userId) {
-        SingleParamDto<String> responseBody = orderService.makeEnterpriseOrder(requestDto, userId);
+    @PostMapping(MAKE_ORDER_URI)
+    public ResponseEntity<SingleParamDto<String>> makeOrder(@RequestBody OrderDto.MakeRequest requestDto, @AuthenticationPrincipal Long userId) {
+        SingleParamDto<String> responseBody = orderService.makeOrder(requestDto, userId);
         return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
 

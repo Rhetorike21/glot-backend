@@ -201,17 +201,12 @@ operation::help-writing[]
 
 == 📟 4. 결제
 
-=== 🟢 베이직 요금제 구매
+=== 🟢 요금제 구매
 ----
-베이직 요금제를 구매합니다.
+요금제를 구매합니다.
 ----
-operation::order-basic[]
+operation::order-make[]
 
-=== 🟢 엔터프라이즈 요금제 구매
-----
-엔터프라이즈 요금제를 구매합니다.
-----
-operation::order-enterprise[]
 
 === 🟢 구매 내역 조회
 ----

@@ -64,12 +64,7 @@ public class AuthService {
     @Transactional
     public LoginDto.Response login(LoginDto.Request requestDto) {
         User user = userRepository.findByAccountId(requestDto.getAccountId()).orElseThrow(UserNotFoundException::new);
-        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-            throw new WrongPasswordException();
-        }
-        if (user instanceof OrganizationMember && user.getSubscription() == null) {
-            throw new SubscriptionRequiredException();
-        }
+        validateLogin(requestDto, user);
         user.updateLoginLog(LocalDateTime.now());
         AccessToken accessToken = AccessToken.generatedFrom(user);
         RefreshToken refreshToken = RefreshToken.generatedFrom(user);
@@ -77,6 +72,18 @@ public class AuthService {
                 .subStatus(subscriptionService.getSubStatus(user))
                 .token(new TokenDto.FullResponse(accessToken, refreshToken))
                 .build();
+    }
+
+    private void validateLogin(LoginDto.Request requestDto, User user) {
+        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
+            throw new WrongPasswordException();
+        }
+        if (user instanceof OrganizationMember && user.getSubscription() == null) {
+            throw new SubscriptionRequiredException();
+        }
+        if (!user.isActive()){
+            throw new InactiveUserException();
+        }
     }
 
 

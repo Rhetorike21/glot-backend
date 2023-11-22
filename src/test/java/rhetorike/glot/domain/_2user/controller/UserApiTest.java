@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import rhetorike.glot.domain._2user.dto.UserProfileDto;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
+import rhetorike.glot.domain._4order.controller.MockPayIntegrationTest;
 import rhetorike.glot.domain._4order.controller.OrderController;
 import rhetorike.glot.domain._4order.dto.OrderDto;
 import rhetorike.glot.domain._4order.entity.PlanPeriod;
@@ -28,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 
 @Slf4j
-public class UserApiTest extends IntegrationTest {
+public class UserApiTest extends MockPayIntegrationTest {
 
     @Autowired
     UserRepository userRepository;
@@ -109,16 +110,5 @@ public class UserApiTest extends IntegrationTest {
                 () -> assertThat(users).hasSize(1),
                 () -> assertThat(passwordEncoder.matches("sdjflj1234", users.get(0).getPassword())).isTrue()
         );
-    }
-
-    private String orderEnterprisePlan(String accessToken, PlanPeriod planPeriod, int quantity) {
-        OrderDto.EnterpriseOrderRequest requestDto = new OrderDto.EnterpriseOrderRequest(planPeriod.getName(), quantity, new Payment("cardNumber", "expiry", "birth", "password"));
-        return RestAssured.given().log().all()
-                .body(requestDto)
-                .header(Header.AUTH, accessToken)
-                .contentType(ContentType.JSON)
-                .when().post(OrderController.MAKE_ENTERPRISE_ORDER_URI)
-                .then().log().all()
-                .extract().jsonPath().get("data");
     }
 }

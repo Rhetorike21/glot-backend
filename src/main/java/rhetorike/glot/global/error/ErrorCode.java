@@ -29,7 +29,8 @@ public enum ErrorCode {
     REFUND_DENIED("0020", "환불이 불가능합니다.", HttpStatus.BAD_REQUEST),
     SUBSCRIPTION_REQUIRED("0021", "구독하지 않았거나, 만료되어 이용이 제한되었습니다.", HttpStatus.BAD_REQUEST),
     SUBSCRIPTION_ONGOING("0022", "이미 구독 중인 요금제가 존재합니다.", HttpStatus.BAD_REQUEST),
-    ;
+    INACTIVE_USER("0023", "비활성화된 사용자입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_REQUEST("0024", "잘못된 요청입니다.", HttpStatus.BAD_REQUEST);
 
     private final String code;
     private final String message;

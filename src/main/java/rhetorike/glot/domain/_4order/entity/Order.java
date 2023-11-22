@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.global.config.jpa.BaseTimeEntity;
+import rhetorike.glot.global.error.exception.AccessDeniedException;
+import rhetorike.glot.global.error.exception.InvalidRequestException;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -52,9 +54,13 @@ public class Order extends BaseTimeEntity {
                 .build();
     }
 
-    public static Order newReorder(Order order){
-        long supplyPrice = order.getSupplyPrice();
-        long vat = order.getVat();
+    public static Order newReorder(Order order, long numOfInvalid){
+        long quantity = order.getQuantity() - numOfInvalid;
+        if (quantity <= 0){
+            throw new InvalidRequestException("주문 수량은 1보다 커야 합니다.");
+        }
+        long supplyPrice = Math.round(order.getPlan().getDiscountedPrice() * quantity);
+        long vat = Math.round(supplyPrice * 0.1);
         return Order.builder()
                 .id(UUID.randomUUID().toString())
                 .user(order.getUser())
@@ -85,5 +91,18 @@ public class Order extends BaseTimeEntity {
         long supplyPrice = Math.round(plan.getPrice() * quantity);
         long vat = Math.round(supplyPrice * 0.1);
         return supplyPrice + vat;
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id='" + id + '\'' +
+                ", quantity=" + quantity +
+                ", totalPrice=" + totalPrice +
+                ", supplyPrice=" + supplyPrice +
+                ", vat=" + vat +
+                ", status=" + status +
+                ", firstOrderedDate=" + firstOrderedDate +
+                '}';
     }
 }

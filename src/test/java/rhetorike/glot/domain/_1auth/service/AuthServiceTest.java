@@ -116,6 +116,7 @@ class AuthServiceTest {
         User user = Personal.builder()
                 .id(1L)
                 .password(encodedPassword)
+                .active(true)
                 .build();
         LoginDto.Request requestDto = new LoginDto.Request(id, password);
         given(userRepository.findByAccountId(id)).willReturn(Optional.of(user));
@@ -141,6 +142,7 @@ class AuthServiceTest {
         User user = Personal.builder()
                 .id(1L)
                 .password(encodedPassword)
+                .active(true)
                 .build();
         LoginDto.Request requestDto = new LoginDto.Request(id, password);
         given(userRepository.findByAccountId(id)).willReturn(Optional.of(user));

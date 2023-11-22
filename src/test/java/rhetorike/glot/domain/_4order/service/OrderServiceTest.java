@@ -52,17 +52,17 @@ class OrderServiceTest {
         Long userId = 1L;
         Payment payment = new Payment("1234-1234-1234-1234", "2028-07", "990311", "11");
         User user = Personal.builder().build();
-        BasicPlan plan = new BasicPlan();
-        given(planRepository.findBasicByPlanPeriod(PlanPeriod.MONTH)).willReturn(Optional.of(plan));
+        BasicPlan plan = BasicPlan.builder().id(1L).build();
+        given(planRepository.findById(1L)).willReturn(Optional.of(plan));
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(orderRepository.save(any())).willReturn(new Order());
         given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay(null, "paid", null, null));
 
         //when
-        orderService.makeBasicOrder(new OrderDto.BasicOrderRequest(PlanPeriod.MONTH.getName(), payment), userId);
+        orderService.makeOrder(new OrderDto.MakeRequest(plan.getId(), 1, payment), userId);
 
         //then
-        verify(planRepository).findBasicByPlanPeriod(PlanPeriod.MONTH);
+        verify(planRepository).findById(1L);
         verify(userRepository).findById(userId);
     }
 
@@ -73,17 +73,17 @@ class OrderServiceTest {
         Long userId = 1L;
         Payment payment = new Payment("1234-1234-1234-1234", "2028-07", "990311", "11");
         User user = Organization.builder().build();
-        EnterprisePlan plan = new EnterprisePlan();
-        given(planRepository.findEnterpriseByPlanPeriod(PlanPeriod.MONTH)).willReturn(Optional.of(plan));
+        EnterprisePlan plan = EnterprisePlan.builder().id(1L).build();
+        given(planRepository.findById(1L)).willReturn(Optional.of(plan));
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(orderRepository.save(any())).willReturn(new Order());
         given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay(null, "paid", null, null));
 
         //when
-        orderService.makeEnterpriseOrder(new OrderDto.EnterpriseOrderRequest(PlanPeriod.MONTH.getName(), 3, payment), userId);
+        orderService.makeOrder(new OrderDto.MakeRequest(plan.getId(), 3, payment), userId);
 
         //then
-        verify(planRepository).findEnterpriseByPlanPeriod(PlanPeriod.MONTH);
+        verify(planRepository).findById(1L);
         verify(userRepository).findById(userId);
     }
 
@@ -171,5 +171,6 @@ class OrderServiceTest {
         verify(userRepository).findById(userId);
         verify(refundService).calcRefundAmount(subscription);
     }
+
 
 }

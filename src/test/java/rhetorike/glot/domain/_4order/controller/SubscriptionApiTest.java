@@ -5,20 +5,16 @@ import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import rhetorike.glot.domain._1auth.controller.AuthController;
 import rhetorike.glot.domain._1auth.dto.LoginDto;
 import rhetorike.glot.domain._2user.controller.UserController;
 import rhetorike.glot.domain._2user.dto.UserDto;
-import rhetorike.glot.domain._2user.entity.OrganizationMember;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._4order.dto.OrderDto;
@@ -34,7 +30,6 @@ import rhetorike.glot.global.constant.Header;
 import rhetorike.glot.global.util.portone.PortOneResponse;
 import rhetorike.glot.setup.IntegrationTest;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +38,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @Slf4j
-public class SubscriptionApiTest extends IntegrationTest {
+public class SubscriptionApiTest extends MockPayIntegrationTest {
 
     @Autowired
     UserRepository userRepository;
@@ -56,19 +51,13 @@ public class SubscriptionApiTest extends IntegrationTest {
     @Autowired
     SubscriptionService subscriptionService;
 
-    @MockBean
-    PayService payService;
-
     @Test
     @DisplayName("[베이직 요금제 구독 취소]")
     void stopBasicSubscription() {
         //given
         String accessToken = getTokenFromNewUser().getAccessToken();
-        if (planRepository.findBasicByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
-            planRepository.save(new BasicPlan(null, "베이직 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
-        }
-        given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
-        String orderId = orderBasicPlan(accessToken, PlanPeriod.MONTH);
+        BasicPlan basicPlan = planRepository.save(new BasicPlan(null, "베이직 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
+        String orderId = makeOrder(accessToken, basicPlan, 1);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -90,12 +79,8 @@ public class SubscriptionApiTest extends IntegrationTest {
     void stopEnterpriseSubscription() {
         //given
         String accessToken = getTokenFromNewOrganization().getAccessToken();
-        if (planRepository.findEnterpriseByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
-            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
-        }
-
-        given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
-        String orderId = orderEnterprisePlan(accessToken, PlanPeriod.MONTH, 3);
+        EnterprisePlan enterprisePlan = planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
+        String orderId = makeOrder(accessToken, enterprisePlan, 3);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -117,12 +102,8 @@ public class SubscriptionApiTest extends IntegrationTest {
     void getSubscriptionMembers() {
         //given
         String accessToken = getTokenFromNewOrganization().getAccessToken();
-        if (planRepository.findEnterpriseByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
-            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L,100L,  PlanPeriod.MONTH));
-        }
-
-        given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
-        String orderId = orderEnterprisePlan(accessToken, PlanPeriod.MONTH, 10);
+        EnterprisePlan enterprisePlan = planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
+        String orderId = makeOrder(accessToken, enterprisePlan, 10);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -150,11 +131,8 @@ public class SubscriptionApiTest extends IntegrationTest {
     void updateSubscriptionMembers() {
         //given
         String accessToken = getTokenFromNewOrganization().getAccessToken();
-        if (planRepository.findEnterpriseByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
-            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L,100L,  PlanPeriod.MONTH));
-        }
-        given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
-        String orderId = orderEnterprisePlan(accessToken, PlanPeriod.MONTH, 10);
+        EnterprisePlan enterprisePlan = planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
+        String orderId = makeOrder(accessToken, enterprisePlan, 10);
         Subscription subscription = orderRepository.findById(orderId).get().getSubscription();
         String memberAccountId = subscription.getMembers().get(0).getAccountId();
         log.info(memberAccountId);
@@ -202,13 +180,9 @@ public class SubscriptionApiTest extends IntegrationTest {
     void getSubscriptionMembersLastLoggedInAt() {
         //given
         String accessToken = getTokenFromNewOrganization().getAccessToken();
-        if (planRepository.findEnterpriseByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
-            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
-        }
-        given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
-        String orderId = orderEnterprisePlan(accessToken, PlanPeriod.MONTH, 10);
+        EnterprisePlan enterprisePlan = planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
+        String orderId = makeOrder(accessToken, enterprisePlan, 10);
         Subscription subscription = orderRepository.findById(orderId).get().getSubscription();
-
         String memberAccountId1 = subscription.getMembers().get(0).getAccountId();
 
         //when
@@ -240,11 +214,8 @@ public class SubscriptionApiTest extends IntegrationTest {
     void activateUser() {
         //given
         String accessToken = getTokenFromNewOrganization().getAccessToken();
-        if (planRepository.findEnterpriseByPlanPeriod(PlanPeriod.MONTH).isEmpty()) {
-            planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
-        }
-        given(payService.pay(any(), any())).willReturn(new PortOneResponse.OneTimePay("", "paid", "", ""));
-        String orderId = orderEnterprisePlan(accessToken, PlanPeriod.MONTH, 3);
+        EnterprisePlan enterprisePlan = planRepository.save(new EnterprisePlan(null, "엔터프라이즈 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
+        String orderId = makeOrder(accessToken, enterprisePlan, 3);
         Subscription subscription = orderRepository.findById(orderId).get().getSubscription();
         String memberAccountId1 = subscription.getMembers().get(0).getAccountId();
         UserDto.ActivateRequest requestBody = new UserDto.ActivateRequest(memberAccountId1, false);
@@ -287,28 +258,5 @@ public class SubscriptionApiTest extends IntegrationTest {
         assertAll(
                 () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.FORBIDDEN.value())
         );
-    }
-
-    private String orderBasicPlan(String accessToken, PlanPeriod planPeriod) {
-        OrderDto.BasicOrderRequest requestDto = new OrderDto.BasicOrderRequest(planPeriod.getName(), new Payment("cardNumber", "expiry", "birth", "password"));
-        return RestAssured.given().log().all()
-                .body(requestDto)
-                .header(Header.AUTH, accessToken)
-                .contentType(ContentType.JSON)
-                .when().post(OrderController.MAKE_BASIC_ORDER_URI)
-                .then().log().all()
-                .extract().jsonPath().get("data");
-
-    }
-
-    private String orderEnterprisePlan(String accessToken, PlanPeriod planPeriod, int quantity) {
-        OrderDto.EnterpriseOrderRequest requestDto = new OrderDto.EnterpriseOrderRequest(planPeriod.getName(), quantity, new Payment("cardNumber", "expiry", "birth", "password"));
-        return RestAssured.given().log().all()
-                .body(requestDto)
-                .header(Header.AUTH, accessToken)
-                .contentType(ContentType.JSON)
-                .when().post(OrderController.MAKE_ENTERPRISE_ORDER_URI)
-                .then().log().all()
-                .extract().jsonPath().get("data");
     }
 }
