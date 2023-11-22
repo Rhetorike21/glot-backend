@@ -1,0 +1,239 @@
+ifndef::snippets[]
+:snippets: {docdir}
+endif::[]
+
+
+= GLOT API Docs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:doctype: book
+:icons: font
+:source-highlighter: highlight.js
+:operation-curl-request-title: - - - - -
+:operation-httpie-request-title: - - - - -
+
+[.gray]#{last-update-label} in {docdatetime}#
+
+
+//----------------------------------------------//
+
+== 🐰 0. 공통
+
+=== 🔵액세스 토큰 만료 시 행동
+----
+액세스 토큰이 만료된 경우 상태코드 401이 리턴됩니다.
+이 때, Reissue API를 호출하면 새로운 액세스 토큰을 발급받을 수 있습니다.
+만약 리프레시 토큰까지 만료된 경우 다시 로그인해야 합니다.
+----
+
+== 🦝 1. 인증/인가
+
+=== 🟢 개인 사용자 회원가입
+----
+개인 사용자로 회원가입합니다.
+----
+operation::sign-up-with-personal[]
+
+=== 🟢 기관 사용자 회원가입
+----
+기관 사용자로 회원가입합니다.
+----
+operation::sign-up-with-organization[]
+
+=== 🟢 아이디 중복 확인
+----
+아이디가 중복인지 확인합니다.
+true인 경우 사용가능한 아이디입니다.
+----
+operation::auth-confirm-account-id[]
+
+=== 🟢 기관 검색
+----
+학교와 학원을 검색합니다.
+----
+operation::org-name-search[]
+
+=== 🟢 sms 인증 코드 전송
+----
+사용자의 전화번호로 인증코드를 전송합니다.
+----
+operation::cert-sms-code[]
+
+=== 🟢 sms 인증 확인
+----
+사용자의 전화번호로 전달된 인증코드를 확인합니다.
+일치하면 true를, 그렇지 않으면 false를 리턴합니다.
+----
+operation::cert-sms-verify[]
+
+
+=== 🟢 로그인
+----
+서비스에 로그인합니다.
+----
+operation::auth-login[]
+
+=== 🟢 로그아웃
+----
+서비스에서 로그아웃합니다.
+사용한 액세스 토큰과 리프레시 토큰이 만료됩니다.
+----
+operation::auth-logout[]
+
+=== 🟢 회원탈퇴
+----
+서비스에서 회원탈퇴합니다.
+사용한 액세스 토큰과 리프레시 토큰이 만료됩니다.
+----
+operation::auth-withdraw[]
+
+=== 🟢 액세스 토큰 재발급
+----
+액세스 토큰을 재발급합니다.
+에러 코드 "0008" 반환 시, 다시 로그인해야 합니다.
+----
+operation::auth-reissue[]
+
+=== 🟢 이메일로 아이디 찾기
+----
+입력한 메일 주소로 아이디 정보가 포함된 이메일을 전송합니다.
+이메일 주소로 회원을 찾을 수 없는 경우 0001 에러를 반환합니다.
+----
+operation::find-accountId-email[]
+
+=== 🟢 전화번호로 아이디 찾기
+----
+전화번호로 아이디를 찾습니다.
+해당 API를 호출하기 전, SMS 인증 과정이 선행되어야 합니다.
+----
+operation::find-accountId-mobile[]
+
+
+=== 🟢 이메일로 비밀번호 찾기(메일 전송)
+----
+입력한 메일 주소로 비밀번호 재설정 링크가 포함된 이메일을 전송합니다.
+계정을 찾을 수 없는 경우 0001 에러를 반환합니다.
+----
+operation::find-password-email[]
+
+=== 🟢 비밀번호 재설정
+----
+사용자의 비밀번호를 재설정합니다.
+재설정 링크에 포함된 파라미터와 일치하지 않은 경우, 에러가 발생합니다.
+----
+operation::reset-password[]ㄱㄱ
+
+
+== 🦝 2. 사용자
+
+=== 🟢 내 정보 조회
+----
+내 정보를 조회합니다.
+----
+operation::user-profile-get[]
+
+=== 🟢 내 정보 수정
+----
+내 정보를 수정합니다.
+----
+operation::user-profile-update[]
+
+=== 🟢 구매 계정 정보 조회
+----
+구매 계정 정보를 조회합니다.
+----
+operation::subscription-members[]
+
+
+=== 🟢 구매 계정 정보 수정
+----
+구매 계정 정보를 수정합니다.
+----
+operation::subscription-members-update[]
+
+== 🐣 3. 작문
+
+=== 🟢 작문 보드 저장
+----
+작문 보드를 저장합니다.
+writingBoardId를 명시하는 경우, 보드의 제목과 내용을 수정합니다.
+writingBoardId를 명시하지 않는 경우, 새로운 보드를 생성합니다.
+----
+operation::board-save[]
+
+=== 🟢 작문 보드 전체 조회
+----
+사용자가 생성한 전체 작문 보드를 조회합니다.
+----
+operation::board-get-all[]
+
+=== 🟢 작문 보드 단건 조회
+----
+작문 보드 하나를 조회합니다.
+본인의 보드가 아닌 경우, 예외가 발생합니다.
+----
+operation::board-get[]
+
+=== 🟢 작문 보드 이동
+----
+작문 보드를 이동시킵니다.
+본인의 보드가 아닌 경우, 예외가 발생합니다.
+----
+operation::board-move[]
+
+
+=== 🟢 작문 보드 삭제
+----
+작문 보드를 수정합니다.가
+수정할 항목이 아닌 경우, null을 주면 됩니다.
+----
+operation::board-delete[]
+
+
+=== 🟢 AI 작문 추천
+----
+AI 작문 추천 기능을 수행합니다.
+발전형/반대형/결론형 중 하나의 결과를 받을 수 있습니다.
+----
+operation::help-writing[]
+
+
+== 📟 4. 결제
+
+=== 🟢 요금제 구매
+----
+요금제를 구매합니다.
+----
+operation::order-make[]
+
+
+=== 🟢 구매 내역 조회
+----
+구매 내역을 조회합니다.
+----
+operation::order-get[]
+
+=== 🟢 지불 방식 변경
+----
+지불 방식을 변경합니다.
+----
+operation::payment-update[]
+
+=== 🟢 구독 중지
+----
+요금제 구독을 중지합니다.
+----
+operation::subscription-stop[]
+
+=== 🟢 환불
+----
+환불합니다.
+----
+operation::order-refund[]
+
+=== 🟢 환불 정보 확인
+----
+환불 정보를 확인합니다.
+----
+operation::order-refund-info[]
