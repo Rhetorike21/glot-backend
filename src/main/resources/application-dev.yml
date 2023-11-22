@@ -36,6 +36,12 @@ spring:
           timeout: 5000 # Socket Read Timeout 시간(ms) (기본값 : 무한대)
           starttls:
             enable: true # StartTLS 활성화 여부 (기본값 : false)
+  flyway:
+    url: jdbc:mariadb://localhost:3306/glot_local?validationQuery="select 1"&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC&useLegacyDatetimeCode=false
+    user: root
+    password: root
+    baseline-on-migrate: true
+    enabled: false
 api:
   port-one:
     imp-key: 8164131572514411
