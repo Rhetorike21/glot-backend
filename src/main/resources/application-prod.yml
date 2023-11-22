@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mariadb://localhost:3306/glot_local?validationQuery="select 1"&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC&useLegacyDatetimeCode=false
-    username: root
-    password: root
+    url: jdbc:mariadb://localhost:3306/glot_prod?validationQuery="select 1"&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC&useLegacyDatetimeCode=false
+    username: operator
+    password: operator
     driver-class-name: org.mariadb.jdbc.Driver
     hikari:
       connection-test-query: select 1 from dual
@@ -32,9 +32,9 @@ spring:
           starttls:
             enable: true # StartTLS 활성화 여부 (기본값 : false)
   flyway:
-    url: jdbc:mariadb://localhost:3306/glot_int_test?validationQuery="select 1"&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC&useLegacyDatetimeCode=false
-    user: test_user
-    password: test
+    url: jdbc:mariadb://localhost:3306/glot_prod?validationQuery="select 1"&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC&useLegacyDatetimeCode=false
+    user: operator
+    password: operator
     baseline-on-migrate: true
     enabled: true
 api:
