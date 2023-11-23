@@ -61,9 +61,7 @@ CREATE TABLE `organization` (
 LOCK TABLES `organization` WRITE;
 /*!40000 ALTER TABLE `organization` DISABLE KEYS */;
 
-INSERT INTO `organization` (`id`, `organization_name`)
-VALUES
-    (2,'한국고등학교');
+
 
 /*!40000 ALTER TABLE `organization` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -96,9 +94,6 @@ CREATE TABLE `personal` (
 LOCK TABLES `personal` WRITE;
 /*!40000 ALTER TABLE `personal` DISABLE KEYS */;
 
-INSERT INTO `personal` (`id`)
-VALUES
-    (1);
 
 /*!40000 ALTER TABLE `personal` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -122,13 +117,6 @@ CREATE TABLE `plan` (
 LOCK TABLES `plan` WRITE;
 /*!40000 ALTER TABLE `plan` DISABLE KEYS */;
 
-INSERT INTO `plan` (`discounted_price`, `id`, `price`, `type`, `name`, `plan_period`)
-VALUES
-    (130,1,130,'basic','GLOT 베이직','MONTH'),
-    (130,2,130,'basic','GLOT 베이직','YEAR'),
-    (120,3,130,'enterprise','GLOT 엔터프라이즈','MONTH'),
-    (110,4,130,'enterprise','GLOT 엔터프라이즈','YEAR'),
-    (100,5,100,'basic','베이직 요금제 분당 결제 (테스트)','DAY');
 
 /*!40000 ALTER TABLE `plan` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -182,10 +170,6 @@ CREATE TABLE `user` (
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
 
-INSERT INTO `user` (`active`, `marketing_agreement`, `created_time`, `id`, `last_logged_in_at`, `modified_time`, `subscription_id`, `type`, `account_id`, `email`, `mobile`, `name`, `phone`, `language`, `password`)
-VALUES
-    (b'1',b'1','2023-10-13 09:00:00.000000',1,'2023-10-13 09:00:00.000000','2023-10-13 09:00:00.000000',NULL,'personal','test01personal','test@personal.com','01012345678','테스트용 개인 사용자','05312345678',NULL,'{bcrypt}$2a$10$NC5hlrD/BhjMXZtE2ZH.8.Hanx4WLggyOy4I1sY9ZhSE5i8qXXFPO'),
-    (b'1',b'1','2023-10-13 09:00:00.000000',2,'2023-10-13 09:00:00.000000','2023-10-13 09:00:00.000000',NULL,'organization','test02org','test@organization.com','01056781234','테스트용 기관 사용자','05356781234',NULL,'{bcrypt}$2a$10$NC5hlrD/BhjMXZtE2ZH.8.Hanx4WLggyOy4I1sY9ZhSE5i8qXXFPO');
 
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -206,12 +190,6 @@ CREATE TABLE `user_roles` (
 LOCK TABLES `user_roles` WRITE;
 /*!40000 ALTER TABLE `user_roles` DISABLE KEYS */;
 
-INSERT INTO `user_roles` (`user_id`, `roles`)
-VALUES
-    (1,'ROLE_USER'),
-    (1,'ROLE_PERSONAL'),
-    (2,'ROLE_USER'),
-    (2,'ROLE_ORG');
 
 /*!40000 ALTER TABLE `user_roles` ENABLE KEYS */;
 UNLOCK TABLES;
