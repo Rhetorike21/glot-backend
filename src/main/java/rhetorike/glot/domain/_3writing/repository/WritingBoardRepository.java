@@ -26,4 +26,6 @@ public interface WritingBoardRepository extends JpaRepository<WritingBoard, Long
     List<WritingBoard> findAllByMembers(@Param("subscription") Subscription subscription);
 
     Optional<WritingBoard> findByIdAndUser(Long id, User user);
+
+    List<WritingBoard> findByUser(User user);
 }

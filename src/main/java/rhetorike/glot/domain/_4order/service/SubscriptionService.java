@@ -9,6 +9,7 @@ import rhetorike.glot.domain._2user.entity.OrganizationMember;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
 import rhetorike.glot.domain._2user.service.UserService;
+import rhetorike.glot.domain._3writing.service.WritingBoardService;
 import rhetorike.glot.domain._4order.dto.SubscriptionDto;
 import rhetorike.glot.domain._4order.entity.*;
 import rhetorike.glot.domain._4order.repository.OrderRepository;
@@ -30,6 +31,7 @@ public class SubscriptionService {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final OrderRepository orderRepository;
+    private final WritingBoardService writingBoardService;
 
     public void renewSubscription(Order newOrder, Subscription oldSubscription) {
         Subscription newSubscription = subscriptionRepository.save(Subscription.newSubscription(newOrder));
@@ -112,6 +114,9 @@ public class SubscriptionService {
     }
 
     public void deleteSubscriptionAndMembers(Subscription subscription) {
+        if (subscription == null){
+            return;
+        }
         deleteAllMembers(subscription);
         freeOrder(subscription.getOrder());
         subscriptionRepository.delete(subscription);
@@ -119,7 +124,10 @@ public class SubscriptionService {
 
     private void deleteAllMembers(Subscription subscription) {
         List<OrganizationMember> members = userRepository.findMemberBySubscription(subscription);
-        userRepository.deleteAll(members);
+        for (OrganizationMember member : members) {
+            writingBoardService.deleteAllBoardOfUser(member);
+            userRepository.delete(member);
+        }
     }
 
 

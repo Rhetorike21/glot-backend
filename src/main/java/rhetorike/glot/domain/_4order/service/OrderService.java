@@ -174,4 +174,12 @@ public class OrderService {
                 .refundAmount(refundAmount)
                 .build();
     }
+
+    public void deleteOrderAndSubscriptionOfUser(User user){
+        List<Order> orders = orderRepository.findByUserOrderByCreatedTimeDesc(user);
+        for (Order order : orders) {
+            subscriptionService.deleteSubscriptionAndMembers(order.getSubscription());
+            orderRepository.delete(order);
+        }
+    }
 }
