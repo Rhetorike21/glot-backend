@@ -9,12 +9,14 @@ import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import rhetorike.glot.domain._1auth.entity.MobileCertCode;
 import rhetorike.glot.global.error.exception.ConnectionFailedException;
 
 @Slf4j
 @Service
+@Primary
 public class CoolMobileCodeSender implements MobileCodeSender {
 
     @Value("${api.cool-sms.from-mobile}")
