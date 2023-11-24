@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import rhetorike.glot.domain._1auth.entity.MobileCertCode;
 import rhetorike.glot.domain._1auth.service.codesender.CodeSender;
 
-@Primary
 @Service
 public class BasicSmsCodeSender implements MobileCodeSender {
 
