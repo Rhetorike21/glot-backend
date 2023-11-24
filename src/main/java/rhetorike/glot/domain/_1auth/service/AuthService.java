@@ -13,6 +13,14 @@ import rhetorike.glot.domain._1auth.repository.certcode.CertCodeRepository;
 import rhetorike.glot.domain._2user.entity.OrganizationMember;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
+import rhetorike.glot.domain._3writing.entity.WritingBoard;
+import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
+import rhetorike.glot.domain._3writing.service.WritingBoardService;
+import rhetorike.glot.domain._4order.entity.Order;
+import rhetorike.glot.domain._4order.entity.Subscription;
+import rhetorike.glot.domain._4order.repository.OrderRepository;
+import rhetorike.glot.domain._4order.repository.SubscriptionRepository;
+import rhetorike.glot.domain._4order.service.OrderService;
 import rhetorike.glot.domain._4order.service.SubscriptionService;
 import rhetorike.glot.global.error.exception.*;
 import rhetorike.glot.global.security.jwt.AccessToken;
@@ -20,6 +28,7 @@ import rhetorike.glot.global.security.jwt.RefreshToken;
 import rhetorike.glot.global.util.dto.SingleParamDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -30,6 +39,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final BlockedTokenRepository blockedTokenRepository;
     private final SubscriptionService subscriptionService;
+    private final WritingBoardService writingBoardService;
+    private final OrderService orderService;
 
     /**
      * 서비스에 회원가입합니다.
@@ -81,7 +92,7 @@ public class AuthService {
         if (user instanceof OrganizationMember && user.getSubscription() == null) {
             throw new SubscriptionRequiredException();
         }
-        if (!user.isActive()){
+        if (!user.isActive()) {
             throw new InactiveUserException();
         }
     }
@@ -110,7 +121,11 @@ public class AuthService {
         blockTokens(accessToken, refreshToken);
 
         Long userId = Long.parseLong(accessToken.extractClaims().getSubject());
-        userRepository.deleteById(userId);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        orderService.deleteOrderAndSubscriptionOfUser(user);
+        writingBoardService.deleteAllBoardOfUser(user);
+        user.setSubscription(null);
+        userRepository.delete(user);
     }
 
     private void blockTokens(AccessToken accessToken, RefreshToken refreshToken) {

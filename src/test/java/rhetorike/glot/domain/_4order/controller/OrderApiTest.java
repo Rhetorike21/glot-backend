@@ -60,8 +60,8 @@ public class OrderApiTest extends IntegrationTest {
     private String password;
 
     @Test
-    @DisplayName("[베이직 요금제 구매]")
-    void orderBasicPlan() {
+    @DisplayName("[베이직 요금제 구매] - 개인 계정")
+    void orderBasicPlanPersonal() {
         //given
         String accessToken = getTokenFromNewUser().getAccessToken();
         BasicPlan basicPlan = planRepository.save(new BasicPlan(null, "베이직 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
@@ -81,10 +81,58 @@ public class OrderApiTest extends IntegrationTest {
     }
 
     @Test
-    @DisplayName("[엔터프라이즈 요금제 구매]")
-    void makeOrder() {
+    @DisplayName("[베이직 요금제 구매] - 기관 계정")
+    void orderBasicPlanOrganization() {
         //given
         String accessToken = getTokenFromNewOrganization().getAccessToken();
+        BasicPlan basicPlan = planRepository.save(new BasicPlan(null, "베이직 요금제 월간 결제", 100L, 100L, PlanPeriod.MONTH));
+        OrderDto.MakeRequest requestDto = new OrderDto.MakeRequest(basicPlan.getId(), 1, new Payment(cardNumber, expiry, birth, password));
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .body(requestDto)
+                .header(Header.AUTH, accessToken)
+                .contentType(ContentType.JSON)
+                .when().post(OrderController.MAKE_ORDER_URI)
+                .then().log().all()
+                .extract();
+
+        //then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @Test
+    @DisplayName("[엔터프라이즈 요금제 구매] - 기관 계정")
+    void orderEnterprisePlanOrg() {
+        //given
+        String accessToken = getTokenFromNewOrganization().getAccessToken();
+        Plan plan = planRepository.save(new EnterprisePlan(null, "월 엔터프라이즈 요금제", 100L, 100L, PlanPeriod.MONTH));
+        OrderDto.MakeRequest requestDto = new OrderDto.MakeRequest(plan.getId(), 3, new Payment(cardNumber, expiry, birth, password));
+
+        //when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .body(requestDto)
+                .header(Header.AUTH, accessToken)
+                .contentType(ContentType.JSON)
+                .when().post(OrderController.MAKE_ORDER_URI)
+                .then().log().all()
+                .extract();
+
+        //then
+        JsonPath jsonPath = response.jsonPath();
+        String orderId = jsonPath.getString("data");
+        Subscription subscription = orderRepository.findById(orderId).get().getSubscription();
+        Assertions.assertAll(
+                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value()),
+                () -> assertThat(subscription.getMembers()).hasSize(3)
+        );
+    }
+
+    @Test
+    @DisplayName("[엔터프라이즈 요금제 구매] - 개인 계정")
+    void orderEnterprisePlanPersonal() {
+        //given
+        String accessToken = getTokenFromNewUser().getAccessToken();
         Plan plan = planRepository.save(new EnterprisePlan(null, "월 엔터프라이즈 요금제", 100L, 100L, PlanPeriod.MONTH));
         OrderDto.MakeRequest requestDto = new OrderDto.MakeRequest(plan.getId(), 3, new Payment(cardNumber, expiry, birth, password));
 

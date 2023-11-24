@@ -15,8 +15,9 @@ public class SubscriptionRenewScheduler {
     private static final long FIXED_ONE_DAY = 1000L * 60 * 60 * 24;
     private static final long FIXED_TEN_YEAR = 1000L * 60 * 60 * 24 * 365 * 10;
     private static final long FIXED_ONE_MINUTE = 1000L * 60;
-    private static final String CRON_MIDNIGHT = "0 58 23 * * *";
     private static final String CRON_DAYBREAK = "0 59 4 * * *";
+    private static final String CRON_MIDNIGHT = "0 55 23 * * *";
+
     private final OrderService orderService;
     private final SubscriptionService subscriptionService;
 

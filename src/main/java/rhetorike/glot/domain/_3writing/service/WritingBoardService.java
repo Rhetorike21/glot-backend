@@ -122,4 +122,9 @@ public class WritingBoardService {
             throw new SubscriptionRequiredException();
         }
     }
+
+    public void deleteAllBoardOfUser(User user){
+        List<WritingBoard> writingBoards = writingBoardRepository.findByUser(user);
+        writingBoardRepository.deleteAll(writingBoards);
+    }
 }

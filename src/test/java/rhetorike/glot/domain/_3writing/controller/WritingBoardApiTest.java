@@ -10,12 +10,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import rhetorike.glot.domain._1auth.controller.AuthController;
+import rhetorike.glot.domain._1auth.dto.TokenDto;
 import rhetorike.glot.domain._3writing.dto.WritingBoardDto;
 import rhetorike.glot.domain._3writing.entity.WritingBoard;
 import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
 import rhetorike.glot.domain._4order.controller.MockPayIntegrationTest;
 import rhetorike.glot.domain._4order.entity.BasicPlan;
+import rhetorike.glot.domain._4order.entity.Order;
 import rhetorike.glot.domain._4order.entity.PlanPeriod;
+import rhetorike.glot.domain._4order.repository.OrderRepository;
 import rhetorike.glot.domain._4order.repository.PlanRepository;
 import rhetorike.glot.global.constant.Header;
 
@@ -34,6 +38,8 @@ public class WritingBoardApiTest extends MockPayIntegrationTest {
     PlanRepository planRepository;
     @Autowired
     WritingBoardRepository writingBoardRepository;
+    @Autowired
+    OrderRepository orderRepository;
 
     @Test
     @DisplayName("[작문 보드 저장] - 비회원: 신규 보드 저장 불가")
@@ -78,6 +84,9 @@ public class WritingBoardApiTest extends MockPayIntegrationTest {
                 () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value())
         );
     }
+
+
+
 
     @Test
     @DisplayName("[작문 보드 저장] - 기존 보드 수정")

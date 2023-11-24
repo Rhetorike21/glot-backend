@@ -15,6 +15,10 @@ import rhetorike.glot.domain._2user.entity.OrganizationMember;
 import rhetorike.glot.domain._2user.entity.Personal;
 import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._2user.reposiotry.UserRepository;
+import rhetorike.glot.domain._3writing.repository.WritingBoardRepository;
+import rhetorike.glot.domain._3writing.service.WritingBoardService;
+import rhetorike.glot.domain._4order.repository.OrderRepository;
+import rhetorike.glot.domain._4order.service.OrderService;
 import rhetorike.glot.domain._4order.service.SubscriptionService;
 import rhetorike.glot.global.error.exception.SubscriptionRequiredException;
 import rhetorike.glot.global.error.exception.WrongPasswordException;
@@ -24,6 +28,7 @@ import rhetorike.glot.global.security.jwt.RefreshToken;
 import rhetorike.glot.setup.ServiceTest;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,6 +52,10 @@ class AuthServiceTest {
     SubscriptionService subscriptionService;
     @Mock
     BlockedTokenRedisRepository blockedTokenRedisRepository;
+    @Mock
+    OrderService orderService;
+    @Mock
+    WritingBoardService writingBoardService;
 
     @Test
     @DisplayName("개인 사용자로 서비스에 회원가입한다.")
@@ -224,10 +233,12 @@ class AuthServiceTest {
         User user = Personal.builder().id(1L).build();
         String accessToken = AccessToken.generatedFrom(user).getContent();
         String refreshToken = RefreshToken.generatedFrom(user).getContent();
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
 
         //when
         authService.withdraw(accessToken, refreshToken);
 
         //then
+        verify(userRepository).findById(1L);
     }
 }
