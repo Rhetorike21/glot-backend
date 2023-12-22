@@ -13,6 +13,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
+import rhetorike.glot.domain._2user.entity.User;
 import rhetorike.glot.domain._4order.entity.Order;
 import rhetorike.glot.domain._4order.vo.Payment;
 import rhetorike.glot.global.error.exception.ConnectionFailedException;
@@ -75,7 +76,7 @@ public class PortOneClient {
         param.add("card_number", payment.getCardNumber()); //테스트 시 카드 정보 상관 없음
         param.add("expiry", payment.getExpiry());
         param.add("birth", payment.getBirthDate());
-        param.add("pwd_2digit", payment.getPassword());
+        param.add("buyer_name", order.getUser().getName());
 
         WebClient wc = createWebClient();
         String result = wc.method(HttpMethod.POST)
@@ -181,19 +182,19 @@ public class PortOneClient {
         return (PortOneResponse.Cancel) response;
     }
 
-    public PortOneResponse.IssueBillingKey issueBillingKey(Long userId, Payment payment) {
+    public PortOneResponse.IssueBillingKey issueBillingKey(User user, Payment payment) {
         LinkedMultiValueMap<String, String> param = new LinkedMultiValueMap<>();
         param.add("card_number", payment.getCardNumber()); //테스트 시 카드 정보 상관 없음
         param.add("expiry", payment.getExpiry());
         param.add("birth", payment.getBirthDate());
-        param.add("pwd_2digit", payment.getPassword());
+        param.add("customer_name", user.getName());
         WebClient wc = createWebClient();
         String result = wc.method(HttpMethod.POST)
                 .uri(uriBuilder -> uriBuilder
                         .scheme(HTTPS)
                         .host(HOST)
-                        .path(DELETE_BILLING_KEY)
-                        .build(userId)
+                        .path(BILLING_KEY_URI)
+                        .build(user.getId())
                 )
                 .header("Authorization", "Bearer " + issueToken().getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)

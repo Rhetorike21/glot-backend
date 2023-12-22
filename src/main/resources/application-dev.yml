@@ -44,8 +44,8 @@ spring:
     enabled: false
 api:
   port-one:
-    imp-key: 8164131572514411
-    imp-secret: 7oKrRXzWYmwaJJgmltYUwc226F23qnr4VHqZ4DEGyE2R3xF7CFffPNbkFh2MH0fyHPT3TirH7fuUmWqz
+    imp-key: 8013673665434435
+    imp-secret: 0EQjdQ5sbOSRNgO2p1yJfZvSAs2TXgLgkS4cXHieklkfk1olWCGHczP4GaOGfXJfXz1mqpZtqCa5QmoN
   cool-sms:
     api-key: NCSAKNHPLFIWORZK
     secret-key: UZRADMPIGSFTZ8HZAMHAPWPKDEHKBOW6

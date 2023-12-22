@@ -30,7 +30,7 @@ public class PayService {
 
 
     public void changePayMethod(User user, Payment payment) {
-        portOneClient.issueBillingKey(user.getId(), payment);
+        portOneClient.issueBillingKey(user, payment);
     }
 
     public void refund(Order order, long amount) {

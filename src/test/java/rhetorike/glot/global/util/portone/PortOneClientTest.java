@@ -55,7 +55,7 @@ class PortOneClientTest extends IntegrationTest {
     @DisplayName("[최초 결제 및 키 발급]")
     void payAndSaveBillingKey() {
         //given
-        User user = Personal.builder().id(1L).build();
+        User user = Personal.builder().id(1L).name("name").build();
         Plan plan = new BasicPlan(null, "test", 100,100L,  PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 1);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
@@ -72,14 +72,14 @@ class PortOneClientTest extends IntegrationTest {
     @DisplayName("[빌링키 발급]")
     void issueBillingKey() {
         //given
-        User user = Personal.builder().id(1L).build();
+        User user = Personal.builder().id(1L).name("name").build();
         Plan plan = new BasicPlan(null, "test", 100, 100L, PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 1);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
         portOneClient.payAndSaveBillingKey(order, payment);
 
         //when
-        PortOneResponse.IssueBillingKey response = portOneClient.issueBillingKey(user.getId(), payment);
+        PortOneResponse.IssueBillingKey response = portOneClient.issueBillingKey(user, payment);
         log.info("{}", response);
 
         //then
@@ -89,7 +89,7 @@ class PortOneClientTest extends IntegrationTest {
     @DisplayName("[빌링키 제거]")
     void deleteBillingKey() {
         //given
-        User user = Personal.builder().id(1L).build();
+        User user = Personal.builder().id(1L).name("name").build();
         Plan plan = new BasicPlan(null, "test", 100, 100L, PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 1);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
@@ -107,7 +107,7 @@ class PortOneClientTest extends IntegrationTest {
     @DisplayName("[결제 내역 조회]")
     void getPaymentsHistory() {
         //given
-        User user = Personal.builder().id(1L).build();
+        User user = Personal.builder().id(1L).name("name").build();
         Plan plan = new BasicPlan(null, "test", 100,100L,  PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 1);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
@@ -126,7 +126,7 @@ class PortOneClientTest extends IntegrationTest {
     @DisplayName("[모든 결제 내역 조회]")
     void getAllPaymentHistory() {
         //given
-        User user = Personal.builder().id(1L).build();
+        User user = Personal.builder().id(1L).name("name").build();
         Plan plan = new BasicPlan(null, "test", 100, 100L, PlanPeriod.MONTH);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
 
@@ -148,7 +148,7 @@ class PortOneClientTest extends IntegrationTest {
     @DisplayName("[재결제]")
     void payAgain() {
         //given
-        User user = Personal.builder().id(1L).build();
+        User user = Personal.builder().id(1L).name("name").build();
         Plan plan = new BasicPlan(null, "test", 100, 100L, PlanPeriod.MONTH);
         Order order1 = Order.newOrder(user, plan, 1);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
@@ -167,7 +167,7 @@ class PortOneClientTest extends IntegrationTest {
     @DisplayName("[환불]")
     void cancel() {
         //given
-        User user = Personal.builder().id(1L).build();
+        User user = Personal.builder().id(1L).name("name").build();
         Plan plan = new BasicPlan(null, "test", 100, 100L, PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 1);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
@@ -186,7 +186,7 @@ class PortOneClientTest extends IntegrationTest {
     @DisplayName("[부분 환불] : 테스트 MID 아닌 경우에만 가능")
     void cancelPartially() {
         //given
-        User user = Personal.builder().id(1L).build();
+        User user = Personal.builder().id(1L).name("name").build();
         Plan plan = new BasicPlan(null, "test", 100, 100L, PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 1);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
@@ -204,7 +204,7 @@ class PortOneClientTest extends IntegrationTest {
     @DisplayName("[빌링키 조회]")
     void getPayMethod() {
         //given
-        User user = Personal.builder().id(1L).build();
+        User user = Personal.builder().id(1L).name("name").build();
         Plan plan = new BasicPlan(null, "test", 100, 100L, PlanPeriod.MONTH);
         Order order = Order.newOrder(user, plan, 1);
         Payment payment = new Payment(cardNumber, expiry, birth, password);
