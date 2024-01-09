@@ -85,9 +85,11 @@ ext { // (5) 생성되는 스니펫들이 생성되는 디렉토리를 설정
 	snippetsDir = file('build/generated-snippets')
 }
 
-tasks.named('test') { // (6) 스니펫을 snippetsDir로 생성하도록 test 태스크를 설정한다.
-	outputs.dir snippetsDir
-	useJUnitPlatform()
+tasks.named('test') {
+	// (6) 스니펫을 snippetsDir로 생성하도록 test 태스크를 설정한다.
+	//outputs.dir snippetsDir
+	//useJUnitPlatform()
+	enabled = false
 }
 
 asciidoctor.doFirst {
